@@ -5,10 +5,15 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Subsystems.ExampleSubsystem;
+import frc.robot.Subsystems.DriveTrain.DriveTrain;
+import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
+import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -19,7 +24,26 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
+
+  public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
+  //check is need joystick inputs or not
+
+  private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
+  private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
+  private Joystick driver_controller = new Joystick(2);
+  private Joystick codriver_controller = new Joystick(3);
+  private Joystick simp_stick = new Joystick(4);
+
+  //
+
+  public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
+
+  public void updateSwerve() {
+    
+  }
+  
+  
+  //The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -51,13 +75,16 @@ public class RobotContainer {
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
+  /* 
+  public void updateSubsystemManager() {
+    SubsystemManager.instance.update(new JoystickInputs(
+                    simp_stick.getRawAxis(1), 
+                    simp_stick.getRawAxis(0), 
+                    simp_stick.getRawAxis(4)));
+  }
+  */
+
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return new InstantCommand();
   }
 }
