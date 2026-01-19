@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
-import com.ctre.phoenix6.Orchestra;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -30,8 +29,6 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -56,8 +53,6 @@ public abstract class DriveTrain extends SubsystemBase {
   protected StructArrayPublisher<SwerveModuleState> adv_real_states_pub, adv_target_states_pub;
   /** State publisher for AdvantageScope. */
   protected StructPublisher<Rotation2d> adv_gyro_pub;
-
-  public Orchestra orchestra;
 
   public SwerveModuleState[] tempStates;
 
@@ -373,30 +368,6 @@ public abstract class DriveTrain extends SubsystemBase {
 
     publishAdv();
 
-  }
-
-
-  public Command musicCommand(String filename, int tracks) {
-    return new FunctionalCommand(
-      () -> {
-        int t = 0;
-        for (SwerveModule module : modules) {
-            orchestra.addInstrument(((SwerveModuleRealIO)module).drive_motor, t++ % tracks); //increment track number by 1; reset when max tracks reached
-            orchestra.addInstrument(((SwerveModuleRealIO)module).steer_motor, t++ % tracks);
-        }
-        orchestra.loadMusic("Music/" + filename + ".chrp");
-        orchestra.play();
-        SmartDashboard.putString("Music", filename);},
-      () -> {},
-      canceled -> {
-        orchestra.stop();
-        SmartDashboard.putString("Music", " ");},
-      () -> !orchestra.isPlaying()
-    ).ignoringDisable(true);
-  }
-
-  public Command musicCommand(String filename) {
-    return musicCommand(filename, 8);
   }
 
   @Override
