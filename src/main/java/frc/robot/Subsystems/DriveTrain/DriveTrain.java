@@ -32,8 +32,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 public abstract class DriveTrain extends SubsystemBase {
+
+  public static final DriveTrain instance = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
 
   /** The drive train's SwerveModule objects. */
   public SwerveModule[] modules;

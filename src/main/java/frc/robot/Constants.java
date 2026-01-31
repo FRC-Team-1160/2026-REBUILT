@@ -37,6 +37,9 @@ public final class Constants {
     public static final int FRONT_RIGHT_CODER = 3;
     public static final int BACK_LEFT_CODER = 1;
     public static final int BACK_RIGHT_CODER = 5;
+
+    // for da intake
+    public static final int INTAKE_MOTOR = 123123; // idk we get to it when we get to it
   }
 
   public static class IO {
