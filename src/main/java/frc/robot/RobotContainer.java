@@ -5,7 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-// import frc.robot.Subsystems.ExampleSubsystem;
+import frc.robot.SubsystemManager;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
@@ -30,41 +30,12 @@ public class RobotContainer {
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
 
-  // private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
-  // private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
-  // private Joystick driver_controller = new Joystick(2);
-  // private Joystick codriver_controller = new Joystick(3);
-  private Joystick simp_stick = new Joystick(4);
+  private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
+  private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
 
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
-
-  public void updateSwerve() {
-     double rightStickUpDown = simp_stick.getRawAxis(5);
-    SmartDashboard.putNumber("joystick_axis_5", rightStickUpDown);
-
-    double x_metersPerSecond = (Math.abs(simp_stick.getRawAxis(5)) < 0.1) ? 0 : 1.5 * simp_stick.getRawAxis(5);
-    SmartDashboard.putNumber("x_mps", x_metersPerSecond);
-
-    double rightStickLeftRight = simp_stick.getRawAxis(4);
-    SmartDashboard.putNumber("joystick_axis_4", rightStickLeftRight);
-
-    double y_metersPerSecond = (Math.abs(simp_stick.getRawAxis(4)) < 0.1) ? 0 : 1.5 * simp_stick.getRawAxis(4);
-    SmartDashboard.putNumber("y_mps", y_metersPerSecond);
-
-    double leftStickLeftRight = simp_stick.getRawAxis(0);
-    double angle_radiansPerSecond =  (Math.abs(simp_stick.getRawAxis(0)) < 0.2) ? 0 : Math.signum(simp_stick.getRawAxis(0)) * -1.5
-    * Math.pow(simp_stick.getRawAxis(0), 2);
-    SmartDashboard.putNumber("axis_0", leftStickLeftRight);
-    SmartDashboard.putNumber("angle", angle_radiansPerSecond);
-
-    m_drive.setSwerveDrive(
-      x_metersPerSecond, 
-      y_metersPerSecond, 
-      angle_radiansPerSecond
-      );
-  }
   
   
   //The robot's subsystems and commands are defined here...
@@ -90,10 +61,22 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-System.out.println("BINDINGS CONFIGURED");
-    new JoystickButton(simp_stick, 8).onTrue(
-      new InstantCommand(m_drive::resetGyroAngle)
+    new JoystickButton(main_stick, 8).onTrue(
+      new InstantCommand(DriveTrain.instance::resetGyroAngle)
     );
+
+    new JoystickButton(second_stick, 0).whileTrue(
+      getAutonomousCommand()
+      //obviously we dont have an intake setup right now so we havent coded anything for it
+      //but heres what im thinking
+      //since according to jessie its just the one motor
+      //we just do it so like when X button is pressed we set the voltage
+      //and multiply it by (second_stick.getRawButtonPressed(x)) ? -1 : 1;
+      //so like we can reverse it if theyre pressing another button ykkkkk
+    );
+
+    //i would hypothesize functionality of more subsystems
+    //but i dont even think we have a good idea of how theyd work yet 1/30/26
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     //new Trigger(m_exampleSubsystem::exampleCondition)
@@ -104,14 +87,12 @@ System.out.println("BINDINGS CONFIGURED");
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
-  /* 
   public void updateSubsystemManager() {
     SubsystemManager.instance.update(new JoystickInputs(
-                    simp_stick.getRawAxis(1), 
-                    simp_stick.getRawAxis(0), 
-                    simp_stick.getRawAxis(4)));
+                    main_stick.getRawAxis(5) * (main_stick.getRawButton(6) ? 0.4 : 1), 
+                    main_stick.getRawAxis(4) * (main_stick.getRawButton(6) ? 0.4 : 1), 
+                    main_stick.getRawAxis(0) * (main_stick.getRawButton(6) ? 0.5 : 1)));
   }
-  */
 
   public Command getAutonomousCommand() {
     return new InstantCommand();
