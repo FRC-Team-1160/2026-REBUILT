@@ -21,6 +21,16 @@ public final class Constants {
     public static final double LOOP_TIME_SECONDS = 0.02;
   }
 
+  public static class HopperConstants {
+    public static final int AGITATOR_PORT = -1;
+    public static final double AGITATOR_VOLTAGE = 1;
+  }
+
+  public static class IntakeConstants {
+    public static final int INTAKE_PORT = -1;
+    public static final double INTAKE_VOLTAGE = 1;
+  }
+
   public static final class Port {
     // CAN IDs 
     public static final int STEER_MOTOR_FRONT_LEFT = 7;
