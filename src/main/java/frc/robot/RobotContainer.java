@@ -10,7 +10,6 @@ import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
-import frc.robot.Subsystems.Intake.IntakeStates;
 import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
@@ -79,26 +78,26 @@ public class RobotContainer {
     );
 
     // intake
-    new JoystickButton(main_stick, -1).whileTrue(
+    new JoystickButton(second_stick, -1).whileTrue(
       new StartEndCommand(
         () -> m_intake.runIntake(true),
         () -> m_intake.runIntake(false)
-      ).until(() -> main_stick.getRawButton(-2))
+      )
     );
 
     /*
 
     new JoystickButton(main_stick, 0).whileTrue(
       new RunCommand(() -> {
-        if (main_stick.getRawButton(0)) m_intake.runIntake(IntakeStates.BACKWARD);
-        else m_intake.runIntake(IntakeStates.FORWARD);
-      }).finallyDo((interrupted) -> m_intake.runIntake(IntakeStates.OFF))
+        if (main_stick.getRawButton(0)) m_intake.runIntake(true, false);
+        else m_intake.runIntake(true, true);
+      }).finallyDo((interrupted) -> m_intake.runIntake(false))
     );
 
     */
 
     // agitator
-    new JoystickButton(main_stick, -1).whileTrue(
+    new JoystickButton(second_stick, -1).whileTrue(
       new StartEndCommand(
         () -> m_hopper.runAgitator(true),
         () -> m_hopper.runAgitator(false)

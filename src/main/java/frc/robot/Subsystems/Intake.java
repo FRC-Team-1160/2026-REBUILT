@@ -39,9 +39,10 @@ public class Intake extends SubsystemBase implements VoltageGetter {
     }
 
     public void runIntake(boolean on, boolean forward) {
-        double dir;
+        double dir = forward ? 1 : -1;
+        double voltage = on ? IntakeConstants.INTAKE_VOLTAGE : 0;
 
-        forward ? dir = 1 : dir = -1;
+        setIntakeVoltage(voltage * dir);
     }
 
     /* 
