@@ -6,22 +6,28 @@ import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.VoltageGetter;
 
 import static frc.robot.Constants.HopperConstants;
 
-public class Hopper extends SubsystemBase {
+public class Hopper extends SubsystemBase implements VoltageGetter {
+
     private TalonFX m_agitator = new TalonFX(HopperConstants.AGITATOR_PORT);
 
     public Hopper() {
 
     }
 
-    public void runAgitator(boolean onOff) {
-        if (onOff) m_agitator.setControl(new VoltageOut(HopperConstants.AGITATOR_VOLTAGE));
-        else m_agitator.setControl(new VoltageOut(0));
+    public void setAgitatorVoltage(double voltage) {
+        m_agitator.setControl(new VoltageOut(voltage));
     }
 
+    public void runAgitator(boolean onOff) {
+        if (onOff) setAgitatorVoltage(HopperConstants.AGITATOR_VOLTAGE);
+        else setAgitatorVoltage(0);
+    }
+
+    @Override
     public double getVoltageUsed() {
         return m_agitator.getMotorVoltage().getValueAsDouble();
     }

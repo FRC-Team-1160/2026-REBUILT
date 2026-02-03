@@ -41,11 +41,13 @@ public class DriveTrainRealIO extends DriveTrain {
     super.periodic();
 
     // confused
+    /*
     for (SwerveModule module : modules) {
       if (module instanceof SwerveModuleRealIO) {
         
       }
     }
+      */
   }
 
   @Override

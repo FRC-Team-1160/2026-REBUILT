@@ -6,10 +6,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 // import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.VoltageGetter;
 
 import static frc.robot.Constants.IntakeConstants;
 
-public class Intake extends SubsystemBase {
+public class Intake extends SubsystemBase implements VoltageGetter {
+    /* 
+    public enum IntakeStates {
+        OFF,
+        FORWARD,
+        BACKWARD
+    }
+        */
+
     private TalonFX m_intake = new TalonFX(IntakeConstants.INTAKE_PORT);
 
     // private double voltageUsed = 0;
@@ -23,19 +32,40 @@ public class Intake extends SubsystemBase {
     }
 
     // would be better for commands to use this method instead
+    // unless we want it to go backward
     public void runIntake(boolean on) {
         if (on) setIntakeVoltage(IntakeConstants.INTAKE_VOLTAGE);
         else setIntakeVoltage(0);
     }
 
+    public void runIntake(boolean on, boolean forward) {
+        double dir;
+
+        forward ? dir = 1 : dir = -1;
+    }
+
+    /* 
+    // probably dont use
+    public void runIntake(IntakeStates currentState) {
+        double voltage = 0;
+
+        switch (currentState) {
+            case FORWARD -> voltage = IntakeConstants.INTAKE_VOLTAGE;
+            case BACKWARD -> voltage = -IntakeConstants.INTAKE_VOLTAGE;
+            case OFF -> voltage = 0;
+        }
+
+        setIntakeVoltage(voltage);
+    }
+        */
     
+    @Override
     public double getVoltageUsed() {
         return m_intake.getMotorVoltage().getValueAsDouble();
     }
 
     @Override
     public void periodic() {
-        double voltageUsed = getVoltageUsed();
-        SmartDashboard.putNumber("Intake Voltage", voltageUsed);
+        SmartDashboard.putNumber("Intake Voltage", getVoltageUsed());
     }
 }
