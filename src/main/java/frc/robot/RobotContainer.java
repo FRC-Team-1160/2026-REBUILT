@@ -6,10 +6,10 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Subsystems.Hopper;
-import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
+import frc.robot.Subsystems.Intake.Intake;
 import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
@@ -42,7 +42,7 @@ public class RobotContainer {
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
 
-  public final Intake m_intake = new Intake();
+  // public final Intake m_intake = new Intake();
   public final Hopper m_hopper = new Hopper();
 
   public final VoltageManager voltageManager = new VoltageManager();
@@ -80,8 +80,8 @@ public class RobotContainer {
     // intake
     new JoystickButton(second_stick, -1).whileTrue(
       new StartEndCommand(
-        () -> m_intake.runIntake(true),
-        () -> m_intake.runIntake(false)
+        () -> Intake.instance.runIntake(true, true),
+        () -> Intake.instance.runIntake(false, true)
       )
     );
 
@@ -99,8 +99,8 @@ public class RobotContainer {
     // agitator
     new JoystickButton(second_stick, -1).whileTrue(
       new StartEndCommand(
-        () -> m_hopper.runAgitator(true),
-        () -> m_hopper.runAgitator(false)
+        () -> m_hopper.runAgitator(true, true),
+        () -> m_hopper.runAgitator(false, true)
       )
     );
 

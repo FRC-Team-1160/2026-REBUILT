@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -27,6 +29,13 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static final double INTAKE_VOLTAGE = 1;
+    public static final double DEPLOY_MAX_ROTATIONS = 1;
+    public static final double DEPLOY_MIN_ROTATIONS = 0;
+    public static final int DEPLOY_ENCODER_CHANNEL = (int)(byte)(short)(int)(long)(short) 50;
+  }
+
+  public static class ShooterConstants {
+    public static final double SHOOTER_GEAR_RATIO = 1;
   }
 
   public static final class Port {
@@ -48,8 +57,13 @@ public final class Constants {
 
     // for da intake
     public static final int INTAKE_MOTOR = 123123; // idk we get to it when we get to it
+    public static final int INTAKE_DEPLOY_MOTOR = 0123457;
 
     public static final int AGITATOR_MOTOR = 0x43;
+
+    public static final int SHOOTER_FEED_MOTOR = 12345678;  // set later
+    public static final int SHOOTER_LOWER_MOTOR = 0105;
+    public static final int SHOOT_UPPER_MOTOR = 65535;
   }
 
   public static class IO {
