@@ -39,15 +39,6 @@ public class DriveTrainRealIO extends DriveTrain {
   public void periodic() {
     //the child periodic() method overrides the parent class periodic(), which has to be explicitly called
     super.periodic();
-
-    // confused
-    /*
-    for (SwerveModule module : modules) {
-      if (module instanceof SwerveModuleRealIO) {
-        
-      }
-    }
-      */
   }
 
   @Override

@@ -14,7 +14,7 @@ package frc.robot;
  */
 public final class Constants {
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+    // public static final int kDriverControllerPort = 0;
   }
 
   public static class Robot {
@@ -22,12 +22,10 @@ public final class Constants {
   }
 
   public static class HopperConstants {
-    public static final int AGITATOR_PORT = -1;
     public static final double AGITATOR_VOLTAGE = 1;
   }
 
   public static class IntakeConstants {
-    public static final int INTAKE_PORT = -1;
     public static final double INTAKE_VOLTAGE = 1;
   }
 
@@ -50,6 +48,8 @@ public final class Constants {
 
     // for da intake
     public static final int INTAKE_MOTOR = 123123; // idk we get to it when we get to it
+
+    public static final int AGITATOR_MOTOR = 0x43;
   }
 
   public static class IO {
@@ -95,7 +95,7 @@ public final class Constants {
   public static class Swerve {
     public static final double WHEEL_DIAMETER = 4 * 0.0254 * Math.PI;
     public static final double GEAR_RATIO = 6.75; // 5.01;
-    public static final double OFFSET = 23.75 * 0.0254;
+    public static final double OFFSET = 23.75 * 0.0254;  // meters
 
     public static final double MAX_SPEED = 5;
     public static final double DRIVE_SPEED = 0.5;

@@ -11,8 +11,8 @@ public class VoltageManager {
     public double getTotalVoltageUsed() {
         double totalVoltageUsed = 0;
 
-        for (VoltageGetter cantThinkOfVariableName : subsystemsUsingVoltage) {
-            totalVoltageUsed += cantThinkOfVariableName.getVoltageUsed();
+        for (VoltageGetter subsystem : subsystemsUsingVoltage) {
+            totalVoltageUsed += subsystem.getVoltageUsed();
         }
 
         return totalVoltageUsed;

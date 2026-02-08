@@ -40,8 +40,6 @@ public class RobotContainer {
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
 
-  //
-
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
 
   public final Intake m_intake = new Intake();
@@ -54,8 +52,10 @@ public class RobotContainer {
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
+  /*
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  */
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
