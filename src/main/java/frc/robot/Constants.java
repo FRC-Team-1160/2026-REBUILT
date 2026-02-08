@@ -21,16 +21,25 @@ public final class Constants {
     public static final double LOOP_TIME_SECONDS = 0.02;
   }
 
+public static class IntakeConstants{
+  public static final double EXTENDER_SPEED_LIMIT = 0.1;
+  public static final double EXTENDER_GEAR_RATIO = 40;
+  public static final double POSITION_CONVERSION = (Math.PI * 0.04572)/EXTENDER_GEAR_RATIO;
+  public static final int EXTENDER_CURRENT_LIMIT = 20;
+  public static final double EXTENSION_MAX = 0.0;
+  public static final double EXTENSION_MIN = 0.2;
+}
+
   public static final class Port {
     // CAN IDs 
-    public static final int STEER_MOTOR_FRONT_LEFT = 7;
+    public static final int STEER_MOTOR_FRONT_LEFT = 1;
     public static final int STEER_MOTOR_FRONT_RIGHT = 3;
-    public static final int STEER_MOTOR_BACK_LEFT = 1;
-    public static final int STEER_MOTOR_BACK_RIGHT = 5;
+    public static final int STEER_MOTOR_BACK_LEFT = 4;
+    public static final int STEER_MOTOR_BACK_RIGHT = 2;
 
     public static final int DRIVE_MOTOR_FRONT_LEFT = 8;
-    public static final int DRIVE_MOTOR_FRONT_RIGHT = 4;
-    public static final int DRIVE_MOTOR_BACK_LEFT = 2;
+    public static final int DRIVE_MOTOR_FRONT_RIGHT = 7;
+    public static final int DRIVE_MOTOR_BACK_LEFT = 10;
     public static final int DRIVE_MOTOR_BACK_RIGHT = 6;
 
     public static final int FRONT_LEFT_CODER = 7;
@@ -39,12 +48,17 @@ public final class Constants {
     public static final int BACK_RIGHT_CODER = 5;
 
     // for da intake
-    public static final int INTAKE_MOTOR = 123123; // idk we get to it when we get to it
+    public static final int INTAKE_EXTENDER_MOTOR = 25; // idk we get to it when we get to it
+
+    // for da shooter
+    public static final int SHOOTER_FEEDER_MOTOR = 1234;
+    public static final int SHOOTER_TOP_ROLLER_MOTOR = 12345;
+    public static final int SHOOTER_BOTTOM_ROLLER_MOTOR   = 123456;
   }
 
   public static class IO {
     public static final int MAIN_PORT = 0;
-    public static final int COPILOT_PORT = 1;
+    public static final int COPILOT_PORT = 1; // reset to 1
     public static final int LEFT_BOARD_PORT = 2;
     public static final int RIGHT_BOARD_PORT = 3;
 
@@ -122,4 +136,8 @@ public final class Constants {
     public static final double rotation_kD = 0d;
   }
 
+  public static class FieldConstants {
+    public static final double MAX_SHOT_ARC_HEIGHT_METERS = 5;
+    public static final double HUB_TARGET_HEIGHT_METERS = 3;
+  }
 }

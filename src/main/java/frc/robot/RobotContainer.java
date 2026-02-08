@@ -11,6 +11,7 @@ import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,6 +19,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Subsystems.Intake.Intake;
+import frc.robot.Constants.IntakeConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -36,6 +40,7 @@ public class RobotContainer {
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
+  public final Intake intake = new Intake();
   
   
   //The robot's subsystems and commands are defined here...
@@ -65,7 +70,15 @@ public class RobotContainer {
       new InstantCommand(DriveTrain.instance::resetGyroAngle)
     );
 
-    new JoystickButton(second_stick, 0).whileTrue(
+    /*
+    new JoystickButton(main_stick, 3).onTrue(
+      new InstantCommand(Intake.instance::extend)
+    ); 
+    */
+
+
+    /*
+    new JoystickButton(second_stick, 1).whileTrue(
       getAutonomousCommand()
       //obviously we dont have an intake setup right now so we havent coded anything for it
       //but heres what im thinking
@@ -74,6 +87,7 @@ public class RobotContainer {
       //and multiply it by (second_stick.getRawButtonPressed(x)) ? -1 : 1;
       //so like we can reverse it if theyre pressing another button ykkkkk
     );
+    */
 
     //i would hypothesize functionality of more subsystems
     //but i dont even think we have a good idea of how theyd work yet 1/30/26
@@ -89,12 +103,12 @@ public class RobotContainer {
 
   public void updateSubsystemManager() {
     SubsystemManager.instance.update(new JoystickInputs(
-                    main_stick.getRawAxis(5) * (main_stick.getRawButton(6) ? 0.4 : 1), 
-                    main_stick.getRawAxis(4) * (main_stick.getRawButton(6) ? 0.4 : 1), 
-                    main_stick.getRawAxis(0) * (main_stick.getRawButton(6) ? 0.5 : 1)));
+                    main_stick.getRawAxis(0) * (main_stick.getRawButton(6) ? 0.4 : 1), 
+                    main_stick.getRawAxis(1) * (main_stick.getRawButton(6) ? 0.4 : 1), 
+                    main_stick.getRawAxis(4) * (main_stick.getRawButton(6) ? 0.5 : 1)));
   }
 
   public Command getAutonomousCommand() {
     return new InstantCommand();
-  }
+  } 
 }
