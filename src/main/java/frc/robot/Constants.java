@@ -29,9 +29,9 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static final double INTAKE_VOLTAGE = 1;
+
     public static final double DEPLOY_MAX_ROTATIONS = 1;
     public static final double DEPLOY_MIN_ROTATIONS = 0;
-    public static final int DEPLOY_ENCODER_CHANNEL = (int)(byte)(short)(int)(long)(short) 50;
   }
 
   public static class ShooterConstants {
@@ -56,8 +56,8 @@ public final class Constants {
     public static final int BACK_RIGHT_CODER = 5;
 
     // for da intake
-    public static final int INTAKE_MOTOR = 123123; // idk we get to it when we get to it
-    public static final int INTAKE_DEPLOY_MOTOR = 0123457;
+    public static final int INTAKE_MOTOR = 26;
+    public static final int INTAKE_DEPLOY_MOTOR = 25;
 
     public static final int AGITATOR_MOTOR = 0x43;
 

@@ -19,7 +19,7 @@ public class Shooter  extends SubsystemBase {
     // starting with basic stuff
     private TalonFX feed_motor, shoot_lower, shoot_upper;
 
-    public static final Shooter instance = new Shooter();
+    // public static final Shooter instance = new Shooter();
 
     private Shooter() {
         feed_motor = new TalonFX(Port.SHOOTER_FEED_MOTOR);

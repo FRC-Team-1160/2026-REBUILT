@@ -1,58 +1,72 @@
 package frc.robot.Subsystems.Intake;
 
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.AlternateEncoderConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.wpilibj.DutyCycle;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.Port;
 
 import static frc.robot.Constants.IntakeConstants;
 import static frc.robot.Constants.Port;
 
 public class IntakeRealIO extends Intake {
 
-    private TalonFX intake_motor = new TalonFX(Port.INTAKE_MOTOR);
-    private TalonFX deploy_motor = new TalonFX(Port.INTAKE_DEPLOY_MOTOR);
+    // i swear i saw a third sparkmax motor controller
+    private SparkMax intake_motor = new SparkMax(Port.INTAKE_MOTOR, MotorType.kBrushless);
+    private SparkMax deploy_motor = new SparkMax(Port.INTAKE_DEPLOY_MOTOR, MotorType.kBrushless);
 
-    // will change later to actual encoder
-    private DutyCycleEncoder deploy_encoder = new DutyCycleEncoder(IntakeConstants.DEPLOY_ENCODER_CHANNEL);
+    // private SparkRelativeEncoder deploy_encoder = deploy_motor.getAlternateEncoder();
+    private SparkAbsoluteEncoder deploy_encoder = deploy_motor.getAbsoluteEncoder();
 
-    // idk how theyre going to deploy the intake
+    protected IntakeRealIO() {
+        // the motor might actually have an alternate encoder 
+        AbsoluteEncoderConfig encoder_config = new AbsoluteEncoderConfig()
+        .positionConversionFactor(1);
 
-    // public static final Intake instance = new Intake();
+        // make a motor config and apply the encoder config to its encoder
+        SparkMaxConfig motor_config = new SparkMaxConfig();
+        motor_config.absoluteEncoder.apply(encoder_config);
 
-    protected IntakeRealIO() {}
-
+        // i have no idea what these parameters mean
+        deploy_motor.configure(motor_config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+    
+    // neo : pinion 40:1 maybe??
+    @Override
     public void setDeployVoltage(double voltage) {
-        double motor_rps = deploy_motor.getVelocity().getValueAsDouble();
+        double motor_rpm = deploy_encoder.getVelocity();
+        double motor_pos = deploy_encoder.getPosition();
 
-        if (deploy_encoder.get() < IntakeConstants.DEPLOY_MIN_ROTATIONS && motor_rps > 0)
-            return;
+        if (motor_pos < IntakeConstants.DEPLOY_MIN_ROTATIONS && motor_rpm > 0) {
+            voltage = 0;
+        } else if (motor_pos > IntakeConstants.DEPLOY_MAX_ROTATIONS && motor_rpm < 0) {
+            voltage = 0;
+        }    
 
-        if (deploy_encoder.get() > IntakeConstants.DEPLOY_MAX_ROTATIONS && motor_rps < 0)
-            return; 
-
-        deploy_motor.setControl(new VoltageOut(voltage));
+        deploy_motor.setVoltage(voltage);
     }
 
     @Override
     public void setIntakeVoltage(double voltage) {
-        intake_motor.setControl(new VoltageOut(voltage));
-    }
-
-    // would be better for commands to use this method instead
-    // unless we want it to go backward
-    public void runIntake(boolean on) {
-        if (on) setIntakeVoltage(IntakeConstants.INTAKE_VOLTAGE);
-        else setIntakeVoltage(0);
+        intake_motor.setVoltage(voltage);
     }
 
     @Override
+    public void runIntake(boolean on) {runIntake(on, true);}
+
+    @Override
     public void runIntake(boolean on, boolean forward) {
+        SmartDashboard.putBoolean("Intake Command", on);
+
         double dir = forward ? 1 : -1;
         double voltage = on ? IntakeConstants.INTAKE_VOLTAGE : 0;
 
@@ -60,15 +74,15 @@ public class IntakeRealIO extends Intake {
     }
     
     public double getVoltageUsed() {
-        return intake_motor.getMotorVoltage().getValueAsDouble() +
-            deploy_motor.getMotorVoltage().getValueAsDouble();
+        return intake_motor.getBusVoltage() +
+            deploy_motor.getBusVoltage();
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Intake Voltage", getVoltageUsed());
         
-        SmartDashboard.putNumber("Intake Deploy Position", deploy_encoder.get());
-        SmartDashboard.putNumber("Intake Deploy Speed", deploy_motor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Intake Deploy Position", deploy_encoder.getPosition());
+        SmartDashboard.putNumber("Intake Deploy Velocity", deploy_encoder.getVelocity());
     }
 }

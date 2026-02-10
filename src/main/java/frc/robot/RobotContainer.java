@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -43,7 +44,7 @@ public class RobotContainer {
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
 
   // public final Intake m_intake = new Intake();
-  public final Hopper m_hopper = new Hopper();
+  // public final Hopper m_hopper = new Hopper();
 
   public final VoltageManager voltageManager = new VoltageManager();
   
@@ -61,6 +62,9 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    // hoping to debug and make sure command is working
+    SmartDashboard.putBoolean("Intake Command", false);
   }
 
   /**
@@ -77,8 +81,8 @@ public class RobotContainer {
       new InstantCommand(DriveTrain.instance::resetGyroAngle)
     );
 
-    // intake
-    new JoystickButton(second_stick, -1).whileTrue(
+    // intake forward
+    new JoystickButton(second_stick, 3).whileTrue(
       new StartEndCommand(
         () -> Intake.instance.runIntake(true, true),
         () -> Intake.instance.runIntake(false, true)
@@ -86,23 +90,25 @@ public class RobotContainer {
     );
 
     /*
-
     new JoystickButton(main_stick, 0).whileTrue(
       new RunCommand(() -> {
-        if (main_stick.getRawButton(0)) m_intake.runIntake(true, false);
-        else m_intake.runIntake(true, true);
-      }).finallyDo((interrupted) -> m_intake.runIntake(false))
+        if (main_stick.getRawButton(0)) Intake.instance.runIntake(true, false);
+        else Intake.instance.runIntake(true, true);
+      }).finallyDo((interrupted) -> Intake.instance.runIntake(false, true))
     );
-
     */
 
+    
+
     // agitator
+    /*
     new JoystickButton(second_stick, -1).whileTrue(
       new StartEndCommand(
         () -> m_hopper.runAgitator(true, true),
         () -> m_hopper.runAgitator(false, true)
       )
     );
+    */
 
     new JoystickButton(second_stick, 0).whileTrue(
       getAutonomousCommand()
