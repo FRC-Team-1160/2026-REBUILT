@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.Constants.Swerve;
 
 public abstract class DriveTrain extends SubsystemBase {
 
@@ -85,7 +86,7 @@ public abstract class DriveTrain extends SubsystemBase {
         Constants.Port.FRONT_RIGHT_CODER);
     modules[2] = initializeModule(Constants.Port.DRIVE_MOTOR_BACK_LEFT, Constants.Port.STEER_MOTOR_BACK_LEFT,
         Constants.Port.BACK_LEFT_CODER);
-    modules[3] = initializeModule(Constants.Port.DRIVE_MOTOR_BACK_RIGHT, Constants.Port.STEER_MOTOR_BACK_LEFT,
+    modules[3] = initializeModule(Constants.Port.DRIVE_MOTOR_BACK_RIGHT, Constants.Port.STEER_MOTOR_BACK_RIGHT,
         Constants.Port.BACK_RIGHT_CODER);
 
     module_states = new SwerveModuleState[] {
@@ -111,7 +112,7 @@ public abstract class DriveTrain extends SubsystemBase {
     } catch (IOException | ParseException e) {
       e.printStackTrace();
       return;
-    }
+    }/*
     AutoBuilder.configure(
         () -> odom_pose,
         pose_estimator::resetPose,
@@ -130,7 +131,7 @@ public abstract class DriveTrain extends SubsystemBase {
           return false;
         },
         this // Reference to this subsystem to set requirements
-    );
+    );*/
 
     setupDashboard();
   }
@@ -158,7 +159,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public void setSwerveDrive(double x_metersPerSecond, double y_metersPerSecond, double a_radiansPerSecond) {
     // converts speeds from field's frame of reference to robot's frame of reference
     ChassisSpeeds chassis_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-        x_metersPerSecond,
+        -1 * Swerve.DRIVE_SPEED,//x_metersPerSecond,
         y_metersPerSecond,
         a_radiansPerSecond,
         getGyroAngle());

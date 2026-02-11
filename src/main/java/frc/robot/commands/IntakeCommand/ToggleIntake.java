@@ -18,5 +18,3 @@ public class ToggleIntake extends InstantCommand {
         intake.toggle();
     }
 }
-
-
