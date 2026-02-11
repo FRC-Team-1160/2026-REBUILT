@@ -8,7 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
-import frc.robot.SubsystemManager;
+// import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeCommand.ToggleIntake;
@@ -40,20 +40,43 @@ public class RobotContainer {
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
-  public final Intake intake = new Intake();
+  public final Intake m_intake = new Intake();
   
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+  }
+
+    public void updateSwerve() {
+    //double rightStickUpDown = main_stick.getRawAxis(5);
+    //SmartDashboard.putNumber("joystick_axis_5", rightStickUpDown);
+
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * OperatorConstants.reverseControls * main_stick.getRawAxis(0);
+    SmartDashboard.putNumber("x_mps", x_metersPerSecond);
+
+    //double rightStickLeftRight = main_stick.getRawAxis(4);
+    //SmartDashboard.putNumber("joystick_axis_4", rightStickLeftRight);
+
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * OperatorConstants.reverseControls * -main_stick.getRawAxis(1);
+    //SmartDashboard.putNumber("y_mps", y_metersPerSecond);
+
+    //double leftStickLeftRight = main_stick.getRawAxis(0);
+    double angle_radiansPerSecond =  (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : OperatorConstants.reverseControls * Math.signum(main_stick.getRawAxis(4)) * 1.5
+    * Math.pow(main_stick.getRawAxis(4), 2);
+    //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
+    //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
+
+    m_drive.setSwerveDrive(
+      x_metersPerSecond, 
+      y_metersPerSecond, 
+      angle_radiansPerSecond
+      );
+  
   }
 
   /**
@@ -63,21 +86,22 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
    * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
+   * joysticks}
    */
+
   private void configureBindings() {
     new JoystickButton(main_stick, 8).onTrue(
-      new InstantCommand(DriveTrain.instance::resetGyroAngle)
+      new InstantCommand(m_drive::resetGyroAngle)
     );
 
-    /*
     new JoystickButton(main_stick, 3).onTrue(
-      new InstantCommand(Intake.instance::extend)
+      new InstantCommand(m_intake::extend)
     ); 
-    */
 
+    new JoystickButton(main_stick, 4).onTrue(
+      new InstantCommand(m_intake::runIntake)
+    ); 
 
-    /*
     new JoystickButton(second_stick, 1).whileTrue(
       getAutonomousCommand()
       //obviously we dont have an intake setup right now so we havent coded anything for it
@@ -87,7 +111,6 @@ public class RobotContainer {
       //and multiply it by (second_stick.getRawButtonPressed(x)) ? -1 : 1;
       //so like we can reverse it if theyre pressing another button ykkkkk
     );
-    */
 
     //i would hypothesize functionality of more subsystems
     //but i dont even think we have a good idea of how theyd work yet 1/30/26
@@ -99,13 +122,6 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-  }
-
-  public void updateSubsystemManager() {
-    SubsystemManager.instance.update(new JoystickInputs(
-                    main_stick.getRawAxis(0) * (main_stick.getRawButton(6) ? 0.4 : 1), 
-                    main_stick.getRawAxis(1) * (main_stick.getRawButton(6) ? 0.4 : 1), 
-                    main_stick.getRawAxis(4) * (main_stick.getRawButton(6) ? 0.5 : 1)));
   }
 
   public Command getAutonomousCommand() {

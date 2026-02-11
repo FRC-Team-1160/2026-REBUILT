@@ -22,6 +22,11 @@ public class Intake extends SubsystemBase {
     private final SparkMaxConfig extenderMotorConfig;
     private final AlternateEncoderConfig extenderEncoderConfig;
 
+    private final SparkMax intakeMotor;
+    private final RelativeEncoder intakeEncoder;
+    private final SparkMaxConfig intakeMotorConfig;
+    private final AlternateEncoderConfig intakeEncoderConfig;
+
     private boolean isExtendedToggle = false; 
 
     public Intake() {
@@ -40,26 +45,47 @@ public class Intake extends SubsystemBase {
         encoder = extenderMotor.getEncoder();
         encoder.setPosition(0);
         extenderMotor.configure(extenderMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+
+        // alalalalalallalala yayayayay
+
+        intakeMotor = new SparkMax(Port.INTAKE_MOTOR, MotorType.kBrushless);
+        intakeMotorConfig = new SparkMaxConfig();
+        intakeEncoderConfig = new AlternateEncoderConfig();  
+        intakeMotorConfig.idleMode(SparkMaxConfig.IdleMode.kBrake)
+            .smartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
+        
+
+        intakeEncoderConfig.positionConversionFactor(IntakeConstants.EXTENDER_GEAR_RATIO);
+        
+        intakeEncoderConfig.apply(intakeEncoderConfig);
+        intakeEncoder = intakeMotor.getEncoder();
+        intakeEncoder.setPosition(0);
+        intakeMotor.configure(intakeMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
     /** Extend intake until max */
     public void extend() {
-        if (isFullyExtended()) {
-            stop();
-            return;
-        }
-        extenderMotor.set(IntakeConstants.EXTENDER_SPEED_LIMIT);
+        System.out.println("lalalalalal");
+        // if (isFullyExtended()) {
+        //     stop();
+        //     return;
+        // }
+        extenderMotor.setVoltage(-IntakeConstants.EXTENDER_SPEED_LIMIT);
         isExtendedToggle = true;
     }
 
     /** Retract intake until fully retracted */
     public void retract() {
-        if (isFullyRetracted()) {
-            stop();
-            return;
-        }
-        extenderMotor.set(-IntakeConstants.EXTENDER_SPEED_LIMIT);
+        // if (isFullyRetracted()) {
+        //     stop();
+        //     return;
+        // }
+        extenderMotor.setVoltage(IntakeConstants.EXTENDER_SPEED_LIMIT);
         isExtendedToggle = false;
+    }
+
+    public void runIntake() {
+        intakeMotor.setVoltage(IntakeConstants.INTAKE_SPEED);
     }
 
     /** Stops motor */

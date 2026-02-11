@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
+import com.ctre.phoenix6.Orchestra;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -29,15 +30,13 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.Constants.Swerve;
 
 public abstract class DriveTrain extends SubsystemBase {
-
-  public static final DriveTrain instance = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
 
   /** The drive train's SwerveModule objects. */
   public SwerveModule[] modules;
@@ -58,6 +57,8 @@ public abstract class DriveTrain extends SubsystemBase {
   /** State publisher for AdvantageScope. */
   protected StructPublisher<Rotation2d> adv_gyro_pub;
 
+  public Orchestra orchestra;
+
   public SwerveModuleState[] tempStates;
 
   public DriveTrain() {
@@ -68,17 +69,16 @@ public abstract class DriveTrain extends SubsystemBase {
         new Translation2d(-Constants.Swerve.OFFSET, -Constants.Swerve.OFFSET) // back right
     );
 
+    orchestra = new Orchestra();
+    orchestra.loadMusic("Music/output.chrp");
+
     tempStates = new SwerveModuleState[]{
         new SwerveModuleState(),
         new SwerveModuleState(),
         new SwerveModuleState(),
         new SwerveModuleState(),
     };
-    
-
-
-
-
+  
     modules = new SwerveModule[4];
     modules[0] = initializeModule(Constants.Port.DRIVE_MOTOR_FRONT_LEFT, Constants.Port.STEER_MOTOR_FRONT_LEFT,
         Constants.Port.FRONT_LEFT_CODER);
@@ -112,7 +112,7 @@ public abstract class DriveTrain extends SubsystemBase {
     } catch (IOException | ParseException e) {
       e.printStackTrace();
       return;
-    }/*
+    }
     AutoBuilder.configure(
         () -> odom_pose,
         pose_estimator::resetPose,
@@ -131,9 +131,11 @@ public abstract class DriveTrain extends SubsystemBase {
           return false;
         },
         this // Reference to this subsystem to set requirements
-    );*/
+    );
 
     setupDashboard();
+
+    SmartDashboard.putString("Music", " ");
   }
 
   /**
@@ -159,7 +161,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public void setSwerveDrive(double x_metersPerSecond, double y_metersPerSecond, double a_radiansPerSecond) {
     // converts speeds from field's frame of reference to robot's frame of reference
     ChassisSpeeds chassis_speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-        -1 * Swerve.DRIVE_SPEED,//x_metersPerSecond,
+        x_metersPerSecond,
         y_metersPerSecond,
         a_radiansPerSecond,
         getGyroAngle());
@@ -372,6 +374,30 @@ public abstract class DriveTrain extends SubsystemBase {
 
     publishAdv();
 
+  }
+
+
+  public Command musicCommand(String filename, int tracks) {
+    return new FunctionalCommand(
+      () -> {
+        int t = 0;
+        for (SwerveModule module : modules) {
+            orchestra.addInstrument(((SwerveModuleRealIO)module).drive_motor, t++ % tracks); //increment track number by 1; reset when max tracks reached
+            orchestra.addInstrument(((SwerveModuleRealIO)module).steer_motor, t++ % tracks);
+        }
+        orchestra.loadMusic("Music/" + filename + ".chrp");
+        orchestra.play();
+        SmartDashboard.putString("Music", filename);},
+      () -> {},
+      canceled -> {
+        orchestra.stop();
+        SmartDashboard.putString("Music", " ");},
+      () -> !orchestra.isPlaying()
+    ).ignoringDisable(true);
+  }
+
+  public Command musicCommand(String filename) {
+    return musicCommand(filename, 8);
   }
 
   @Override

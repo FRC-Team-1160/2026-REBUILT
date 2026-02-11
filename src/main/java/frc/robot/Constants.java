@@ -15,6 +15,7 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int reverseControls = 1;
   }
 
   public static class Robot {
@@ -22,12 +23,15 @@ public final class Constants {
   }
 
 public static class IntakeConstants{
-  public static final double EXTENDER_SPEED_LIMIT = 0.1;
+  public static final double EXTENDER_SPEED_LIMIT = 3.0;
   public static final double EXTENDER_GEAR_RATIO = 40;
   public static final double POSITION_CONVERSION = (Math.PI * 0.04572)/EXTENDER_GEAR_RATIO;
   public static final int EXTENDER_CURRENT_LIMIT = 20;
-  public static final double EXTENSION_MAX = 0.0;
-  public static final double EXTENSION_MIN = 0.2;
+  public static final double EXTENSION_MAX = -47.0;
+  public static final double EXTENSION_MIN = 5.595;
+
+  public static final double INTAKE_SPEED = 3.0;
+  public static final int INTAKE_CURRENT_LIMIT = 20;
 }
 
   public static final class Port {
@@ -49,6 +53,7 @@ public static class IntakeConstants{
 
     // for da intake
     public static final int INTAKE_EXTENDER_MOTOR = 25; // idk we get to it when we get to it
+    public static final int INTAKE_MOTOR = 26;
 
     // for da shooter
     public static final int SHOOTER_FEEDER_MOTOR = 1234;
@@ -106,17 +111,17 @@ public static class IntakeConstants{
     public static final double TURN_SPEED = 0.5;
 
     public static class DriveMotorConfigs {
-      public static final double kP = 0; //0.1
+      public static final double kP = .1; //0.1
       public static final double kI = 0;
-      public static final double kD = 0;//0.1;
-      public static final double kS = 0;//0.13;
-      public static final double kV = 0;//0.7; 
+      public static final double kD = 0.1;//0.1;
+      public static final double kS = 0.13;//0.13;
+      public static final double kV = 0.7;//0.7; 
       public static final double kA = 0;
       public static final double kG = 0;
     }
 
     public static class SteerMotorConfigs {
-      public static final double kP = 5;//0.5;
+      public static final double kP = 15;//0.5;
       public static final double kI = 0;
       public static final double kD = 0.75;
       public static final double kS = 0; //doesnt work?

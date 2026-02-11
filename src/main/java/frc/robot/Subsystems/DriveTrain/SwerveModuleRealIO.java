@@ -121,7 +121,6 @@ public class SwerveModuleRealIO extends SwerveModule{
   }
 
   public void setAngle(Rotation2d angle){
-    //Rotation2d angle = new Rotation2d(0);
     SmartDashboard.putNumber("in_angle", angle.getRotations());
     SmartDashboard.putNumber("in_angle_degrees", angle.getDegrees());
     // this works fine
@@ -129,7 +128,7 @@ public class SwerveModuleRealIO extends SwerveModule{
 
     // System.out.println("steer port var" + steerPortVar);
     //if (steerPortVar == 3 || steerPortVar == 7) {
-      //var request = new PositionVoltage(0).withSlot(0);
+      var request = new PositionVoltage(0).withSlot(0);
       // var angleInDegrees = Degrees.of(80);
       steer_motor.setControl(new PositionVoltage(angle.getRotations()));
     //}
