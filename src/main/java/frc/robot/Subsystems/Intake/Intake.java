@@ -27,7 +27,9 @@ public class Intake extends SubsystemBase {
     private final SparkMaxConfig intakeMotorConfig;
     private final AlternateEncoderConfig intakeEncoderConfig;
 
-    private boolean isExtendedToggle = false; 
+    private int isExtendedValue = 0; // -1 is fully retracted, 0 is somehwere in between, 1 is fully extended
+    private final double currentTooHigh = 11.0;
+    private final double startupCurrent = 14;
 
     public Intake() {
         extenderMotor = new SparkMax(Port.INTAKE_EXTENDER_MOTOR, MotorType.kBrushless);
@@ -65,23 +67,46 @@ public class Intake extends SubsystemBase {
 
     /** Extend intake until max */
     public void extendArm() {
-        System.out.println("lalalalalal");
-        // if (isFullyExtended()) {
-        //     stop();
-        //     return;
-        // }
-        extenderMotor.setVoltage(-IntakeConstants.EXTENDER_SPEED_LIMIT);
-        isExtendedToggle = true;
+        /*
+        if (isExtendedValue != 1) {
+            extenderMotor.setVoltage(-IntakeConstants.EXTENDER_SPEED_LIMIT);
+            System.out.println(extenderMotor.getOutputCurrent());
+            if (extenderMotor.getOutputCurrent() >= currentTooHigh && extenderMotor.getOutputCurrent() <= startupCurrent) {
+                isExtendedValue = 1;
+                extenderMotor.setVoltage(0);
+            } else {
+                isExtendedValue = 0;
+            }
+        }*/
+        
+        if (encoder.getPosition() >= IntakeConstants.EXTENSION_MAX) {
+            extenderMotor.setVoltage(-IntakeConstants.EXTENDER_SPEED_LIMIT);
+        } else {
+            extenderMotor.setVoltage(0);
+        }
+        //System.out.println(extenderMotor.getOutputCurrent());
+        
     }
 
     /** Retract intake until fully retracted */
     public void retractArm() {
-        // if (isFullyRetracted()) {
-        //     stop();
-        //     return;
-        // }
-        extenderMotor.setVoltage(IntakeConstants.EXTENDER_SPEED_LIMIT);
-        isExtendedToggle = false;
+        /*
+        if (isExtendedValue != -1) {
+            extenderMotor.setVoltage(IntakeConstants.EXTENDER_SPEED_LIMIT);
+            System.out.println(extenderMotor.getOutputCurrent());
+            if (extenderMotor.getOutputCurrent() >= currentTooHigh && extenderMotor.getOutputCurrent() <= startupCurrent) {
+                isExtendedValue = -1;
+                extenderMotor.setVoltage(0);
+            } else {
+                isExtendedValue = 0;
+            }
+        }*/
+        if (encoder.getPosition() <= IntakeConstants.EXTENSION_MIN) {
+            extenderMotor.setVoltage(IntakeConstants.EXTENDER_SPEED_LIMIT);
+        } else {
+            extenderMotor.setVoltage(0);
+        }
+        //System.out.println(extenderMotor.getOutputCurrent());
     }
 
     public void runIntake() {
@@ -107,7 +132,7 @@ public class Intake extends SubsystemBase {
 
     /** Toggle between extend/retract based on last state */
     public void toggle() {
-        if (isExtendedToggle || isFullyExtended()) {
+        if (isExtendedValue == 1 || isFullyExtended()) {
             retractArm();
         } else {
             extendArm();

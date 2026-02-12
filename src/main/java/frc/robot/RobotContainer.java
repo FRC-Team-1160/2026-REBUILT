@@ -58,17 +58,17 @@ public class RobotContainer {
     //double rightStickUpDown = main_stick.getRawAxis(5);
     //SmartDashboard.putNumber("joystick_axis_5", rightStickUpDown);
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * OperatorConstants.reverseControls * main_stick.getRawAxis(0);
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(0);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
     //double rightStickLeftRight = main_stick.getRawAxis(4);
     //SmartDashboard.putNumber("joystick_axis_4", rightStickLeftRight);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * OperatorConstants.reverseControls * -main_stick.getRawAxis(1);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * main_stick.getRawAxis(1);
     //SmartDashboard.putNumber("y_mps", y_metersPerSecond);
 
     //double leftStickLeftRight = main_stick.getRawAxis(0);
-    double angle_radiansPerSecond =  (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : OperatorConstants.reverseControls * Math.signum(main_stick.getRawAxis(4)) * 1.5
+    double angle_radiansPerSecond =  (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
     * Math.pow(main_stick.getRawAxis(4), 2);
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
     //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
@@ -102,32 +102,17 @@ public class RobotContainer {
     ); 
     */
 
-    new Trigger(() -> main_stick.getRawButton(4)).whileTrue(
+    new Trigger(() -> second_stick.getRawButton(4)).whileTrue(
       new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
     );
 
-    new Trigger(() -> main_stick.getRawButton(5)).whileTrue(
+    new Trigger(() -> second_stick.getRawButton(5)).whileTrue(
       new RunCommand(m_intake::extendArm).finallyDo(m_intake::stopArm)
     );
 
-    new Trigger(() -> main_stick.getRawButton(6)).whileTrue(
+    new Trigger(() -> second_stick.getRawButton(6)).whileTrue(
       new RunCommand(m_intake::retractArm).finallyDo(m_intake::stopArm)
     );
-      
-
-
-    new JoystickButton(second_stick, 1).whileTrue(
-      getAutonomousCommand()
-      //obviously we dont have an intake setup right now so we havent coded anything for it
-      //but heres what im thinking
-      //since according to jessie its just the one motor
-      //we just do it so like when X button is pressed we set the voltage
-      //and multiply it by (second_stick.getRawButtonPressed(x)) ? -1 : 1;
-      //so like we can reverse it if theyre pressing another button ykkkkk
-    );
-
-    //i would hypothesize functionality of more subsystems
-    //but i dont even think we have a good idea of how theyd work yet 1/30/26
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     //new Trigger(m_exampleSubsystem::exampleCondition)

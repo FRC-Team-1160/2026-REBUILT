@@ -9,6 +9,7 @@ import com.studica.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrainRealIO extends DriveTrain {
 
@@ -25,7 +26,9 @@ public class DriveTrainRealIO extends DriveTrain {
   }
 
   public Rotation2d getGyroAngle() {
-    if (gyro != null) return Rotation2d.fromDegrees(-gyro.getAngle()); //gyro reports CW positive, negate to return CCW positive
+    if (gyro != null) {
+      SmartDashboard.putNumber("lalala", Rotation2d.fromDegrees(gyro.getAngle()).getRotations());
+      return Rotation2d.fromDegrees(gyro.getAngle());} //gyro reports CW positive, negate to return CCW positive
     return new Rotation2d();
   }
 

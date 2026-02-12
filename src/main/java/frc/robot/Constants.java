@@ -23,13 +23,14 @@ public final class Constants {
   }
 
 public static class IntakeConstants{
-  public static final double EXTENDER_SPEED_LIMIT = 6;
+
   public static final double EXTENDER_GEAR_RATIO = 40;
   public static final double POSITION_CONVERSION = (Math.PI * 0.04572)/EXTENDER_GEAR_RATIO;
   public static final int EXTENDER_CURRENT_LIMIT = 20;
-  public static final double EXTENSION_MAX = -47.0;
-  public static final double EXTENSION_MIN = 5.595;
+  public static final double EXTENSION_MAX = -48.5; // 4.5 prongs left at -48
+  public static final double EXTENSION_MIN = 0;
 
+  public static final double EXTENDER_SPEED_LIMIT = 6;
   public static final double INTAKE_SPEED = -8;
   public static final int INTAKE_CURRENT_LIMIT = 20;
 }
