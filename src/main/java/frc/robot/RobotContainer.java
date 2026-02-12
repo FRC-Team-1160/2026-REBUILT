@@ -45,8 +45,6 @@ public class RobotContainer {
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-//for the agitator 
-  public static final int AGITATOR_MOTOR = 694201;
    /* in regards to the line of code above ^^^ 
    Example value not the real 
   value idk the real value but Im using 
