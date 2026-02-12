@@ -64,7 +64,7 @@ public class Intake extends SubsystemBase {
     }
 
     /** Extend intake until max */
-    public void extend() {
+    public void extendArm() {
         System.out.println("lalalalalal");
         // if (isFullyExtended()) {
         //     stop();
@@ -75,7 +75,7 @@ public class Intake extends SubsystemBase {
     }
 
     /** Retract intake until fully retracted */
-    public void retract() {
+    public void retractArm() {
         // if (isFullyRetracted()) {
         //     stop();
         //     return;
@@ -88,8 +88,12 @@ public class Intake extends SubsystemBase {
         intakeMotor.setVoltage(IntakeConstants.INTAKE_SPEED);
     }
 
+    public void stopIntake() {
+        intakeMotor.setVoltage(0);
+    }
+
     /** Stops motor */
-    public void stop() {
+    public void stopArm() {
         extenderMotor.set(0);
     }
 
@@ -104,9 +108,9 @@ public class Intake extends SubsystemBase {
     /** Toggle between extend/retract based on last state */
     public void toggle() {
         if (isExtendedToggle || isFullyExtended()) {
-            retract();
+            retractArm();
         } else {
-            extend();
+            extendArm();
         }
         return;
     }

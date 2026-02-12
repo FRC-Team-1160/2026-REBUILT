@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -94,13 +96,25 @@ public class RobotContainer {
       new InstantCommand(m_drive::resetGyroAngle)
     );
 
-    new JoystickButton(main_stick, 3).onTrue(
-      new InstantCommand(m_intake::extend)
-    ); 
-
-    new JoystickButton(main_stick, 4).onTrue(
+    /*
+    new JoystickButton(main_stick, 4).whileTrue(
       new InstantCommand(m_intake::runIntake)
     ); 
+    */
+
+    new Trigger(() -> main_stick.getRawButton(4)).whileTrue(
+      new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
+    );
+
+    new Trigger(() -> main_stick.getRawButton(5)).whileTrue(
+      new RunCommand(m_intake::extendArm).finallyDo(m_intake::stopArm)
+    );
+
+    new Trigger(() -> main_stick.getRawButton(6)).whileTrue(
+      new RunCommand(m_intake::retractArm).finallyDo(m_intake::stopArm)
+    );
+      
+
 
     new JoystickButton(second_stick, 1).whileTrue(
       getAutonomousCommand()
