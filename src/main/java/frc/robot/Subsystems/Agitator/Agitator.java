@@ -15,7 +15,7 @@ public class Agitator extends SubsystemBase {
         agitator_motor = new SparkMax(Port.INTAKE_MOTOR, MotorType.kBrushless); //make the agitator mototr
     }
 
-    public void SetAgitatorVolts(double volts){
+    public void setAgitatorVolts(double volts){
         SmartDashboard.putNumber("agitator speed", volts);
         agitator_motor.set(volts);
     }
@@ -25,3 +25,4 @@ public class Agitator extends SubsystemBase {
 
     }
 }
+
