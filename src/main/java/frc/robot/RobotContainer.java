@@ -76,8 +76,8 @@ public class RobotContainer {
 
     new JoystickButton(simp_stick, 4).toggleOnTrue(
       new StartEndCommand(
-        () -> m_agitator.SetAgitatorVolts(1.0),
-        () -> m_agitator.SetAgitatorVolts(-1.0)
+        () -> m_agitator.setAgitatorVolts(1.0),
+        () -> m_agitator.setAgitatorVolts(-1.0)
         ));
       // the voltage for code above are tempeary untested values.
     
