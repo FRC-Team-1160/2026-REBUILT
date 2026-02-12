@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Subsystems.Agitator.Agitator;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,15 +34,24 @@ public class RobotContainer {
 
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
+  private Joystick simp_stick = new Joystick(2); //D-Pad
 
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
+  public final Agitator m_agitator = new Agitator();
   
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
+//for the agitator 
+  public static final int AGITATOR_MOTOR = 694201;
+   /* in regards to the line of code above ^^^ 
+   Example value not the real 
+  value idk the real value but Im using 
+  this until i find it out change it when we get the real one
+  */
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -64,6 +75,15 @@ public class RobotContainer {
     new JoystickButton(main_stick, 8).onTrue(
       new InstantCommand(DriveTrain.instance::resetGyroAngle)
     );
+
+    new JoystickButton(simp_stick, 4).toggleOnTrue(
+      new StartEndCommand(
+        () -> m_agitator.SetAgitatorVolts(1.0),
+        () -> m_agitator.SetAgitatorVolts(-1.0)
+        ));
+      // the voltage for code above are tempeary untested values.
+    
+      
 
     new JoystickButton(second_stick, 0).whileTrue(
       getAutonomousCommand()
