@@ -32,6 +32,7 @@ public final class Constants {
 
     public static final double DEPLOY_MAX_ROTATIONS = 1;
     public static final double DEPLOY_MIN_ROTATIONS = 0;
+    // public static final double DEPLOY_GEAR_RATIO = 40;
   }
 
   public static class ShooterConstants {

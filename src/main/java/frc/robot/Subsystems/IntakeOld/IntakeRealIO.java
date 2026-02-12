@@ -30,14 +30,13 @@ public class IntakeRealIO extends Intake {
     protected IntakeRealIO() {
         // the motor might actually have an alternate encoder 
         AbsoluteEncoderConfig encoder_config = new AbsoluteEncoderConfig()
-        .positionConversionFactor(1);
+            .positionConversionFactor(1);  // change later
 
-        // make a motor config and apply the encoder config to its encoder
+        // make a motor config and apply the encoder config to it
         SparkMaxConfig motor_config = new SparkMaxConfig();
-        motor_config.absoluteEncoder.apply(encoder_config);
+        motor_config.apply(encoder_config);
 
-        // i have no idea what these parameters mean
-        deploy_motor.configure(motor_config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        deploy_motor.configure(motor_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
     
     // neo : pinion 40:1 maybe??
