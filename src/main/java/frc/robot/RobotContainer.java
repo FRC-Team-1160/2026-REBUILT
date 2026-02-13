@@ -34,6 +34,7 @@ public class RobotContainer {
 
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
+  private Joystick codrive_controller = new Joystick(Constants.IO.RIGHT_BOARD_PORT);
   private Joystick simp_stick = new Joystick(2); //D-Pad
 
   //
@@ -74,12 +75,14 @@ public class RobotContainer {
       new InstantCommand(DriveTrain.instance::resetGyroAngle)
     );
 
-    new JoystickButton(simp_stick, 4).toggleOnTrue(
-      new StartEndCommand(
-        () -> m_agitator.setAgitatorVolts(1.0),
-        () -> m_agitator.setAgitatorVolts(-1.0)
-        ));
+    
       // the voltage for code above are tempeary untested values.
+      // Should be A button v
+      new JoystickButton(codrive_controller, 3).whileTrue( 
+        new StartEndCommand(
+          () -> m_agitator.setAgitatorVolts(1),
+          () -> m_agitator.setAgitatorVolts(0)
+          ));
     
       
 
