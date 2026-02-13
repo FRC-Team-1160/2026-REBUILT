@@ -4,14 +4,14 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
+//import frc.robot.Constants.OperatorConstants;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 // import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.IntakeCommand.ToggleIntake;
+//import frc.robot.commands.ExampleCommand;
+//import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,7 +23,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.Intake.Intake;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.Subsystems.Agitator.AgitatorTest;
+//import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ControllerButtonConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -38,11 +40,13 @@ public class RobotContainer {
 
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
+  private Joystick test_stick = new Joystick(3);
 
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Intake m_intake = new Intake();
+  public final AgitatorTest m_agitatorTest = new AgitatorTest();
   
   
   //The robot's subsystems and commands are defined here...
@@ -96,11 +100,7 @@ public class RobotContainer {
       new InstantCommand(m_drive::resetGyroAngle)
     );
 
-    /*
-    new JoystickButton(main_stick, 4).whileTrue(
-      new InstantCommand(m_intake::runIntake)
-    ); 
-    */
+    // intake bindings
 
     new Trigger(() -> second_stick.getRawButton(4)).whileTrue(
       new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
@@ -112,6 +112,30 @@ public class RobotContainer {
 
     new Trigger(() -> second_stick.getRawButton(6)).whileTrue(
       new RunCommand(m_intake::retractArm).finallyDo(m_intake::stopArm)
+    );
+
+    new Trigger(() -> second_stick.getRawButton(8)).whileTrue(
+      new RunCommand(m_intake::overridePosition).finallyDo(m_intake::stopPositionOverride)
+    );
+
+    // agitator test bindings
+
+    new JoystickButton(test_stick, 5).onTrue(
+      new InstantCommand(m_agitatorTest::incrementVoltage)
+      // incrementvoltage
+      // changeVoltage(1)
+    );
+
+    new JoystickButton(test_stick, 6).onTrue(
+      new InstantCommand(m_agitatorTest::decrementVoltage)
+    );
+
+    new JoystickButton(test_stick, 4).onTrue(
+      new InstantCommand(m_agitatorTest::switchCase)
+    );
+
+    new Trigger(() -> test_stick.getRawButton(1)).whileTrue(
+      new RunCommand(m_agitatorTest::runMotors).finallyDo(m_agitatorTest::stopMotors)
     );
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`

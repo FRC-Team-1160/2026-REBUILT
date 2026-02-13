@@ -15,6 +15,6 @@ public class ToggleIntake extends InstantCommand {
 
     @Override
     public void initialize() {
-        intake.toggle();
+        //intake.toggle();
     }
 }

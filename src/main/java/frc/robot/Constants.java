@@ -22,6 +22,15 @@ public final class Constants {
     public static final double LOOP_TIME_SECONDS = 0.02;
   }
 
+  public static class ControllerButtonConstants {
+    public static final int Y = 4;
+    public static final int B = 2;
+    public static final int A = 1;
+    public static final int X = 3;
+    public static final int RB = 6;
+    public static final int LB = 5;
+  }
+
 public static class IntakeConstants{
 
   public static final double EXTENDER_GEAR_RATIO = 40;
@@ -57,9 +66,9 @@ public static class IntakeConstants{
     public static final int INTAKE_MOTOR = 26;
 
     // for da shooter
-    public static final int SHOOTER_FEEDER_MOTOR = 1234;
-    public static final int SHOOTER_TOP_ROLLER_MOTOR = 12345;
-    public static final int SHOOTER_BOTTOM_ROLLER_MOTOR   = 123456;
+    public static final int SHOOTER_INTAKE_MOTOR = 11;
+    public static final int SHOOTER_TOP_ROLLER_MOTOR = 13;
+    public static final int SHOOTER_BOTTOM_ROLLER_MOTOR   = 5;
   }
 
   public static class IO {
