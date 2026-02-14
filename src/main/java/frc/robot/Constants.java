@@ -44,6 +44,12 @@ public static class IntakeConstants{
   public static final int INTAKE_CURRENT_LIMIT = 20;
 }
 
+public static class ShooterConstants{
+  public static final double AGITATOR_GEAR_RATIO = 20;
+  public static final double AGITATOR_VOLTAGE = 7;
+  public static final int AGITATOR_CURRENT_LIMIT = 20;
+}
+
   public static final class Port {
     // CAN IDs 
     public static final int STEER_MOTOR_FRONT_LEFT = 1;

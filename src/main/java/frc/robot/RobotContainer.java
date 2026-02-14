@@ -5,6 +5,8 @@
 package frc.robot;
 
 //import frc.robot.Constants.OperatorConstants;
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
@@ -23,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.Intake.Intake;
+import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Agitator.AgitatorTest;
 //import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ControllerButtonConstants;
@@ -47,6 +50,7 @@ public class RobotContainer {
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Intake m_intake = new Intake();
   public final AgitatorTest m_agitatorTest = new AgitatorTest();
+  //public final Shooter m_shooter = new Shooter();
   
   
   //The robot's subsystems and commands are defined here...
@@ -118,12 +122,16 @@ public class RobotContainer {
       new RunCommand(m_intake::overridePosition).finallyDo(m_intake::stopPositionOverride)
     );
 
+    // shooter bindings
+
+    // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
+    //   new RunCommand(() -> m_shooter.runMotors(12)).finallyDo(m_shooter::stopMotors)
+    // );
+
     // agitator test bindings
 
     new JoystickButton(test_stick, 5).onTrue(
       new InstantCommand(m_agitatorTest::incrementVoltage)
-      // incrementvoltage
-      // changeVoltage(1)
     );
 
     new JoystickButton(test_stick, 6).onTrue(

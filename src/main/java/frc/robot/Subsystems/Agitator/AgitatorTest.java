@@ -62,7 +62,7 @@ public class AgitatorTest extends SubsystemBase {
         SmartDashboard.putString("currentVoltage", thisVoltage.toString());
     }
 
-    public void changeVoltage(int posNeg) {
+    public void changeVoltage(Double posNeg) {
         switch(thisVoltage) {
             case AGITATOR:
                 voltageAgitator += (0.1 * posNeg);
@@ -80,10 +80,10 @@ public class AgitatorTest extends SubsystemBase {
     }
 
     public void incrementVoltage() {
-        changeVoltage(2);
+        changeVoltage(2.5);
     }
     public void decrementVoltage() {
-        changeVoltage(-2);
+        changeVoltage(-2.5);
     }
 
     public void runMotors() {
