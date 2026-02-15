@@ -38,6 +38,7 @@ import frc.robot.Constants.ControllerButtonConstants;
  */
 public class RobotContainer {
 
+  private boolean testingShooter = true;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
 
@@ -49,8 +50,8 @@ public class RobotContainer {
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Intake m_intake = new Intake();
-  public final AgitatorTest m_agitatorTest = new AgitatorTest();
-  //public final Shooter m_shooter = new Shooter();
+  //public final AgitatorTest m_agitatorTest = new AgitatorTest();
+  public final Shooter m_shooter = new Shooter();
   
   
   //The robot's subsystems and commands are defined here...
@@ -124,27 +125,40 @@ public class RobotContainer {
 
     // shooter bindings
 
-    // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-    //   new RunCommand(() -> m_shooter.runMotors(12)).finallyDo(m_shooter::stopMotors)
-    // );
+    new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
+      new RunCommand(() -> m_shooter.runMotors(12)).finallyDo(m_shooter::stopMotors)
+    );
+
+    // shooter test bindings
+    
+    if (testingShooter) {
+      new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
+        new RunCommand(() -> m_shooter.runMotors(12)).finallyDo(m_shooter::stopMotors)
+      );
+      
+      new JoystickButton(test_stick, 5).onTrue(
+        new InstantCommand(() -> m_shooter.changeDistance(-1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
+
+      new JoystickButton(test_stick, 6).onTrue(
+        new InstantCommand(() -> m_shooter.changeDistance(1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
+
+      new JoystickButton(test_stick, 7).onTrue(
+        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
+
+      new JoystickButton(test_stick, 8).onTrue(
+        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
+    }
 
     // agitator test bindings
 
-    new JoystickButton(test_stick, 5).onTrue(
-      new InstantCommand(m_agitatorTest::incrementVoltage)
-    );
+    if (!testingShooter) {
 
-    new JoystickButton(test_stick, 6).onTrue(
-      new InstantCommand(m_agitatorTest::decrementVoltage)
-    );
+    }
 
-    new JoystickButton(test_stick, 4).onTrue(
-      new InstantCommand(m_agitatorTest::switchCase)
-    );
-
-    new Trigger(() -> test_stick.getRawButton(1)).whileTrue(
-      new RunCommand(m_agitatorTest::runMotors).finallyDo(m_agitatorTest::stopMotors)
-    );
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     //new Trigger(m_exampleSubsystem::exampleCondition)

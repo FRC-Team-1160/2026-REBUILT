@@ -46,7 +46,7 @@ public static class IntakeConstants{
 
 public static class ShooterConstants{
   public static final double AGITATOR_GEAR_RATIO = 20;
-  public static final double AGITATOR_VOLTAGE = 7;
+  public static final double AGITATOR_VOLTAGE = 10;
   public static final int AGITATOR_CURRENT_LIMIT = 20;
 }
 

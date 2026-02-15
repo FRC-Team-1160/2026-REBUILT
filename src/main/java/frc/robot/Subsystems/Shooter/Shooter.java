@@ -20,6 +20,9 @@ public class Shooter extends SubsystemBase {
     private final SparkMaxConfig agitatorMotorConfig;
     private final AlternateEncoderConfig agitatorEncoderConfig;
 
+    private double inchesFromHub = 0; // only use for testing shooter
+    private double bottomRollerVoltage = 2.7;
+
     public Shooter() {
         agitatorMotor = new SparkMax(Port.SHOOTER_INTAKE_MOTOR, MotorType.kBrushless);
         agitatorMotorConfig = new SparkMaxConfig();
@@ -36,15 +39,16 @@ public class Shooter extends SubsystemBase {
     private TalonFX bottomRollerMotor = new TalonFX(Port.SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX topRollerMotor = new TalonFX(Port.SHOOTER_TOP_ROLLER_MOTOR);
 
-    public double[] getMotorVoltageFromDistanceMeters(double distanceFromTargetMeters) {
-        // some formula here right????
-        // idk the freaking math bro im a freshman
-        return new double[]{12,12}; // using 12, 12 for testing atm
+    public double[] getMotorVoltageFromDistanceMeters(double distanceFromTargetInches) {
+        //double bottomRollerVelocity = 2.5;
+        double topRollerVoltage = (0.030407*distanceFromTargetInches) + 3.93995;// just a test function
+        return new double[]{bottomRollerVoltage,topRollerVoltage};
         // item 0 is for the bottom voltage, item 1 is for the top voltage
     }
 
     public void runMotors(double distanceFromTargetMeters) {
-        double[] motorVoltages = getMotorVoltageFromDistanceMeters(distanceFromTargetMeters); // should this be an april tag or where were planning on getting the balls to actually land???
+        //double[] motorVoltages = getMotorVoltageFromDistanceMeters(distanceFromTargetInches); // should this be an april tag or where were planning on getting the balls to actually land???
+        double[] motorVoltages = getMotorVoltageFromDistanceMeters(inchesFromHub);
         double bottomVoltage = motorVoltages[0];
         double topVoltage = motorVoltages[1];
 
@@ -57,5 +61,24 @@ public class Shooter extends SubsystemBase {
         agitatorMotor.setVoltage(0);
         bottomRollerMotor.setVoltage(0);
         topRollerMotor.setVoltage(0);
+    }
+
+    // testing for shooter distances
+
+    public void changeDistance(int change) {
+        inchesFromHub += change;
+        SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
+    }
+
+    public void changeBottomRollerVoltage(double change) {
+        bottomRollerVoltage += change;
+        SmartDashboard.putNumber("Bottom Roller Voltage", bottomRollerVoltage);
+    }
+
+    @Override
+    public void periodic() {
+        // optional telemetry:
+        super.periodic();
+        SmartDashboard.putNumber("Belt Velocity", encoder.getVelocity());
     }
 }

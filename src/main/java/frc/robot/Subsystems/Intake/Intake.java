@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
     private final AlternateEncoderConfig intakeEncoderConfig;
 
     private boolean overridePosition = false;
-    private DigitalInput armLimit = new DigitalInput(1);
+    private DigitalInput armLimit = new DigitalInput(9);
 
     public Intake() {
         extenderMotor = new SparkMax(Port.INTAKE_EXTENDER_MOTOR, MotorType.kBrushless);
@@ -122,9 +122,10 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         // optional telemetry:
         super.periodic();
+        SmartDashboard.putBoolean("Intake Arm Max Reached", !armLimit.get());
         SmartDashboard.putNumber("Intake position", getExtension());
         if (!armLimit.get()) {
-             encoder.setPosition(IntakeConstants.EXTENSION_MAX);
+            encoder.setPosition(IntakeConstants.EXTENSION_MAX);
         }
     }
 
