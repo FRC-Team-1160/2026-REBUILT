@@ -21,7 +21,7 @@ public class Shooter extends SubsystemBase {
     private final AlternateEncoderConfig agitatorEncoderConfig;
 
     private double inchesFromHub = 0; // only use for testing shooter
-    private double bottomRollerVoltage = 2.7;
+    private double bottomRollerVoltage = 2.75;
 
     public Shooter() {
         agitatorMotor = new SparkMax(Port.SHOOTER_INTAKE_MOTOR, MotorType.kBrushless);
