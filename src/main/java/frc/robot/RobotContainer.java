@@ -12,6 +12,10 @@ import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 // import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 //import frc.robot.commands.ExampleCommand;
 //import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
@@ -26,9 +30,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.Intake.Intake;
 import frc.robot.Subsystems.Shooter.Shooter;
+import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.Subsystems.Agitator.AgitatorTest;
+import frc.robot.LimelightHelpers;
 //import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ControllerButtonConstants;
+import frc.robot.Constants.FieldConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -39,6 +46,7 @@ import frc.robot.Constants.ControllerButtonConstants;
 public class RobotContainer {
 
   private boolean testingShooter = true;
+  private boolean redAlliance = false;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
 
@@ -52,7 +60,7 @@ public class RobotContainer {
   public final Intake m_intake = new Intake();
   //public final AgitatorTest m_agitatorTest = new AgitatorTest();
   public final Shooter m_shooter = new Shooter();
-  
+  public final Vision m_vision = new Vision();
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -64,6 +72,10 @@ public class RobotContainer {
   }
 
     public void updateSwerve() {
+    
+    SmartDashboard.putNumber("tx",LimelightHelpers.getTX("limelight"));
+    SmartDashboard.putBoolean("tv",LimelightHelpers.getTV("limelight"));
+    
     //double rightStickUpDown = main_stick.getRawAxis(5);
     //SmartDashboard.putNumber("joystick_axis_5", rightStickUpDown);
 
@@ -77,8 +89,17 @@ public class RobotContainer {
     //SmartDashboard.putNumber("y_mps", y_metersPerSecond);
 
     //double leftStickLeftRight = main_stick.getRawAxis(0);
-    double angle_radiansPerSecond =  (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
+    double angle_radiansPerSecond = 0;    
+
+    double tx = getHubTagTarget();
+    getDistanceFromCenterHub();
+    if (main_stick.getRawButton(6) && tx != 0) {
+      angle_radiansPerSecond = tx;
+    } else {  
+      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
     * Math.pow(main_stick.getRawAxis(4), 2);
+    }
+
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
     //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
 
@@ -99,6 +120,35 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}
    */
+  private double getHubTagTarget() {
+    //System.out.println("f");
+    if (LimelightHelpers.getTV("limelight")) {
+      double tid = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0);
+      SmartDashboard.putNumber("tid", tid);
+      double tx = LimelightHelpers.getTX("limelight") * -0.05;
+      //System.out.println("TX: " + tx);
+      SmartDashboard.putNumber("tx", tx);
+      return tx;
+    }
+    return 0;
+  }
+
+  private double getDistanceFromCenterHub() {
+    if (LimelightHelpers.getTV("limelight")) {
+      Pose2d botPose;
+      if (redAlliance) {
+        botPose = (LimelightHelpers.getBotPose2d_wpiRed("limelight"));
+      } else {
+        botPose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
+      }   
+      SmartDashboard.putNumber("botPoseX", botPose.getX());
+      SmartDashboard.putNumber("botPoseY", botPose.getY());
+      double distanceMeters = RobotUtils.hypot(FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX() - botPose.getX(), FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY() - botPose.getY());
+      SmartDashboard.putNumber("Test Distance from Hub", RobotUtils.metersToInches(distanceMeters));
+      return RobotUtils.metersToInches(distanceMeters);
+    }
+    return 50; // if we dont see an apriltag, im making 50 inches our default because i think thats where were usually shooting
+  }
 
   private void configureBindings() {
     new JoystickButton(main_stick, 8).onTrue(
@@ -126,7 +176,7 @@ public class RobotContainer {
     // shooter bindings
 
     new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-      new RunCommand(() -> m_shooter.runMotors(12)).finallyDo(m_shooter::stopMotors)
+      new RunCommand(() -> m_shooter.runMotors(getDistanceFromCenterHub())).finallyDo(m_shooter::stopMotors)
     );
 
     // shooter test bindings
@@ -152,13 +202,6 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
     }
-
-    // agitator test bindings
-
-    if (!testingShooter) {
-
-    }
-
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     //new Trigger(m_exampleSubsystem::exampleCondition)

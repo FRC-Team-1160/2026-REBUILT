@@ -4,6 +4,21 @@
 
 package frc.robot;
 
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.xml.crypto.dsig.Transform;
+
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -158,7 +173,11 @@ public static class ShooterConstants{
   }
 
   public static class FieldConstants {
-    public static final double MAX_SHOT_ARC_HEIGHT_METERS = 5;
-    public static final double HUB_TARGET_HEIGHT_METERS = 3;
+
+    public static class HubMeasurements {
+      //inches
+      public static final Pose2d ALLIANCEHUB_POSE = new Pose2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84),Rotation2d.fromDegrees(0));
+      public static final double HUB_WIDTH = 47;
+    }
   }
 }

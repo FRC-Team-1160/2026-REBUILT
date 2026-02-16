@@ -39,16 +39,16 @@ public class Shooter extends SubsystemBase {
     private TalonFX bottomRollerMotor = new TalonFX(Port.SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX topRollerMotor = new TalonFX(Port.SHOOTER_TOP_ROLLER_MOTOR);
 
-    public double[] getMotorVoltageFromDistanceMeters(double distanceFromTargetInches) {
-        //double bottomRollerVelocity = 2.5;
-        double topRollerVoltage = (0.030407*distanceFromTargetInches) + 3.93995;// just a test function
+    public double[] getMotorVoltageFromDistanceInches(double distanceFromTargetInches) {
+        //distance is from center bottom of bot to ground center of hub
+        double topRollerVoltage = (0.0281191*distanceFromTargetInches) + 3.82155;//test function
         return new double[]{bottomRollerVoltage,topRollerVoltage};
         // item 0 is for the bottom voltage, item 1 is for the top voltage
     }
 
     public void runMotors(double distanceFromTargetMeters) {
         //double[] motorVoltages = getMotorVoltageFromDistanceMeters(distanceFromTargetInches); // should this be an april tag or where were planning on getting the balls to actually land???
-        double[] motorVoltages = getMotorVoltageFromDistanceMeters(inchesFromHub);
+        double[] motorVoltages = getMotorVoltageFromDistanceInches(inchesFromHub);
         double bottomVoltage = motorVoltages[0];
         double topVoltage = motorVoltages[1];
 
