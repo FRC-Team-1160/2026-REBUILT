@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -46,17 +47,15 @@ public class RobotContainer {
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-   /* in regards to the line of code above ^^^ 
-   Example value not the real 
-  value idk the real value but Im using 
-  this until i find it out change it when we get the real one
-  */
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    //Starts up the agitaotr
+    m_agitator.setDefaultCommand(
+      new RunCommand(() -> m_agitator.setAgitatorVolts(1)));
     // Configure the trigger bindings
     configureBindings();
   }
@@ -76,13 +75,10 @@ public class RobotContainer {
     );
 
     
-      // the voltage for code above are tempeary untested values.
-      // Should be A button v
-      new JoystickButton(codrive_controller, 3).whileTrue( 
-        new StartEndCommand(
-          () -> m_agitator.setAgitatorVolts(1),
-          () -> m_agitator.setAgitatorVolts(0)
-          ));
+      //Changes the value of a Boolean in agitator when the button is pressed
+      new JoystickButton(codrive_controller, 3).onTrue( 
+        new InstantCommand(() -> m_agitator.changeAgitatorButtonStatus())
+        );
     
       
 
