@@ -35,6 +35,8 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Subsystems.Vision.LimelightIO;
+import frc.robot.Subsystems.Vision.VisionSubsystem;
 
 public abstract class DriveTrain extends SubsystemBase {
 
@@ -51,7 +53,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public SwerveDrivePoseEstimator pose_estimator;
   /** Odometry-based 2d pose. */
   public Pose2d odom_pose;
-
+  public LimelightIO limelightInst;
   /** State publisher for AdvantageScope. */
   protected StructArrayPublisher<SwerveModuleState> adv_real_states_pub, adv_target_states_pub;
   /** State publisher for AdvantageScope. */
@@ -60,6 +62,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public Orchestra orchestra;
 
   public SwerveModuleState[] tempStates;
+  public VisionSubsystem visionSub;
 
   public DriveTrain() {
     kinematics = new SwerveDriveKinematics(
@@ -102,7 +105,7 @@ public abstract class DriveTrain extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
     };
-
+    visionSub = new VisionSubsystem(limelightInst);
     odom_pose = new Pose2d();
     pose_estimator = new SwerveDrivePoseEstimator(kinematics, getGyroAngle(), module_positions, odom_pose);
 
@@ -366,6 +369,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
     SmartDashboard.putNumber("pose_angle", odom_pose.getRotation().getDegrees());
+    SmartDashboard.putNumber("VISION SUB AT DIST", visionSub.getTagDistance());
     for (SwerveModule module : modules) {
       module.update();
     }
