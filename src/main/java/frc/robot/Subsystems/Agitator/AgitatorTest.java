@@ -32,7 +32,7 @@ public class AgitatorTest extends SubsystemBase {
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
         
-    private TalonFX bottomRollerMotor = new TalonFX(Port.SHOOTER_BOTTOM_ROLLER_MOTOR);
+    private TalonFX bottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX topRollerMotor = new TalonFX(Port.SHOOTER_TOP_ROLLER_MOTOR);
 
     private double voltageAgitator = 0.0;

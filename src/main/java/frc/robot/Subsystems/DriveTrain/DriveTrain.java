@@ -62,7 +62,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public Orchestra orchestra;
 
   public SwerveModuleState[] tempStates;
-  public VisionSubsystem visionSub;
+  //public VisionSubsystem visionSub;
 
   public DriveTrain() {
     kinematics = new SwerveDriveKinematics(
@@ -105,7 +105,7 @@ public abstract class DriveTrain extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
     };
-    visionSub = new VisionSubsystem(limelightInst);
+    //visionSub = new VisionSubsystem(limelightInst);
     odom_pose = new Pose2d();
     pose_estimator = new SwerveDrivePoseEstimator(kinematics, getGyroAngle(), module_positions, odom_pose);
 
@@ -369,7 +369,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
     SmartDashboard.putNumber("pose_angle", odom_pose.getRotation().getDegrees());
-    SmartDashboard.putNumber("VISION SUB AT DIST", visionSub.getTagDistance());
+    //SmartDashboard.putNumber("VISION SUB AT DIST", visionSub.getTagDistance());
     for (SwerveModule module : modules) {
       module.update();
     }

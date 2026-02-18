@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.opencv.core.Mat;
+
 //import frc.robot.Constants.OperatorConstants;
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -12,6 +14,10 @@ import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 // import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 //import frc.robot.commands.ExampleCommand;
 //import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
@@ -26,9 +32,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.Intake.Intake;
 import frc.robot.Subsystems.Shooter.Shooter;
+import frc.robot.Subsystems.Vision.LimelightIO;
+import frc.robot.Subsystems.Vision.VisionSubsystem;
+//import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.Subsystems.Agitator.AgitatorTest;
+import frc.robot.LimelightHelpers;
 //import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ControllerButtonConstants;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ShooterConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -38,6 +50,8 @@ import frc.robot.Constants.ControllerButtonConstants;
  */
 public class RobotContainer {
 
+  private boolean testingShooter = true;
+  public final boolean blueAlliance = true;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
 
@@ -49,9 +63,10 @@ public class RobotContainer {
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Intake m_intake = new Intake();
-  public final AgitatorTest m_agitatorTest = new AgitatorTest();
-  //public final Shooter m_shooter = new Shooter();
-  
+  //public final AgitatorTest m_agitatorTest = new AgitatorTest();
+  public final Shooter m_shooter = new Shooter();
+  public final LimelightIO m_limelightio = new LimelightIO(blueAlliance);
+  public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -63,21 +78,25 @@ public class RobotContainer {
   }
 
     public void updateSwerve() {
-    //double rightStickUpDown = main_stick.getRawAxis(5);
-    //SmartDashboard.putNumber("joystick_axis_5", rightStickUpDown);
+  
+    SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
     double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(0);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    //double rightStickLeftRight = main_stick.getRawAxis(4);
-    //SmartDashboard.putNumber("joystick_axis_4", rightStickLeftRight);
-
     double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * main_stick.getRawAxis(1);
-    //SmartDashboard.putNumber("y_mps", y_metersPerSecond);
 
-    //double leftStickLeftRight = main_stick.getRawAxis(0);
-    double angle_radiansPerSecond =  (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
+    double angle_radiansPerSecond = 0;    
+
+    if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+      double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees());
+      angle_radiansPerSecond = degreeDifference * (Math.PI/180);
+      SmartDashboard.putNumber("bot-hub degreeDifferece", degreeDifference);
+    } else {  
+      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
     * Math.pow(main_stick.getRawAxis(4), 2);
+    }
+    
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
     //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
 
@@ -86,7 +105,6 @@ public class RobotContainer {
       y_metersPerSecond, 
       angle_radiansPerSecond
       );
-  
   }
 
   /**
@@ -124,27 +142,35 @@ public class RobotContainer {
 
     // shooter bindings
 
-    // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-    //   new RunCommand(() -> m_shooter.runMotors(12)).finallyDo(m_shooter::stopMotors)
-    // );
+    new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
+        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(m_vision.getBotToHubDistance())))
+          .finallyDo(m_shooter::stopMotors)
+      );
 
-    // agitator test bindings
+    // shooter test bindings
+    
+    if (testingShooter) {
+      new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
+        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(m_vision.getBotToHubDistance())))
+          .finallyDo(m_shooter::stopMotors)
+      );
+      
+      new JoystickButton(test_stick, 5).onTrue(
+        new InstantCommand(() -> m_shooter.changeDistance(-1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
 
-    new JoystickButton(test_stick, 5).onTrue(
-      new InstantCommand(m_agitatorTest::incrementVoltage)
-    );
+      new JoystickButton(test_stick, 6).onTrue(
+        new InstantCommand(() -> m_shooter.changeDistance(1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
 
-    new JoystickButton(test_stick, 6).onTrue(
-      new InstantCommand(m_agitatorTest::decrementVoltage)
-    );
+      new JoystickButton(test_stick, 7).onTrue(
+        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
 
-    new JoystickButton(test_stick, 4).onTrue(
-      new InstantCommand(m_agitatorTest::switchCase)
-    );
-
-    new Trigger(() -> test_stick.getRawButton(1)).whileTrue(
-      new RunCommand(m_agitatorTest::runMotors).finallyDo(m_agitatorTest::stopMotors)
-    );
+      new JoystickButton(test_stick, 8).onTrue(
+        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
+    }
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     //new Trigger(m_exampleSubsystem::exampleCondition)
