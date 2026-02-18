@@ -8,6 +8,7 @@ import org.opencv.core.Mat;
 
 //import frc.robot.Constants.OperatorConstants;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
@@ -21,6 +22,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 //import frc.robot.commands.ExampleCommand;
 //import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -49,16 +51,15 @@ import frc.robot.Constants.ShooterConstants;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
   private boolean testingShooter = true;
-  public final boolean blueAlliance = true;
+  
+  private final SendableChooser<Command> autoChooser;
+  public final boolean blueAlliance = true; // note: shpould change to driverstation.getAlliance()
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
-
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
   private Joystick test_stick = new Joystick(3);
-
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
@@ -73,6 +74,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     // Configure the trigger bindings
     configureBindings();
   }
@@ -182,6 +185,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new InstantCommand();
+    return new PathPlannerAuto("Example Auto");
+    //return autoChooser.getSelected();
   } 
 }
