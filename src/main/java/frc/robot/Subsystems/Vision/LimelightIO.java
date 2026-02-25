@@ -4,6 +4,7 @@ import frc.robot.Subsystems.Vision.VisionMeasurement;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import java.util.Optional;
 
@@ -27,9 +28,13 @@ public class LimelightIO extends SubsystemBase{
    private final LimelightHelpers.PoseEstimate poseEstimator;
    // nt instance above if needed
   
-   public LimelightIO(boolean blueAlliance){
+   public LimelightIO(){
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+        blueAlliance = (alliance.get() == DriverStation.Alliance.Blue);
+    } else {blueAlliance = false;}
+
     poseEstimator = getPoseEstimate();
-    this.blueAlliance = blueAlliance;
    }
 
    public Optional<VisionMeasurement> returnLLVisionMeasurement(){

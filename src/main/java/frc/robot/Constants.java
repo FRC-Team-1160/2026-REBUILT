@@ -4,19 +4,8 @@
 
 package frc.robot;
 
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.xml.crypto.dsig.Transform;
-
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -65,6 +54,26 @@ public static class ShooterConstants{
   public static final double AGITATOR_VOLTAGE = -11;
   public static final int AGITATOR_CURRENT_LIMIT = 20;
   public static final String LIMELIGHT_NAME = "limelight";
+
+  public static class BottomMotorConfigs {
+    public static final double kP = 15;
+    public static final double kI = 0;
+    public static final double kD = 0.75;
+    public static final double kS = 0;
+    public static final double kV = 0;
+    public static final double kA = 0;
+    public static final double kG = 0;
+  }
+
+  public static class TopMotorConfigs {
+    public static final double kP = 15;
+    public static final double kI = 0;
+    public static final double kD = 0.75;
+    public static final double kS = 0;
+    public static final double kV = 0;
+    public static final double kA = 0;
+    public static final double kG = 0;
+  }
 }
 
   public static final class Port {

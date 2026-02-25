@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 //import frc.robot.commands.ExampleCommand;
 //import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
@@ -37,8 +38,6 @@ import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Vision.LimelightIO;
 import frc.robot.Subsystems.Vision.VisionSubsystem;
 //import frc.robot.Subsystems.Vision.Vision;
-import frc.robot.Subsystems.Agitator.AgitatorTest;
-import frc.robot.LimelightHelpers;
 //import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ControllerButtonConstants;
 import frc.robot.Constants.FieldConstants;
@@ -54,7 +53,6 @@ public class RobotContainer {
   private boolean testingShooter = true;
   
   private final SendableChooser<Command> autoChooser;
-  public final boolean blueAlliance = true; // note: shpould change to driverstation.getAlliance()
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
@@ -66,7 +64,7 @@ public class RobotContainer {
   public final Intake m_intake = new Intake();
   //public final AgitatorTest m_agitatorTest = new AgitatorTest();
   public final Shooter m_shooter = new Shooter();
-  public final LimelightIO m_limelightio = new LimelightIO(blueAlliance);
+  public final LimelightIO m_limelightio = new LimelightIO();
   public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   
   //The robot's subsystems and commands are defined here...
@@ -80,7 +78,7 @@ public class RobotContainer {
     configureBindings();
   }
 
-    public void updateSwerve() {
+  public void updateSwerve() {
   
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
@@ -89,8 +87,9 @@ public class RobotContainer {
 
     double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * main_stick.getRawAxis(1);
 
-    double angle_radiansPerSecond = 0;    
+    double angle_radiansPerSecond;    
 
+    // if pressing button 6 then we align to the hub
     if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
       double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees());
       angle_radiansPerSecond = degreeDifference * (Math.PI/180);
@@ -154,24 +153,25 @@ public class RobotContainer {
     
     if (testingShooter) {
       new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(m_vision.getBotToHubDistance())))
+        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(0)))
           .finallyDo(m_shooter::stopMotors)
       );
+      // use m_vision.getBotToHubDistance() for distance
       
       new JoystickButton(test_stick, 5).onTrue(
-        new InstantCommand(() -> m_shooter.changeDistance(-1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeBottomRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 6).onTrue(
-        new InstantCommand(() -> m_shooter.changeDistance(1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeBottomRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 7).onTrue(
-        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeTopRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 8).onTrue(
-        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeTopRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
     }
 
