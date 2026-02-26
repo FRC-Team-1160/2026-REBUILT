@@ -5,11 +5,7 @@ public final class RobotUtils {
         return Math.sqrt(a*a + b*b);
     }
 
-    public static double getDistance(double x, double y, double z) {
-        return  Math.sqrt(x*x + y*y + z*z);
-    }
-
-    public static double metersToInches(double x) {
-        return x * 39.3701;
+    public static double metersToInches(double a) {
+        return a*39.3701;
     }
 }

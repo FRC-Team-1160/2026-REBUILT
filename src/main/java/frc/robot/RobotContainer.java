@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import org.opencv.core.Mat;
+
 //import frc.robot.Constants.OperatorConstants;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
@@ -16,9 +19,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 //import frc.robot.commands.ExampleCommand;
 //import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -30,12 +35,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.Intake.Intake;
 import frc.robot.Subsystems.Shooter.Shooter;
-import frc.robot.Subsystems.Vision.Vision;
-import frc.robot.Subsystems.Agitator.AgitatorTest;
-import frc.robot.LimelightHelpers;
+import frc.robot.Subsystems.Vision.LimelightIO;
+import frc.robot.Subsystems.Vision.VisionSubsystem;
+//import frc.robot.Subsystems.Vision.Vision;
 //import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ControllerButtonConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ShooterConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -44,62 +50,55 @@ import frc.robot.Constants.FieldConstants;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
   private boolean testingShooter = true;
-  private boolean redAlliance = false;
+  
+  private final SendableChooser<Command> autoChooser;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
-
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
   private Joystick test_stick = new Joystick(3);
-
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Intake m_intake = new Intake();
   //public final AgitatorTest m_agitatorTest = new AgitatorTest();
   public final Shooter m_shooter = new Shooter();
-  public final Vision m_vision = new Vision();
+  public final LimelightIO m_limelightio = new LimelightIO();
+  public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     // Configure the trigger bindings
     configureBindings();
   }
 
-    public void updateSwerve() {
-    
-    SmartDashboard.putNumber("tx",LimelightHelpers.getTX("limelight"));
-    SmartDashboard.putBoolean("tv",LimelightHelpers.getTV("limelight"));
-    
-    //double rightStickUpDown = main_stick.getRawAxis(5);
-    //SmartDashboard.putNumber("joystick_axis_5", rightStickUpDown);
+  public void updateSwerve() {
+  
+    SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
     double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(0);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    //double rightStickLeftRight = main_stick.getRawAxis(4);
-    //SmartDashboard.putNumber("joystick_axis_4", rightStickLeftRight);
-
     double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * main_stick.getRawAxis(1);
-    //SmartDashboard.putNumber("y_mps", y_metersPerSecond);
 
-    //double leftStickLeftRight = main_stick.getRawAxis(0);
-    double angle_radiansPerSecond = 0;    
+    double angle_radiansPerSecond;    
 
-    double tx = getHubTagTarget();
-    getDistanceFromCenterHub();
-    if (main_stick.getRawButton(6) && tx != 0) {
-      angle_radiansPerSecond = tx;
+    // if pressing button 6 then we align to the hub
+    if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+      double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees());
+      angle_radiansPerSecond = degreeDifference * (Math.PI/180);
+      SmartDashboard.putNumber("bot-hub degreeDifferece", degreeDifference);
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
     * Math.pow(main_stick.getRawAxis(4), 2);
     }
-
+    
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
     //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
 
@@ -108,7 +107,6 @@ public class RobotContainer {
       y_metersPerSecond, 
       angle_radiansPerSecond
       );
-  
   }
 
   /**
@@ -120,35 +118,6 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}
    */
-  private double getHubTagTarget() {
-    //System.out.println("f");
-    if (LimelightHelpers.getTV("limelight")) {
-      double tid = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getDouble(0);
-      SmartDashboard.putNumber("tid", tid);
-      double tx = LimelightHelpers.getTX("limelight") * -0.05;
-      //System.out.println("TX: " + tx);
-      SmartDashboard.putNumber("tx", tx);
-      return tx;
-    }
-    return 0;
-  }
-
-  private double getDistanceFromCenterHub() {
-    if (LimelightHelpers.getTV("limelight")) {
-      Pose2d botPose;
-      if (redAlliance) {
-        botPose = (LimelightHelpers.getBotPose2d_wpiRed("limelight"));
-      } else {
-        botPose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
-      }   
-      SmartDashboard.putNumber("botPoseX", botPose.getX());
-      SmartDashboard.putNumber("botPoseY", botPose.getY());
-      double distanceMeters = RobotUtils.hypot(FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX() - botPose.getX(), FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY() - botPose.getY());
-      SmartDashboard.putNumber("Test Distance from Hub", RobotUtils.metersToInches(distanceMeters));
-      return RobotUtils.metersToInches(distanceMeters);
-    }
-    return 50; // if we dont see an apriltag, im making 50 inches our default because i think thats where were usually shooting
-  }
 
   private void configureBindings() {
     new JoystickButton(main_stick, 8).onTrue(
@@ -176,30 +145,33 @@ public class RobotContainer {
     // shooter bindings
 
     new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-      new RunCommand(() -> m_shooter.runMotors(getDistanceFromCenterHub())).finallyDo(m_shooter::stopMotors)
-    );
+        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(m_vision.getBotToHubDistance())))
+          .finallyDo(m_shooter::stopMotors)
+      );
 
     // shooter test bindings
     
     if (testingShooter) {
       new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.runMotors(12)).finallyDo(m_shooter::stopMotors)
+        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(0)))
+          .finallyDo(m_shooter::stopMotors)
       );
+      // use m_vision.getBotToHubDistance() for distance
       
       new JoystickButton(test_stick, 5).onTrue(
-        new InstantCommand(() -> m_shooter.changeDistance(-1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeBottomRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 6).onTrue(
-        new InstantCommand(() -> m_shooter.changeDistance(1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeBottomRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 7).onTrue(
-        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeTopRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 8).onTrue(
-        new InstantCommand(() -> m_shooter.changeBottomRollerVoltage(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeTopRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
     }
 
@@ -213,6 +185,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new InstantCommand();
+    return new PathPlannerAuto("Example Auto");
+    //return autoChooser.getSelected();
   } 
 }

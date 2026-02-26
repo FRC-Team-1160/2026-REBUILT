@@ -21,6 +21,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    LimelightHelpers.SetRobotOrientation("limelight", m_robot_container.m_drive.getGyroAngle().getDegrees(),0,0,0,0,0);
     CommandScheduler.getInstance().run();
   }
 
@@ -36,8 +37,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     autonomous_command = m_robot_container.getAutonomousCommand();
-
     if (autonomous_command != null) {
+      System.out.println("AUTO INITIALIZED");
       autonomous_command.schedule();
     }
   }
