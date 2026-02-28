@@ -133,6 +133,10 @@ public class RobotContainer {
     );
     // agitation too
 
+    new Trigger(() -> second_stick.getRawButton(2)).whileTrue(
+      new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
+    );
+
     new Trigger(() -> second_stick.getRawButton(5)).whileTrue(
       new RunCommand(m_intake::extendArm).finallyDo(m_intake::stopArm)
     );

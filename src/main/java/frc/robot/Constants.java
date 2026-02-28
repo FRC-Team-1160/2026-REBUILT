@@ -44,7 +44,9 @@ public static class IntakeConstants{
   public static final double EXTENSION_MAX = -48.5; // 4.5 prongs left at -48
   public static final double EXTENSION_MIN = 0; // ignore lololol
   public static final double EXTENDER_VOLTAGE = 12;
+
   public static final double INTAKE_VOLTAGE = -8;
+  
   public static final int AGITATOR_CURRENT_LIMIT = 40;
   public static final int AGITATOR_VOLTAGE = -10;
 }
