@@ -51,6 +51,10 @@ public class VisionSubsystem extends SubsystemBase {
     return limelight.getAngleDegreeOffsetFromHubCenter(yaw);
    }
 
+   public boolean botIsFacingHub() {
+    return limelight.botIsFacingHub();
+   }
+
    @Override
    public void periodic() {
     SmartDashboard.putNumber("LLTagCount", getTagCount());

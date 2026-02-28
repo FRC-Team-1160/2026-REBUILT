@@ -22,11 +22,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase {
-    private SparkMax agitatorMotor;
-    private final RelativeEncoder encoder;
-    private final SparkMaxConfig agitatorMotorConfig;
-    private final AlternateEncoderConfig agitatorEncoderConfig;
-
     private double inchesFromHub = 0; // only use for testing shooter
     private double bottomRollerVoltage = 2.75; // i think this is the one we should keep constant
     private double bottomRollerTargetRPS = 22.5;
@@ -37,17 +32,6 @@ public class Shooter extends SubsystemBase {
     private TalonFX topRollerMotor = new TalonFX(Port.SHOOTER_TOP_ROLLER_MOTOR);
 
     public Shooter() {
-        agitatorMotor = new SparkMax(Port.SHOOTER_INTAKE_MOTOR, MotorType.kBrushless);
-        agitatorMotorConfig = new SparkMaxConfig();
-        agitatorEncoderConfig = new AlternateEncoderConfig();  
-        agitatorMotorConfig.idleMode(SparkMaxConfig.IdleMode.kBrake)
-            .smartCurrentLimit(ShooterConstants.AGITATOR_CURRENT_LIMIT);//IntakeConstants.EXTENDER_CURRENT_LIMIT);
-        agitatorEncoderConfig.positionConversionFactor(IntakeConstants.EXTENDER_GEAR_RATIO);
-        agitatorMotorConfig.apply(agitatorEncoderConfig);
-        encoder = agitatorMotor.getEncoder();
-        encoder.setPosition(0);
-        agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
-
         TalonFXConfiguration topMotor_configs = new TalonFXConfiguration();
         TalonFXConfiguration bottomMotor_configs = new TalonFXConfiguration();
 
@@ -90,16 +74,17 @@ public class Shooter extends SubsystemBase {
         VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
         VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
 
-        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(0.5));
-        farBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(0.5)); // add feedforward?
-        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerTargetRPS).withFeedForward(0.5));
-        agitatorMotor.setVoltage(ShooterConstants.AGITATOR_VOLTAGE);
+        // nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-bottomRollerTargetRPS).withFeedForward(0.5));
+        // farBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(0.5)); // add feedforward?
+        // topRollerMotor.setControl(topMotor_request.withVelocity(topRollerTargetRPS).withFeedForward(0.5));
+        //un comment these later!
+        //agitatorMotor.setVoltage(ShooterConstants.AGITATOR_VOLTAGE);
     }
 
     public void stopMotors() {
         // passively stops motors
         // consider actively stopping them using setControl?
-        agitatorMotor.setVoltage(0);
+        //agitatorMotor.setVoltage(0);
         farBottomRollerMotor.setVoltage(0);
         nearBottomRollerMotor.setVoltage(0);
         topRollerMotor.setVoltage(0);
@@ -107,15 +92,15 @@ public class Shooter extends SubsystemBase {
 
     // testing for shooter distances
 
-    public void changeDistance(int change) {
-        inchesFromHub += change;
-        SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
-    }
+    // public void changeDistance(int change) {
+    //     inchesFromHub += change;
+    //     SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
+    // }
 
-    public void changeBottomRollerVoltage(double change) {
-        bottomRollerVoltage += change;
-        SmartDashboard.putNumber("Bottom Roller Voltage", bottomRollerVoltage);
-    }
+    // public void changeBottomRollerVoltage(double change) {
+    //     bottomRollerVoltage += change;
+    //     SmartDashboard.putNumber("Bottom Roller Voltage", bottomRollerVoltage);
+    // }
 
     //
     // new functions for testing with rotations per second
@@ -132,8 +117,6 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // optional telemetry:
-        super.periodic();
-        SmartDashboard.putNumber("Belt Velocity", encoder.getVelocity());
+        
     }
 }

@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
     /** Extend intake until max */
     public void extendArm() {
         if (isFullyExtended() || overridePosition == true) {
-            extenderMotor.setVoltage(-IntakeConstants.EXTENDER_SPEED_LIMIT);
+            extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE);
         } else {
             extenderMotor.setVoltage(0);
         }
@@ -71,7 +71,7 @@ public class Intake extends SubsystemBase {
     /** Retract intake until fully retracted */
     public void retractArm() {
         if (isFullyRetracted() || overridePosition == true) {
-            extenderMotor.setVoltage(IntakeConstants.EXTENDER_SPEED_LIMIT);
+            extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE);
         } else {
             extenderMotor.setVoltage(0);
         }
@@ -79,7 +79,7 @@ public class Intake extends SubsystemBase {
 
     // intake functions
     public void runIntake() {
-        intakeMotor.setVoltage(IntakeConstants.INTAKE_SPEED);
+        intakeMotor.setVoltage(IntakeConstants.INTAKE_VOLTAGE);
     }
 
     public void stopIntake() {

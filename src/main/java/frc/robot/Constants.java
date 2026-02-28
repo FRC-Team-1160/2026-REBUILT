@@ -40,19 +40,20 @@ public static class IntakeConstants{
 
   public static final double EXTENDER_GEAR_RATIO = 40;
   public static final double POSITION_CONVERSION = (Math.PI * 0.04572)/EXTENDER_GEAR_RATIO;
-  public static final int EXTENDER_CURRENT_LIMIT = 20;
+  public static final int EXTENDER_CURRENT_LIMIT = 40;
   public static final double EXTENSION_MAX = -48.5; // 4.5 prongs left at -48
-  public static final double EXTENSION_MIN = 0;
-
-  public static final double EXTENDER_SPEED_LIMIT = 6;
-  public static final double INTAKE_SPEED = -8;
-  public static final int INTAKE_CURRENT_LIMIT = 20;
+  public static final double EXTENSION_MIN = 0; // ignore lololol
+  public static final double EXTENDER_VOLTAGE = 12;
+  public static final double INTAKE_VOLTAGE = -8;
+  public static final int INTAKE_CURRENT_LIMIT = 40;
+  public static final int AGITATOR_CURRENT_LIMIT = 40;
+  public static final int AGITATOR_VOLTAGE = -10;
 }
 
 public static class ShooterConstants{
-  public static final double AGITATOR_GEAR_RATIO = 20;
-  public static final double AGITATOR_VOLTAGE = -11;
-  public static final int AGITATOR_CURRENT_LIMIT = 20;
+  public static final double GATE_GEAR_RATIO = 20;
+  public static final double GATE_VOLTAGE = -11;
+  public static final int GATE_CURRENT_LIMIT = 20;
   public static final String LIMELIGHT_NAME = "limelight";
 
   public static class BottomMotorConfigs {
@@ -94,11 +95,12 @@ public static class ShooterConstants{
     public static final int BACK_RIGHT_CODER = 5;
 
     // for da intake
-    public static final int INTAKE_EXTENDER_MOTOR = 25; // idk we get to it when we get to it
-    public static final int INTAKE_MOTOR = 26;
+    public static final int INTAKE_EXTENDER_MOTOR = 27; // idk we get to it when we get to it
+    public static final int INTAKE_MOTOR = 30;
+    public static final int AGITATOR_MOTOR = 26;
 
     // for da shooter
-    public static final int SHOOTER_INTAKE_MOTOR = 29;
+    public static final int SHOOTER_GATE_MOTOR = 16;
     public static final int SHOOTER_TOP_ROLLER_MOTOR = 13;
     public static final int NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR = 5;
     public static final int FAR_SHOOTER_BOTTOM_ROLLER_MOTOR = 18;

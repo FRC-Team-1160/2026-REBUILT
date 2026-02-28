@@ -35,9 +35,9 @@ public class SwerveModuleRealIO extends SwerveModule{
   public CANcoder steer_sensor;
 
   public SwerveModuleRealIO(int drive_port, int steer_port, int sensor_port){
-    drive_motor = new TalonFX(drive_port);
-    steer_motor = new TalonFX(steer_port);
-    steer_sensor = new CANcoder(sensor_port);
+    drive_motor = new TalonFX(drive_port,"CANivore");
+    steer_motor = new TalonFX(steer_port,"CANivore");
+    steer_sensor = new CANcoder(sensor_port,"CANivore");
     steerPortVar = steer_port;
     
     TalonFXConfiguration drive_configs = new TalonFXConfiguration();

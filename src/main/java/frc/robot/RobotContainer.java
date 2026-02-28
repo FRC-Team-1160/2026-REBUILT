@@ -10,6 +10,7 @@ import org.opencv.core.Mat;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import frc.robot.Subsystems.Agitator.Agitator;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
@@ -66,6 +67,7 @@ public class RobotContainer {
   public final Shooter m_shooter = new Shooter();
   public final LimelightIO m_limelightio = new LimelightIO();
   public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
+  public final Agitator m_agitator = new Agitator();
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -90,13 +92,13 @@ public class RobotContainer {
     double angle_radiansPerSecond;    
 
     // if pressing button 6 then we align to the hub
-    if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+    if (main_stick.getRawButton(6)) {
       double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees());
-      angle_radiansPerSecond = degreeDifference * (Math.PI/180);
-      SmartDashboard.putNumber("bot-hub degreeDifferece", degreeDifference);
+      angle_radiansPerSecond = Math.min(Math.max(degreeDifference * (Math.PI/180), 2),-2); // convert degrees to radians
+      SmartDashboard.putNumber("bot-hub degreeDifference", degreeDifference);
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
-    * Math.pow(main_stick.getRawAxis(4), 2);
+      * Math.pow(main_stick.getRawAxis(4), 2);
     }
     
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
@@ -127,8 +129,9 @@ public class RobotContainer {
     // intake bindings
 
     new Trigger(() -> second_stick.getRawButton(4)).whileTrue(
-      new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
+      new RunCommand(m_agitator::runAgitation).finallyDo(m_agitator::stopAgitation)
     );
+    // agitation too
 
     new Trigger(() -> second_stick.getRawButton(5)).whileTrue(
       new RunCommand(m_intake::extendArm).finallyDo(m_intake::stopArm)
@@ -144,10 +147,10 @@ public class RobotContainer {
 
     // shooter bindings
 
-    new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(m_vision.getBotToHubDistance())))
-          .finallyDo(m_shooter::stopMotors)
-      );
+    // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
+    //     new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(m_vision.getBotToHubDistance())))
+    //       .finallyDo(m_shooter::stopMotors)
+    //   );
 
     // shooter test bindings
     

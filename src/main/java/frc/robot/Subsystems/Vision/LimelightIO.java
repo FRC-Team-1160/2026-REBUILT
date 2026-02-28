@@ -35,6 +35,7 @@ public class LimelightIO extends SubsystemBase{
     } else {blueAlliance = false;}
 
     poseEstimator = getPoseEstimate();
+    poseEstimator.isMegaTag2 = true;
    }
 
    public Optional<VisionMeasurement> returnLLVisionMeasurement(){
@@ -81,9 +82,13 @@ public class LimelightIO extends SubsystemBase{
 
    public double getAngleDegreeOffsetFromHubCenter(double yawDeg) {
     double targetPoint = Math.atan2(FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX() - poseEstimator.pose.getX(),
-     FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY() - poseEstimator.pose.getY()) * (180/Math.PI);
+        FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY() - poseEstimator.pose.getY()) * (180/Math.PI);
     double difference = yawDeg - targetPoint;
     return difference;
+   }
+
+   public boolean botIsFacingHub() {
+    return true; // uhh work omn this later
    }
 }
 
