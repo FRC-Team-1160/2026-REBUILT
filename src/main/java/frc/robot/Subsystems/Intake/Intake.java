@@ -2,6 +2,7 @@ package frc.robot.Subsystems.Intake;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,10 +24,7 @@ public class Intake extends SubsystemBase {
     private final SparkMaxConfig extenderMotorConfig;
     private final AlternateEncoderConfig extenderEncoderConfig;
 
-    private final SparkMax intakeMotor;
-    private final RelativeEncoder intakeEncoder;
-    private final SparkMaxConfig intakeMotorConfig;
-    private final AlternateEncoderConfig intakeEncoderConfig;
+    private TalonFX intakeMotor = new TalonFX(Port.INTAKE_MOTOR);
 
     private boolean overridePosition = false;
     private DigitalInput armLimit = new DigitalInput(9);
@@ -46,17 +44,6 @@ public class Intake extends SubsystemBase {
         extenderMotor.configure(extenderMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
 
         // alalalalalallalala yayayayay
-
-        intakeMotor = new SparkMax(Port.INTAKE_MOTOR, MotorType.kBrushless);
-        intakeMotorConfig = new SparkMaxConfig();
-        intakeEncoderConfig = new AlternateEncoderConfig();  
-        intakeMotorConfig.idleMode(SparkMaxConfig.IdleMode.kBrake)
-            .smartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
-        intakeEncoderConfig.positionConversionFactor(IntakeConstants.EXTENDER_GEAR_RATIO);
-        intakeEncoderConfig.apply(intakeEncoderConfig);
-        intakeEncoder = intakeMotor.getEncoder();
-        intakeEncoder.setPosition(0);
-        intakeMotor.configure(intakeMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
     /** Extend intake until max */

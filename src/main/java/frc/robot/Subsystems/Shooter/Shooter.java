@@ -25,7 +25,7 @@ public class Shooter extends SubsystemBase {
     private double inchesFromHub = 0; // only use for testing shooter
     private double bottomRollerVoltage = 2.75; // i think this is the one we should keep constant
     private double bottomRollerTargetRPS = 22.5;
-    private double topRollerTargetRPS = 10;
+    private double topRollerTargetRPS = 7;
 
     private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX nearBottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);

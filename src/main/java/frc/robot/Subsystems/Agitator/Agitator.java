@@ -32,7 +32,7 @@ public class Agitator extends SubsystemBase {
         agitatorEncoderConfig.positionConversionFactor(IntakeConstants.EXTENDER_GEAR_RATIO);
         agitatorEncoderConfig.apply(agitatorEncoderConfig);
         agitatorEncoder = agitatorMotor.getEncoder();
-        agitatorEncoder.setPosition(0);
+        //agitatorEncoder.setPosition(0);
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
 
         gateMotor = new SparkMax(Port.SHOOTER_GATE_MOTOR, MotorType.kBrushless);
@@ -43,7 +43,7 @@ public class Agitator extends SubsystemBase {
         gateEncoderConfig.positionConversionFactor(ShooterConstants.GATE_GEAR_RATIO);
         gateEncoderConfig.apply(gateEncoderConfig);
         gateEncoder = gateMotor.getEncoder();
-        gateEncoder.setPosition(0);
+        //gateEncoder.setPosition(0);
         gateMotor.configure(gateMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
@@ -55,5 +55,13 @@ public class Agitator extends SubsystemBase {
     public void stopAgitation() {
         gateMotor.setVoltage(0);
         agitatorMotor.setVoltage(0);
+    }
+
+    @Override
+    public void periodic() {
+        // optional telemetry:
+        super.periodic();
+        SmartDashboard.putNumber("Agitator Current", agitatorMotor.getOutputCurrent());
+        SmartDashboard.putNumber("Gate Current", agitatorMotor.getOutputCurrent());
     }
 }
