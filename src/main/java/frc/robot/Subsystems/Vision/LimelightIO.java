@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
 
@@ -25,7 +26,8 @@ public class LimelightIO extends SubsystemBase{
    private final String limelightName = ShooterConstants.LIMELIGHT_NAME;
    // private final NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
    private final double[] defaultArray = {0};
-   private final LimelightHelpers.PoseEstimate poseEstimator;
+   private LimelightHelpers.PoseEstimate poseEstimator;
+   //private final LimelightHelpers llHelpers;
    // nt instance above if needed
   
    public LimelightIO(){
@@ -77,7 +79,16 @@ public class LimelightIO extends SubsystemBase{
    public double getBotDistanceFromHubCenter(){
     double distance = RobotUtils.hypot((poseEstimator.pose.getX() - FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX()), 
         poseEstimator.pose.getY() - FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY());
-    return distance;
+    return RobotUtils.metersToInches(distance);
+   }
+
+   public double nonBrennanGetBotDistanceFromHUbCenter(){
+        double distance = RobotUtils.hypot(poseEstimator.pose.getX(), poseEstimator.pose.getY());
+    return RobotUtils.metersToInches(distance);
+   }
+
+   public double getBotDistAnyTag(){
+    return 0;
    }
 
    public double getAngleDegreeOffsetFromHubCenter(double yawDeg) {
@@ -89,6 +100,14 @@ public class LimelightIO extends SubsystemBase{
 
    public boolean botIsFacingHub() {
     return true; // uhh work omn this later
+   }
+
+   @Override
+   public void periodic() {
+    poseEstimator = getPoseEstimate();
+   // SmartDashboard.putNumber("ASDFJASDFASJD", )
+    SmartDashboard.putNumber("pose x", poseEstimator.pose.getX());
+    SmartDashboard.putNumber("pose y", poseEstimator.pose.getY());
    }
 }
 

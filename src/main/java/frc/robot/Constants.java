@@ -43,12 +43,12 @@ public static class IntakeConstants{
   public static final int EXTENDER_CURRENT_LIMIT = 40;
   public static final double EXTENSION_MAX = -48.5; // 4.5 prongs left at -48
   public static final double EXTENSION_MIN = 0; // ignore lololol
-  public static final double EXTENDER_VOLTAGE = 12;
+  public static final double EXTENDER_VOLTAGE = 3;
 
-  public static final double INTAKE_VOLTAGE = -8;
-  
-  public static final int AGITATOR_CURRENT_LIMIT = 40;
-  public static final int AGITATOR_VOLTAGE = -10;
+  public static final double INTAKE_VOLTAGE = -5;
+
+  public static final int AGITATOR_CURRENT_LIMIT = 30;
+  public static final int AGITATOR_VOLTAGE = 8;
 }
 
 public static class ShooterConstants{
@@ -58,9 +58,9 @@ public static class ShooterConstants{
   public static final String LIMELIGHT_NAME = "limelight";
 
   public static class BottomMotorConfigs {
-    public static final double kP = 15;
+    public static final double kP = 0.5;
     public static final double kI = 0;
-    public static final double kD = 0.75;
+    public static final double kD = 0;
     public static final double kS = 0;
     public static final double kV = 0;
     public static final double kA = 0;
@@ -68,9 +68,9 @@ public static class ShooterConstants{
   }
 
   public static class TopMotorConfigs {
-    public static final double kP = 15;
+    public static final double kP = 1;
     public static final double kI = 0;
-    public static final double kD = 0.75;
+    public static final double kD = 0;
     public static final double kS = 0;
     public static final double kV = 0;
     public static final double kA = 0;

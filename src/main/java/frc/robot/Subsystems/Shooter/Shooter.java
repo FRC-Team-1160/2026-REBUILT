@@ -1,14 +1,18 @@
 package frc.robot.Subsystems.Shooter;
 
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotUtils;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Port;
 import frc.robot.Constants.ShooterConstants;
@@ -22,10 +26,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase {
-    private double inchesFromHub = 0; // only use for testing shooter
+    private double inchesFromHub = 120; // only use for testing shooter
     private double bottomRollerVoltage = 2.75; // i think this is the one we should keep constant
-    private double bottomRollerTargetRPS = 22.5;
-    private double topRollerTargetRPS = 7;
+    private double bottomRollerTargetRPS = -22.5; //-22.5
+    private double topRollerTargetRPS = 85;
 
     private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX nearBottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
@@ -59,35 +63,48 @@ public class Shooter extends SubsystemBase {
 
         SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
         SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
+
+        farBottomRollerMotor.setControl(new Follower(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
     }
 
-    public double getTopMotorVelocityFromDistanceInches(double distanceFromTargetInches) {
+    public double getTopMotorRPSFromDistanceInches(double distanceFromTargetInches) {
         //distance is from center bottom of bot to ground center of hub
-        double topRollerVelocity = (0.0281191*distanceFromTargetInches) + 3.82155;//test function
-        return topRollerVelocity;
+        double topRollerRPS = 0.00079997*Math.pow(distanceFromTargetInches,2) + 0.198584*distanceFromTargetInches+29.26717;//test function
+        return topRollerRPS;
         // item 0 is for the bottom voltage, item 1 is for the top voltage
     }
 
-    public void runMotors(double distanceFromTargetMeters) {
+    public double getVoltageFromRPS(double rps) {
+        return 0.2203 + 0.1107*rps; // only for top roller
+    }
+
+    public void runMotors(double distanceFromTargetInches) {
         //double[] motorVoltages = getMotorVoltageFromDistanceMeters(distanceFromTargetInches); // should this be an april tag or where were planning on getting the balls to actually land???
+        double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);
 
         VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
         VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
 
-        // nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-bottomRollerTargetRPS).withFeedForward(0.5));
-        // farBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(0.5)); // add feedforward?
-        // topRollerMotor.setControl(topMotor_request.withVelocity(topRollerTargetRPS).withFeedForward(0.5));
-        //un comment these later!
-        //agitatorMotor.setVoltage(ShooterConstants.AGITATOR_VOLTAGE);
+        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(-2.75));
+
+        //farBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS)); // add feedforward?
+        // commet out far motor because we change to follower
+        
+        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+
+        // farBottomRollerMotor.setVoltage(-3);
+        //nearBottomRollerMotor.setVoltage(-3);
+        //topRollerMotor.setVoltage(4);
     }
 
     public void stopMotors() {
+        //VelocityVoltage motor_request = new VelocityVoltage(0).withSlot(0);
         // passively stops motors
         // consider actively stopping them using setControl?
         //agitatorMotor.setVoltage(0);
-        farBottomRollerMotor.setVoltage(0);
-        nearBottomRollerMotor.setVoltage(0);
-        topRollerMotor.setVoltage(0);
+        //farBottomRollerMotor.stopMotor();
+        nearBottomRollerMotor.stopMotor();
+        topRollerMotor.stopMotor();
     }
 
     // testing for shooter distances
@@ -104,19 +121,24 @@ public class Shooter extends SubsystemBase {
 
     //
     // new functions for testing with rotations per second
-    public void changeBottomRollerRPS(double change) {
-        bottomRollerTargetRPS += change;
-        SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
-    }
+    // public void changeBottomRollerRPS(double change) {
+    //     bottomRollerTargetRPS += change;
+    //     SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
+    // }
 
-    public void changeTopRollerRPS(double change) {
-        topRollerTargetRPS += change;
-        SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
+    // public void changeTopRollerRPS(double change) {
+    //     topRollerTargetRPS += change;
+    //     SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
+    // }
+    
+
+    public void changeDistanceInches(double change) {
+        inchesFromHub += change;
+        SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
     }
-    //
 
     @Override
     public void periodic() {
-        
+        SmartDashboard.putNumber("distance from hub inches test", inchesFromHub);
     }
 }

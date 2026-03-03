@@ -81,6 +81,7 @@ public class RobotContainer {
   }
 
   public void updateSwerve() {
+    SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees()));
   
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
@@ -92,10 +93,9 @@ public class RobotContainer {
     double angle_radiansPerSecond;    
 
     // if pressing button 6 then we align to the hub
-    if (main_stick.getRawButton(6)) {
-      double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees());
-      angle_radiansPerSecond = Math.min(Math.max(degreeDifference * (Math.PI/180), 2),-2); // convert degrees to radians
-      SmartDashboard.putNumber("bot-hub degreeDifference", degreeDifference);
+    if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+      double degreeDifference = -m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
+      angle_radiansPerSecond = Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180),2), 2),-2); // convert degrees to radians
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
       * Math.pow(main_stick.getRawAxis(4), 2);
@@ -151,34 +151,26 @@ public class RobotContainer {
 
     // shooter bindings
 
-    // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-    //     new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(m_vision.getBotToHubDistance())))
-    //       .finallyDo(m_shooter::stopMotors)
-    //   );
+    new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
+        new RunCommand(() -> m_shooter.runMotors(m_vision.getBotToHubDistance()))
+          .finallyDo(m_shooter::stopMotors)
+      );
 
     // shooter test bindings
     
     if (testingShooter) {
       new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.runMotors(RobotUtils.metersToInches(0)))
+        new RunCommand(() -> m_shooter.runMotors(m_vision.getBotToHubDistance()))
           .finallyDo(m_shooter::stopMotors)
       );
       // use m_vision.getBotToHubDistance() for distance
       
       new JoystickButton(test_stick, 5).onTrue(
-        new InstantCommand(() -> m_shooter.changeBottomRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeDistanceInches(-1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 6).onTrue(
-        new InstantCommand(() -> m_shooter.changeBottomRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
-      );
-
-      new JoystickButton(test_stick, 7).onTrue(
-        new InstantCommand(() -> m_shooter.changeTopRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
-      );
-
-      new JoystickButton(test_stick, 8).onTrue(
-        new InstantCommand(() -> m_shooter.changeTopRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeDistanceInches(1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
     }
 

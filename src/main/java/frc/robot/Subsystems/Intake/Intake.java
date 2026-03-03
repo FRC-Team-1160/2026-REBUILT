@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
 
     /** Extend intake until max */
     public void extendArm() {
-        if (isFullyExtended() || overridePosition == true) {
+        if (isFullyExtended() || overridePosition == true || true) {
             extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE);
         } else {
             extenderMotor.setVoltage(0);
@@ -57,7 +57,7 @@ public class Intake extends SubsystemBase {
 
     /** Retract intake until fully retracted */
     public void retractArm() {
-        if (isFullyRetracted() || overridePosition == true) {
+        if (isFullyRetracted() || overridePosition == true || true) {
             extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE);
         } else {
             extenderMotor.setVoltage(0);

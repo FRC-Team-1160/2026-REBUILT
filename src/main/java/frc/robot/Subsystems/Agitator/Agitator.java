@@ -1,5 +1,6 @@
 package frc.robot.Subsystems.Agitator;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Port;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.ShooterConstants.BottomMotorConfigs;
 
 public class Agitator extends SubsystemBase {
     private final SparkMax agitatorMotor;
@@ -45,6 +47,15 @@ public class Agitator extends SubsystemBase {
         gateEncoder = gateMotor.getEncoder();
         //gateEncoder.setPosition(0);
         gateMotor.configure(gateMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+
+        // agitatorMotorConfig. = new Slot0Configs()
+        // .withKP(BottomMotorConfigs.kP)
+        // .withKI(BottomMotorConfigs.kI)
+        // .withKD(BottomMotorConfigs.kD)
+        // .withKS(BottomMotorConfigs.kS)
+        // .withKV(BottomMotorConfigs.kV)
+        // .withKA(BottomMotorConfigs.kA)
+        // .withKG(BottomMotorConfigs.kG);
     }
 
     public void runAgitation() {
