@@ -370,7 +370,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
     SmartDashboard.putNumber("pose_angle", odom_pose.getRotation().getDegrees());
-    //SmartDashboard.putNumber("VISION SUB AT DIST", visionSub.getTagDistance());
+    //SmartDashboard.putNumber("VISION SUB AT DIST", visionSub.getTagDitance());
     for (SwerveModule module : modules) {
       module.update();
     }

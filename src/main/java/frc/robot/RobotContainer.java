@@ -85,19 +85,19 @@ public class RobotContainer {
   
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(0);
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(0);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * main_stick.getRawAxis(1);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * main_stick.getRawAxis(1);
 
     double angle_radiansPerSecond;    
 
     // if pressing button 6 then we align to the hub
-    if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+    if (main_stick.getRawButton(10) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
       double degreeDifference = -m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
       angle_radiansPerSecond = Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180),2), 2),-2); // convert degrees to radians
     } else {  
-      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1 * Math.signum(main_stick.getRawAxis(4)) * 1.5
+      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -2 * Math.signum(main_stick.getRawAxis(4)) * 1.5
       * Math.pow(main_stick.getRawAxis(4), 2);
     }
     
@@ -133,21 +133,26 @@ public class RobotContainer {
     );
     // agitation too
 
-    new Trigger(() -> second_stick.getRawButton(2)).whileTrue(
+    new Trigger(() -> (main_stick.getRawAxis(2) > 0.2)).whileTrue(
       new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
     );
 
-    new Trigger(() -> second_stick.getRawButton(5)).whileTrue(
+    new Trigger(() -> (main_stick.getRawAxis(2) > 0.2)).whileTrue(
       new RunCommand(m_intake::extendArm).finallyDo(m_intake::stopArm)
     );
 
-    new Trigger(() -> second_stick.getRawButton(6)).whileTrue(
+    new Trigger(() -> main_stick.getRawButton(5)).whileTrue(
       new RunCommand(m_intake::retractArm).finallyDo(m_intake::stopArm)
     );
 
-    new Trigger(() -> second_stick.getRawButton(8)).whileTrue(
+    new Trigger(() -> main_stick
+    .getRawButton(9)).whileTrue(
       new RunCommand(m_intake::overridePosition).finallyDo(m_intake::stopPositionOverride)
     );
+
+    new JoystickButton(main_stick, 6).onTrue(
+        new InstantCommand(() -> m_shooter.changeDistanceInches(1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
 
     // shooter bindings
 
