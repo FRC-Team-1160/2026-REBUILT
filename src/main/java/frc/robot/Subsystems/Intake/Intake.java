@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
 
     /** Extend intake until max */
     public void extendArm() {
-        if (!isFullyExtended() || overridePosition == true || true) {
+        if (!isFullyExtended() || overridePosition == true) {
             extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE);
         } else {
             extenderMotor.setVoltage(0);
@@ -57,7 +57,7 @@ public class Intake extends SubsystemBase {
 
     /** Retract intake until fully retracted */
     public void retractArm() {
-        if (!isFullyRetracted() || overridePosition == true || true) {
+        if (!isFullyRetracted() || overridePosition == true) {
             extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE);
         } else {
             extenderMotor.setVoltage(0);
@@ -80,11 +80,11 @@ public class Intake extends SubsystemBase {
 
     // getting intake arm positions
     public boolean isFullyExtended() {
-        return encoder.getPosition() >= IntakeConstants.EXTENSION_MAX;
+        return encoder.getPosition() <= IntakeConstants.EXTENSION_MAX;
     }
 
     public boolean isFullyRetracted() {
-        return encoder.getPosition() <= IntakeConstants.EXTENSION_MIN;
+        return encoder.getPosition() >= IntakeConstants.EXTENSION_MIN;
     }
 
     // for when we need to reset the position with the limit switch
@@ -97,7 +97,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void resetArmPosition() {
-        encoder.setPosition(IntakeConstants.EXTENSION_MAX);
+        encoder.setPosition(IntakeConstants.EXTENSION_MAX - 3);
     }
 
     /** Returns current extension in encoder units */
@@ -112,7 +112,8 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putBoolean("Intake Arm Max Reached", !armLimit.get());
         SmartDashboard.putNumber("Intake position", getExtension());
         if (!armLimit.get()) {
-            encoder.setPosition(IntakeConstants.EXTENSION_MAX);
+            resetArmPosition();
+            stopArm();
         }
     }
 

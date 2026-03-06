@@ -59,13 +59,19 @@ public class Agitator extends SubsystemBase {
     }
 
     public void runAgitation() {
-        gateMotor.setVoltage(ShooterConstants.GATE_VOLTAGE);
         agitatorMotor.setVoltage(IntakeConstants.AGITATOR_VOLTAGE);
     }
 
     public void stopAgitation() {
-        gateMotor.setVoltage(0);
         agitatorMotor.setVoltage(0);
+    }
+
+    public void runGate() {
+        gateMotor.setVoltage(ShooterConstants.GATE_VOLTAGE);
+    }
+
+    public void stopGate() {
+        gateMotor.setVoltage(0);
     }
 
     @Override

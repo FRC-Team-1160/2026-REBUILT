@@ -41,8 +41,8 @@ public static class IntakeConstants{
   public static final double EXTENDER_GEAR_RATIO = 40;
   public static final double POSITION_CONVERSION = (Math.PI * 0.04572)/EXTENDER_GEAR_RATIO;
   public static final int EXTENDER_CURRENT_LIMIT = 40;
-  public static final double EXTENSION_MAX = -50; // 4.5 prongs left at -48
-  public static final double EXTENSION_MIN = 0; // ignore lololol
+  public static final double EXTENSION_MAX = -26; // 4.5 prongs left at -48
+  public static final double EXTENSION_MIN = -7; // ignore lololol
   public static final double EXTENDER_VOLTAGE = 6;
   ;
 

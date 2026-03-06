@@ -85,19 +85,26 @@ public class RobotContainer {
   
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(0);
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(1);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * main_stick.getRawAxis(1);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(0);
 
     double angle_radiansPerSecond;    
 
     // if pressing button 6 then we align to the hub
-    if (main_stick.getRawButton(10) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
-      double degreeDifference = -m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
-      angle_radiansPerSecond = Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180),2), 2),-2); // convert degrees to radians
+    if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+      double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
+      degreeDifference = Math.abs(degreeDifference) < (3) ? 0 : degreeDifference;
+
+      angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
+      * (degreeDifference < 0 ? -1 : 1); // convert degrees to radians(degreeDifference < 0 ? 3 : -3);
+      
+      SmartDashboard.putNumber("degree diff", degreeDifference);
+
+      //angle_radiansPerSecond = degreeDifference < 0 ? 0.2 : -0.2;
     } else {  
-      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -2 * Math.signum(main_stick.getRawAxis(4)) * 1.5
+      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
       * Math.pow(main_stick.getRawAxis(4), 2);
     }
     
@@ -126,17 +133,22 @@ public class RobotContainer {
       new InstantCommand(m_drive::resetGyroAngle)
     );
 
-    // intake bindings
-
-    new Trigger(() -> second_stick.getRawButton(4)).whileTrue(
+    // agitator
+    new Trigger(() -> second_stick.getRawButton(4) || main_stick.getRawAxis(2) > 0.2).whileTrue(
       new RunCommand(m_agitator::runAgitation).finallyDo(m_agitator::stopAgitation)
     );
-    // agitation too
 
+    //gate
+    new Trigger(() -> second_stick.getRawButton(4)).whileTrue(
+      new RunCommand(m_agitator::runGate).finallyDo(m_agitator::stopGate)
+    );
+
+    //run intake
     new Trigger(() -> (main_stick.getRawAxis(2) > 0.2)).whileTrue(
       new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
     );
 
+    //hopper extension
     new Trigger(() -> (main_stick.getRawAxis(2) > 0.2)).whileTrue(
       new RunCommand(m_intake::extendArm).finallyDo(m_intake::stopArm)
     );
@@ -145,11 +157,13 @@ public class RobotContainer {
       new RunCommand(m_intake::retractArm).finallyDo(m_intake::stopArm)
     );
 
+    //override extension position
     new Trigger(() -> main_stick
-    .getRawButton(9)).whileTrue(
+    .getRawButton(7)).whileTrue(
       new RunCommand(m_intake::overridePosition).finallyDo(m_intake::stopPositionOverride)
     );
 
+    //testing
     new JoystickButton(main_stick, 6).onTrue(
         new InstantCommand(() -> m_shooter.changeDistanceInches(1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );

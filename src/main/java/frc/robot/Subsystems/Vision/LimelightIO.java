@@ -27,7 +27,7 @@ public class LimelightIO extends SubsystemBase{
    // private final NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
    private final double[] defaultArray = {0};
    private LimelightHelpers.PoseEstimate poseEstimator;
-   //private final LimelightHelpers llHelpers;
+   // private final LimelightHelpers llHelpers;
    // nt instance above if needed
   
    public LimelightIO(){
@@ -82,9 +82,9 @@ public class LimelightIO extends SubsystemBase{
     return RobotUtils.metersToInches(distance);
    }
 
-   public double nonBrennanGetBotDistanceFromHUbCenter(){
-        double distance = RobotUtils.hypot(poseEstimator.pose.getX(), poseEstimator.pose.getY());
-    return RobotUtils.metersToInches(distance);
+   public double nonBrennanGetBotDistanceFromHubCenter(){
+        double[] distance = LimelightHelpers.getTargetPose_RobotSpace(limelightName);
+        return RobotUtils.metersToInches(Math.hypot(distance[0], distance[1]+0.5969));
    }
 
    public double getBotDistAnyTag(){
@@ -92,11 +92,13 @@ public class LimelightIO extends SubsystemBase{
    }
 
    public double getAngleDegreeOffsetFromHubCenter(double yawDeg) {
-    double targetPoint = Math.atan2(FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX() - poseEstimator.pose.getX(),
-        FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY() - poseEstimator.pose.getY()) * (180/Math.PI);
+    double targetPoint = Math.atan2(FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY() - poseEstimator.pose.getY(), 
+        FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX() - poseEstimator.pose.getX()) * (180/Math.PI);
     double difference = yawDeg - targetPoint;
     return difference;
    }
+
+
 
    public boolean botIsFacingHub() {
     return true; // uhh work omn this later
@@ -108,6 +110,7 @@ public class LimelightIO extends SubsystemBase{
    // SmartDashboard.putNumber("ASDFJASDFASJD", )
     SmartDashboard.putNumber("pose x", poseEstimator.pose.getX());
     SmartDashboard.putNumber("pose y", poseEstimator.pose.getY());
+    SmartDashboard.putNumber("hoepuflly acc adistance yes", nonBrennanGetBotDistanceFromHubCenter());
    }
 }
 
