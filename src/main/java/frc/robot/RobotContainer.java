@@ -16,6 +16,8 @@ import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 // import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -44,6 +46,8 @@ import frc.robot.Constants.ControllerButtonConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 
+import static frc.robot.Constants.AutoAlignConstants;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -68,6 +72,12 @@ public class RobotContainer {
   public final LimelightIO m_limelightio = new LimelightIO();
   public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   public final Agitator m_agitator = new Agitator();
+
+  public final PIDController autoAlignPID = new PIDController(
+    AutoAlignConstants.kP,
+    AutoAlignConstants.kI,
+    AutoAlignConstants.kD
+  );
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -95,7 +105,15 @@ public class RobotContainer {
     // if pressing button 6 then we align to the hub
     if (main_stick.getRawButton(10) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
       double degreeDifference = -m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
-      angle_radiansPerSecond = Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180),2), 2),-2); // convert degrees to radians
+      // angle_radiansPerSecond = Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180),2), 2),-2); // convert degrees to radians
+      
+      // the normal swerve steer configs use rotations
+      // so i might switch this to rotations and we can expect similar values
+      double radianDifference = degreeDifference * (Math.PI / 180);
+      angle_radiansPerSecond = autoAlignPID.calculate(radianDifference);
+
+      // clamp value
+      angle_radiansPerSecond = MathUtil.clamp(angle_radiansPerSecond, -AutoAlignConstants.RADIANS_PER_SEC_CLAMP, AutoAlignConstants.RADIANS_PER_SEC_CLAMP);
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -2 * Math.signum(main_stick.getRawAxis(4)) * 1.5
       * Math.pow(main_stick.getRawAxis(4), 2);
