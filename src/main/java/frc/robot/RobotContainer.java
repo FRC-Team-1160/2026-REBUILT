@@ -8,6 +8,7 @@ import org.opencv.core.Mat;
 
 //import frc.robot.Constants.OperatorConstants;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import frc.robot.Subsystems.Agitator.Agitator;
@@ -76,6 +77,10 @@ public class RobotContainer {
   public RobotContainer() {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    // register auto commands
+    NamedCommands.registerCommand("Test Auto Shoot Command", Autos.getAutoShootCommand(m_shooter, m_agitator, m_vision));
+
     // Configure the trigger bindings
     configureBindings();
   }

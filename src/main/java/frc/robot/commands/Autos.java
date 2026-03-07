@@ -19,7 +19,21 @@ public final class Autos {
     return Commands.sequence(subsystem.exampleMethodCommand(), new ExampleCommand(subsystem));
   }
 
-  public static Command shootAutoCommand(Shooter m_shooter, Agitator m_agitator, VisionSubsystem m_vision) {
+  /*
+  public static Command getPointTowardsHubCommand(DriveTrain m_drive, VisionSubsystem m_vision) {
+
+    return new FunctionalCommand(
+      () -> {},
+      () -> {},
+      (interrupted) -> {},
+      () -> {return true;}
+    );
+  }
+    */
+
+  public static Command getAutoShootCommand(Shooter m_shooter, Agitator m_agitator, VisionSubsystem m_vision) {
+    Command waiting = Commands.waitSeconds(5);
+
     return new FunctionalCommand(
       () -> {
         m_shooter.runMotors(m_vision.getBotToHubDistance());
@@ -30,7 +44,7 @@ public final class Autos {
         m_shooter.stopMotors();
         m_agitator.stopAgitation();
       },
-      () -> Commands.waitSeconds(5).isFinished()  // change all this stuff later
+      () -> waiting.isFinished()  // change all this stuff later
     );
   }
 

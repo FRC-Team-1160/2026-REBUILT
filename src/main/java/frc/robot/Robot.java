@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     LimelightHelpers.SetRobotOrientation("limelight", m_robot_container.m_drive.getGyroAngle().getDegrees(),0,0,0,0,0);
     CommandScheduler.getInstance().run();
+    SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
   @Override
