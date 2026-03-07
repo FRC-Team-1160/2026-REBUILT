@@ -69,17 +69,21 @@ public class RobotContainer {
   public final LimelightIO m_limelightio = new LimelightIO();
   public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   public final Agitator m_agitator = new Agitator();
+
+  public Command currentAuto;
   
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // register auto commands
+    NamedCommands.registerCommand("Test Auto Shoot Command", Autos.getAutoShootCommand(m_shooter, m_agitator, m_vision));
+
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    // register auto commands
-    NamedCommands.registerCommand("Test Auto Shoot Command", Autos.getAutoShootCommand(m_shooter, m_agitator, m_vision));
+    
 
     // Configure the trigger bindings
     configureBindings();
@@ -192,8 +196,16 @@ public class RobotContainer {
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
+  public void initAutonomousCommand() {
+    currentAuto = autoChooser.getSelected();
+  }
+
+  // auto needs to be loaded when robot starts
+  // then be able to be returned
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Example Auto");
+    // return new PathPlannerAuto("Example Auto");
     //return autoChooser.getSelected();
+
+    return currentAuto;
   } 
 }
