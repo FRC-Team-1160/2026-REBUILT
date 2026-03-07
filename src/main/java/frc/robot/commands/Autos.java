@@ -7,10 +7,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Subsystems.ExampleSubsystem;
+import frc.robot.Subsystems.Agitator.Agitator;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.Shooter.Shooter;
+import frc.robot.Subsystems.Vision.VisionSubsystem;
 
 public final class Autos {
   /** Example static factory for an autonomous command. */
@@ -18,12 +19,18 @@ public final class Autos {
     return Commands.sequence(subsystem.exampleMethodCommand(), new ExampleCommand(subsystem));
   }
 
-  public static Command shootAutoCommand(Shooter shooter, DriveTrain driveTrain) {
+  public static Command shootAutoCommand(Shooter m_shooter, Agitator m_agitator, VisionSubsystem m_vision) {
     return new FunctionalCommand(
-      () -> shooter.runMotors(1), 
-      () -> {}, 
-      (interrupted) -> shooter.stopMotors(), 
-      () -> Commands.waitSeconds(2).isFinished()  // change all this stuff later
+      () -> {
+        m_shooter.runMotors(m_vision.getBotToHubDistance());
+        m_agitator.runAgitation();
+      }, 
+      () -> {},
+      (interrupted) -> {
+        m_shooter.stopMotors();
+        m_agitator.stopAgitation();
+      },
+      () -> Commands.waitSeconds(5).isFinished()  // change all this stuff later
     );
   }
 
