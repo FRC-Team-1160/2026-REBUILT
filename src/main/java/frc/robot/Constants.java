@@ -27,6 +27,7 @@ public final class Constants {
     public static final double LOOP_TIME_SECONDS = 0.02;
   }
 
+  // whoever added this i am very grateful
   public static class ControllerButtonConstants {
     public static final int Y = 4;
     public static final int B = 2;
@@ -38,8 +39,7 @@ public final class Constants {
 
   /*
    * PID constants for rotating during auto alignment
-   * Will have to tune
-   * Or set to same values as regular steer motor pid
+   * Will have to tune or set to similar values as regular steer motor pid
    */
   public static class AutoAlignConstants {
     public static final double kP = 3;
@@ -47,6 +47,7 @@ public final class Constants {
     public static final double kD = 0.5;
 
     public static final double RADIANS_PER_SEC_CLAMP = 3;
+    // public static final double RADIANS_TOLERANCE = 0.1;
   }
 
   public static class IntakeConstants{

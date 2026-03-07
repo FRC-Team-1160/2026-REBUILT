@@ -20,6 +20,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -109,7 +110,8 @@ public class RobotContainer {
       
       // the normal swerve steer configs use rotations
       // so i might switch this to rotations and we can expect similar values
-      double radianDifference = degreeDifference * (Math.PI / 180);
+      // that would require switching the value back to radians after however
+      double radianDifference = Math.toRadians(degreeDifference);
       angle_radiansPerSecond = autoAlignPID.calculate(radianDifference);
 
       // clamp value
