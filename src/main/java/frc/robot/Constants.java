@@ -40,22 +40,22 @@ public static class IntakeConstants{
 
   public static final double EXTENDER_GEAR_RATIO = 40;
   public static final double POSITION_CONVERSION = (Math.PI * 0.04572)/EXTENDER_GEAR_RATIO;
-  public static final int EXTENDER_CURRENT_LIMIT = 40;
+  public static final int EXTENDER_CURRENT_LIMIT = 30;
   public static final double EXTENSION_MAX = -26; // 4.5 prongs left at -48
   public static final double EXTENSION_MIN = -7; // ignore lololol
-  public static final double EXTENDER_VOLTAGE = 6;
+  public static final double EXTENDER_VOLTAGE = 8; //8
   ;
 
-  public static final double INTAKE_VOLTAGE = -5;
+  public static final double INTAKE_VOLTAGE = -9; // -9
 
   public static final int AGITATOR_CURRENT_LIMIT = 30;
-  public static final int AGITATOR_VOLTAGE = 8;
+  public static final int AGITATOR_RPM = 4500;
 }
 
 public static class ShooterConstants{
-  public static final double GATE_GEAR_RATIO = 20;
-  public static final double GATE_VOLTAGE = -11;
-  public static final int GATE_CURRENT_LIMIT = 20;
+  public static final double GATE_GEAR_RATIO = 5;
+  public static final double GATE_RPM = -5100;
+  public static final int GATE_CURRENT_LIMIT = 40;
   public static final String LIMELIGHT_NAME = "limelight";
 
   public static class BottomMotorConfigs {

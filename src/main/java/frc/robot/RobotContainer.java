@@ -51,7 +51,9 @@ import frc.robot.Constants.ShooterConstants;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private boolean testingShooter = true;
+  private boolean testingShooter = false;
+  private boolean facingHub = false;
+  private boolean shooting = false;
   
   private final SendableChooser<Command> autoChooser;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
@@ -69,6 +71,10 @@ public class RobotContainer {
   public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   public final Agitator m_agitator = new Agitator();
   
+  private enum ROBOT_STATES {
+
+  }
+
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
@@ -81,8 +87,8 @@ public class RobotContainer {
   }
 
   public void updateSwerve() {
+    double mult = shooting ? 0.2 : 1;
     SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees()));
-  
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
     double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(1);
@@ -95,10 +101,10 @@ public class RobotContainer {
     // if pressing button 6 then we align to the hub
     if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
       double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
-      degreeDifference = Math.abs(degreeDifference) < (3) ? 0 : degreeDifference;
-
+      degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
+      facingHub = (degreeDifference == 0);
       angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
-      * (degreeDifference < 0 ? -1 : 1); // convert degrees to radians(degreeDifference < 0 ? 3 : -3);
+      * (degreeDifference < 0 ? -1 : 1);
       
       SmartDashboard.putNumber("degree diff", degreeDifference);
 
@@ -112,9 +118,9 @@ public class RobotContainer {
     //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
 
     m_drive.setSwerveDrive(
-      x_metersPerSecond, 
-      y_metersPerSecond, 
-      angle_radiansPerSecond
+      x_metersPerSecond * mult, 
+      y_metersPerSecond * mult, 
+      angle_radiansPerSecond * mult
       );
   }
 
@@ -129,67 +135,71 @@ public class RobotContainer {
    */
 
   private void configureBindings() {
+    //MAIN STICK -------------------------
     new JoystickButton(main_stick, 8).onTrue(
       new InstantCommand(m_drive::resetGyroAngle)
     );
 
+    //run intake
+
+    // hopper extension
+
+    new JoystickButton(main_stick, 5).onTrue(
+      new InstantCommand(() -> m_intake.toggleArmExtension())
+    );
+
+    //SECOND STICK -------------------------
+
     // agitator
     new Trigger(() -> second_stick.getRawButton(4) || main_stick.getRawAxis(2) > 0.2).whileTrue(
-      new RunCommand(m_agitator::runAgitation).finallyDo(m_agitator::stopAgitation)
+      new RunCommand(() -> m_agitator.runAgitation(
+      second_stick.getPOV() == 180 ? -1 : 1)
+      ).finallyDo(m_agitator::stopAgitation)
     );
 
     //gate
     new Trigger(() -> second_stick.getRawButton(4)).whileTrue(
-      new RunCommand(m_agitator::runGate).finallyDo(m_agitator::stopGate)
+      new RunCommand(() -> m_agitator.runGate(
+        second_stick.getPOV() == 180 ? -1 : 1))
+        .finallyDo(m_agitator::stopGate)
     );
-
-    //run intake
-    new Trigger(() -> (main_stick.getRawAxis(2) > 0.2)).whileTrue(
-      new RunCommand(m_intake::runIntake).finallyDo(m_intake::stopIntake)
-    );
-
-    //hopper extension
-    new Trigger(() -> (main_stick.getRawAxis(2) > 0.2)).whileTrue(
-      new RunCommand(m_intake::extendArm).finallyDo(m_intake::stopArm)
-    );
-
-    new Trigger(() -> main_stick.getRawButton(5)).whileTrue(
-      new RunCommand(m_intake::retractArm).finallyDo(m_intake::stopArm)
-    );
-
-    //override extension position
-    new Trigger(() -> main_stick
-    .getRawButton(7)).whileTrue(
-      new RunCommand(m_intake::overridePosition).finallyDo(m_intake::stopPositionOverride)
-    );
-
-    //testing
-    new JoystickButton(main_stick, 6).onTrue(
-        new InstantCommand(() -> m_shooter.changeDistanceInches(1 * (test_stick.getRawButton(4) ? 10 : 1)))
-      );
 
     // shooter bindings
 
     new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.runMotors(m_vision.getBotToHubDistance()))
+        new RunCommand(() -> m_shooter.runMotors(
+          facingHub ? m_vision.getBotToHubDistance() : 40))//150
           .finallyDo(m_shooter::stopMotors)
+          //if we are facing the hub then shoot correctly
+          // otherwise were probably trying to shoot from the neutral zone
+          // so just launch it at a constant distance basically
       );
+
+      new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
+        new RunCommand(() -> shooting = true)
+          .finallyDo(() -> shooting = false)
+      );
+
+      // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
+      //   new RunCommand(() -> m_shooter.basketballin())
+      //     .finallyDo(m_shooter::stopMotors)
+      // );
 
     // shooter test bindings
     
     if (testingShooter) {
-      new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.runMotors(m_vision.getBotToHubDistance()))
-          .finallyDo(m_shooter::stopMotors)
-      );
-      // use m_vision.getBotToHubDistance() for distance
       
       new JoystickButton(test_stick, 5).onTrue(
-        new InstantCommand(() -> m_shooter.changeDistanceInches(-1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeTopRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
 
       new JoystickButton(test_stick, 6).onTrue(
-        new InstantCommand(() -> m_shooter.changeDistanceInches(1 * (test_stick.getRawButton(4) ? 10 : 1)))
+        new InstantCommand(() -> m_shooter.changeTopRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
+      );
+
+      new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
+        new RunCommand(() -> m_shooter.testRunMotors())
+          .finallyDo(m_shooter::stopMotors)
       );
     }
 

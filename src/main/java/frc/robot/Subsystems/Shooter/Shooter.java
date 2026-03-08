@@ -86,52 +86,43 @@ public class Shooter extends SubsystemBase {
         VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
 
         nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(-2.75));
-
-        //farBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS)); // add feedforward?
-        // commet out far motor because we change to follower
-        
         topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+    }
 
-        // farBottomRollerMotor.setVoltage(-3);
-        //nearBottomRollerMotor.setVoltage(-3);
-        //topRollerMotor.setVoltage(4);
+    public void testRunMotors() {
+        double topRollerRPS = topRollerTargetRPS;
+        VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
+        VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
+
+        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(topRollerRPS * 2).withFeedForward(-2.75));
+        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+    }
+
+    public void basketballin() {
+        double topRollerRPS = 70;
+         VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
+        VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
+
+        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-30).withFeedForward(-3.2));
+        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
     }
 
     public void stopMotors() {
-        //VelocityVoltage motor_request = new VelocityVoltage(0).withSlot(0);
-        // passively stops motors
-        // consider actively stopping them using setControl?
-        //agitatorMotor.setVoltage(0);
-        //farBottomRollerMotor.stopMotor();
         nearBottomRollerMotor.stopMotor();
         topRollerMotor.stopMotor();
     }
 
-    // testing for shooter distances
-
-    // public void changeDistance(int change) {
-    //     inchesFromHub += change;
-    //     SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
-    // }
-
-    // public void changeBottomRollerVoltage(double change) {
-    //     bottomRollerVoltage += change;
-    //     SmartDashboard.putNumber("Bottom Roller Voltage", bottomRollerVoltage);
-    // }
-
-    //
     // new functions for testing with rotations per second
-    // public void changeBottomRollerRPS(double change) {
-    //     bottomRollerTargetRPS += change;
-    //     SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
-    // }
+    public void changeBottomRollerRPS(double change) {
+        bottomRollerTargetRPS += change;
+        SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
+    }
 
-    // public void changeTopRollerRPS(double change) {
-    //     topRollerTargetRPS += change;
-    //     SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
-    // }
+    public void changeTopRollerRPS(double change) {
+        topRollerTargetRPS += change;
+        SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
+    }
     
-
     public void changeDistanceInches(double change) {
         inchesFromHub += change;
         SmartDashboard.putNumber("Inches From Hub", inchesFromHub);

@@ -26,8 +26,16 @@ public class Intake extends SubsystemBase {
 
     private TalonFX intakeMotor = new TalonFX(Port.INTAKE_MOTOR);
 
-    private boolean overridePosition = false;
     private DigitalInput armLimit = new DigitalInput(9);
+    private boolean limitReached = !armLimit.get();
+    private boolean positionSet = false;
+
+    private enum direction {
+        EXTENDING,
+        RETRACTING
+    }
+
+    private direction currentDirection = direction.RETRACTING;
 
     public Intake() {
         extenderMotor = new SparkMax(Port.INTAKE_EXTENDER_MOTOR, MotorType.kBrushless);
@@ -35,21 +43,30 @@ public class Intake extends SubsystemBase {
         extenderEncoderConfig = new AlternateEncoderConfig();  
         // extenderMotor.restoreFactoryDefaults();
         // extenderMotorConfig = new SparkBaseConfig();
-        extenderMotorConfig.idleMode(SparkMaxConfig.IdleMode.kBrake)
+        extenderMotorConfig.idleMode(SparkMaxConfig.IdleMode.kCoast)
             .smartCurrentLimit(IntakeConstants.EXTENDER_CURRENT_LIMIT);
         extenderEncoderConfig.positionConversionFactor(IntakeConstants.EXTENDER_GEAR_RATIO);
         extenderMotorConfig.apply(extenderEncoderConfig);
         encoder = extenderMotor.getEncoder();
         encoder.setPosition(0);
         extenderMotor.configure(extenderMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+    }
 
-        // alalalalalallalala yayayayay
+    // intake functions
+    public void runIntake(int mult) {
+        intakeMotor.setVoltage(IntakeConstants.INTAKE_VOLTAGE * mult);
+    }
+
+    /** Stops motor */
+    public void stopArm() {
+        extenderMotor.setVoltage(0);
     }
 
     /** Extend intake until max */
     public void extendArm() {
-        if (!isFullyExtended() || overridePosition == true) {
+        if (!isFullyExtended() || !positionSet) {
             extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE);
+            currentDirection = direction.EXTENDING;
         } else {
             extenderMotor.setVoltage(0);
         }
@@ -57,66 +74,62 @@ public class Intake extends SubsystemBase {
 
     /** Retract intake until fully retracted */
     public void retractArm() {
-        if (!isFullyRetracted() || overridePosition == true) {
+        if (!isFullyRetracted() || !positionSet) {
             extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE);
+            currentDirection = direction.RETRACTING;
         } else {
             extenderMotor.setVoltage(0);
         }
     }
 
-    // intake functions
-    public void runIntake() {
-        intakeMotor.setVoltage(IntakeConstants.INTAKE_VOLTAGE);
-    }
+    public void toggleArmExtension() {
+        switch (currentDirection) {
+            case EXTENDING:
+            currentDirection = direction.RETRACTING;
+            retractArm();
+            break;
 
-    public void stopIntake() {
-        intakeMotor.setVoltage(0);
-    }
-
-    /** Stops motor */
-    public void stopArm() {
-        extenderMotor.set(0);
+            case RETRACTING:
+            currentDirection = direction.EXTENDING;
+            extendArm();
+            break;
+        }
     }
 
     // getting intake arm positions
-    public boolean isFullyExtended() {
-        return encoder.getPosition() <= IntakeConstants.EXTENSION_MAX;
-    }
-
     public boolean isFullyRetracted() {
-        return encoder.getPosition() >= IntakeConstants.EXTENSION_MIN;
+        return positionSet ? encoder.getPosition() >= IntakeConstants.EXTENSION_MIN : false;
     }
 
-    // for when we need to reset the position with the limit switch
-    public void overridePosition() {
-        overridePosition = true;
-    }
-
-    public void stopPositionOverride() {
-        overridePosition = false;
-    }
-
-    public void resetArmPosition() {
-        encoder.setPosition(IntakeConstants.EXTENSION_MAX - 3);
+    public boolean isFullyExtended() {
+        return positionSet ? (encoder.getPosition() <= IntakeConstants.EXTENSION_MAX) : false;
     }
 
     /** Returns current extension in encoder units */
-    public double getExtension() {
-        return encoder.getPosition();
-    }
 
     @Override
     public void periodic() {
         // optional telemetry:
         super.periodic();
-        SmartDashboard.putBoolean("Intake Arm Max Reached", !armLimit.get());
-        SmartDashboard.putNumber("Intake position", getExtension());
-        if (!armLimit.get()) {
-            resetArmPosition();
+        limitReached = armLimit.get();
+        SmartDashboard.putBoolean("Intake Arm Max Reached", limitReached);
+        SmartDashboard.putNumber("Intake position", encoder.getPosition());
+        
+        if (limitReached && !positionSet) {
+            positionSet = true;
+            encoder.setPosition(IntakeConstants.EXTENSION_MAX);
+        }
+
+        if (positionSet && 
+        ((encoder.getPosition() <= IntakeConstants.EXTENSION_MAX && currentDirection == direction.EXTENDING)|| 
+        (encoder.getPosition() >= IntakeConstants.EXTENSION_MIN && currentDirection == direction.RETRACTING))) {
             stopArm();
         }
-    }
 
+        if ((encoder.getPosition() <= -23) && positionSet) {
+            runIntake(1);
+        } else {intakeMotor.stopMotor();}
+    }
 }
 
 
