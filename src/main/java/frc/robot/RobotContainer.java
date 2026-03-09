@@ -75,6 +75,15 @@ public class RobotContainer {
 
   }
 
+  //setting up pathplanner commands
+  new EventTrigger("Run Shooter").whileTrue(() -> m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70));
+  new EventTrigger("Stop Shooter").onTrue(m_shooter::stopMotors());
+
+  new EventTrigger("Extend Intake").onTrue(m_intake::extendArm);
+  new EventTrigger("Retract Intake").onTrue(m_intake::retractArm);
+
+  new EventTrigger("Run Agitator").onTrue(() -> m_agitator.runAgitation(1))
+  new EventTrigger("Stop Agitator").onTrue(m_agitator::stopAgitation);
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
@@ -145,7 +154,7 @@ public class RobotContainer {
     // hopper extension
 
     new JoystickButton(main_stick, 5).onTrue(
-      new InstantCommand(() -> m_intake.toggleArmExtension())
+      new InstantCommand(m_intake::toggleArmExtension())
     );
 
     //SECOND STICK -------------------------
