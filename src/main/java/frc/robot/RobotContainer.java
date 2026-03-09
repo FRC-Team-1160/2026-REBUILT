@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -43,6 +44,8 @@ import frc.robot.Subsystems.Vision.VisionSubsystem;
 import frc.robot.Constants.ControllerButtonConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
+import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.events.PointTowardsZoneTrigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -75,15 +78,6 @@ public class RobotContainer {
 
   }
 
-  //setting up pathplanner commands
-  new EventTrigger("Run Shooter").whileTrue(() -> m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70));
-  new EventTrigger("Stop Shooter").onTrue(m_shooter::stopMotors());
-
-  new EventTrigger("Extend Intake").onTrue(m_intake::extendArm);
-  new EventTrigger("Retract Intake").onTrue(m_intake::retractArm);
-
-  new EventTrigger("Run Agitator").onTrue(() -> m_agitator.runAgitation(1))
-  new EventTrigger("Stop Agitator").onTrue(m_agitator::stopAgitation);
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
@@ -91,6 +85,26 @@ public class RobotContainer {
   public RobotContainer() {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    //setting up pathplanner commands
+    new EventTrigger("Run Shooter").whileTrue(new RunCommand(() -> 
+      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70)
+    ).finallyDo(() -> m_shooter.stopMotors()));
+
+    new EventTrigger("Extend Intake").onTrue(new InstantCommand(() -> 
+      m_intake.extendArm()
+    ));
+    new EventTrigger("Retract Intake").onTrue(new InstantCommand(() -> 
+      m_intake.retractArm()
+    ));
+
+    new EventTrigger("Run Agitator").onTrue(new InstantCommand(() -> 
+      m_agitator.runAgitation(1)
+    ));
+    new EventTrigger("Stop Agitator").onTrue(new InstantCommand(() -> 
+      m_agitator.stopAgitation()
+    ));
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -154,7 +168,7 @@ public class RobotContainer {
     // hopper extension
 
     new JoystickButton(main_stick, 5).onTrue(
-      new InstantCommand(m_intake::toggleArmExtension())
+      new InstantCommand(() -> m_intake.toggleArmExtension())
     );
 
     //SECOND STICK -------------------------
