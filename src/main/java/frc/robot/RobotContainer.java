@@ -43,9 +43,11 @@ import frc.robot.Subsystems.Vision.VisionSubsystem;
 //import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ControllerButtonConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.events.PointTowardsZoneTrigger;
+import com.pathplanner.lib.auto.NamedCommands;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -86,10 +88,40 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    //setting up pathplanner commands
-    new EventTrigger("Run Shooter").whileTrue(new RunCommand(() -> 
+    NamedCommands.registerCommand("Align Hub", new RunCommand(() -> {
+      if (DriverStation.isAutonomous() && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+        double angle_radiansPerSecond;
+
+        double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
+        degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
+        facingHub = (degreeDifference == 0);
+        angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
+        * (degreeDifference < 0 ? -1 : 1);
+
+        m_drive.setSwerveDrive(
+        0,0,
+        angle_radiansPerSecond
+        );
+
+        SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
+      }
+    }));
+
+    NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> 
       m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70)
-    ).finallyDo(() -> m_shooter.stopMotors()));
+    ));
+    NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> 
+      m_shooter.stopMotors()
+    ));
+
+    NamedCommands.registerCommand("Run Agitator",new InstantCommand(() -> {
+      m_agitator.runAgitation(1);
+      m_agitator.runGate(1);}));
+    NamedCommands.registerCommand("Stop Agitator",new InstantCommand(() -> {
+      m_agitator.stopAgitation();
+      m_agitator.stopGate();}));
+
+    //setting up pathplanner commands
 
     new EventTrigger("Extend Intake").onTrue(new InstantCommand(() -> 
       m_intake.extendArm()
@@ -98,18 +130,12 @@ public class RobotContainer {
       m_intake.retractArm()
     ));
 
-    new EventTrigger("Run Agitator").onTrue(new InstantCommand(() -> 
-      m_agitator.runAgitation(1)
-    ));
-    new EventTrigger("Stop Agitator").onTrue(new InstantCommand(() -> 
-      m_agitator.stopAgitation()
-    ));
-
     // Configure the trigger bindings
     configureBindings();
   }
 
   public void updateSwerve() {
+    if (!DriverStation.isAutonomous()){
     double mult = shooting ? 0.2 : 1;
     SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees()));
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
@@ -122,7 +148,7 @@ public class RobotContainer {
     double angle_radiansPerSecond;    
 
     // if pressing button 6 then we align to the hub
-    if (main_stick.getRawButton(6) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+    if (main_stick.getRawButton(5) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
       double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
       degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
       facingHub = (degreeDifference == 0);
@@ -143,8 +169,8 @@ public class RobotContainer {
     m_drive.setSwerveDrive(
       x_metersPerSecond * mult, 
       y_metersPerSecond * mult, 
-      angle_radiansPerSecond * mult
-      );
+      angle_radiansPerSecond
+      );}
   }
 
   /**
@@ -187,6 +213,7 @@ public class RobotContainer {
         .finallyDo(m_agitator::stopGate)
     );
 
+   
     // shooter bindings
 
     new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
@@ -236,7 +263,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Example Auto");
+    return new PathPlannerAuto("Starting Hub");
     //return autoChooser.getSelected();
   } 
 }

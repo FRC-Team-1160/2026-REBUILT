@@ -54,6 +54,9 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     if (autonomous_command != null) {
       autonomous_command.cancel();
+      m_robot_container.m_shooter.stopMotors();
+      m_robot_container.m_agitator.stopAgitation();
+      m_robot_container.m_agitator.stopGate();
     }
   }
 

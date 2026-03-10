@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TESTPATH1"
+            "pathName": "Hub Step Back"
           }
         },
         {
-          "type": "sequential",
+          "type": "named",
           "data": {
-            "commands": []
+            "name": "Align Hub"
           }
         }
       ]
