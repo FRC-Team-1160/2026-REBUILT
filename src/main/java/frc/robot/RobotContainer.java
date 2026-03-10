@@ -16,6 +16,7 @@ import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 // import frc.robot.SubsystemManager;
 import frc.robot.commands.Autos;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -27,9 +28,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -43,6 +46,8 @@ import frc.robot.Subsystems.Vision.VisionSubsystem;
 import frc.robot.Constants.ControllerButtonConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
+
+import static frc.robot.Constants.ControllerButtonConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -87,14 +92,16 @@ public class RobotContainer {
   }
 
   public void updateSwerve() {
+    final double CONTROLLER_DEAD_ZONE = 0.1;
+
     double mult = shooting ? 0.2 : 1;
     SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees()));
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(1);
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < CONTROLLER_DEAD_ZONE) ? 0 : 2.1 * -main_stick.getRawAxis(1);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(0);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < CONTROLLER_DEAD_ZONE) ? 0 : 2.1 * -main_stick.getRawAxis(0);
 
     double angle_radiansPerSecond;    
 
@@ -103,14 +110,15 @@ public class RobotContainer {
       double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
       degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
       facingHub = (degreeDifference == 0);
-      angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
+
+      angle_radiansPerSecond = -MathUtil.clamp(Math.pow(Math.toRadians(degreeDifference) * 4,2), -3, 3)
       * (degreeDifference < 0 ? -1 : 1);
       
       SmartDashboard.putNumber("degree diff", degreeDifference);
 
       //angle_radiansPerSecond = degreeDifference < 0 ? 0.2 : -0.2;
     } else {  
-      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
+      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < CONTROLLER_DEAD_ZONE) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
       * Math.pow(main_stick.getRawAxis(4), 2);
     }
     
@@ -210,7 +218,37 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    
+    // Sequence Keybinds
+
+    // Shoot Sequence 1
+
+    new Trigger(() -> second_stick.getRawAxis(0) >= 0.5).whileTrue(
+      new FunctionalCommand(
+        () -> {
+          m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 40);
+          new WaitCommand(0.5).finallyDo(
+            () -> {
+              m_agitator.runAgitation(1);
+              m_agitator.runGate(1);  // make sure this is not backward
+            }
+          );
+        },
+        () -> {
+          if (m_intake.isFullyExtended() || m_intake.isFullyRetracted()) m_intake.toggleArmExtension();
+        },
+        (interrupted) -> {
+          m_shooter.stopMotors();
+          m_intake.stopArm();
+          m_agitator.stopAgitation();
+          m_agitator.stopGate();
+        },
+        () -> second_stick.getRawAxis(0) >= 0  // may be redundant
+      )
+    );
   }
+
 
   public Command getAutonomousCommand() {
     return new PathPlannerAuto("Example Auto");
