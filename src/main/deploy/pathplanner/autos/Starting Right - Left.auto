@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Function Testing"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "pathName": "Right Step Back"
           }
         },
         {
@@ -25,7 +19,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.75
+            "waitTime": 0.5
           }
         },
         {
@@ -37,7 +31,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Shooter"
           }
         },
         {
@@ -47,9 +47,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "sequential",
           "data": {
-            "name": "Stop Shooter"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ALT Step Back Left 1 Row and Align"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Align Hub"
+                }
+              }
+            ]
           }
         }
       ]

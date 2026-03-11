@@ -222,6 +222,13 @@ public class RobotContainer {
 
     //SECOND STICK -------------------------
 
+    //sequences
+    new Trigger(() -> second_stick.getRawAxis(2) >= 0.2).whileTrue(
+      new RunCommand(() -> {
+        
+      })
+    );
+
     //extend/retract hopper
     new JoystickButton(second_stick, 1).onTrue(
       new InstantCommand(() -> {

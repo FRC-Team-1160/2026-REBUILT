@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.2876273091409927,
+        "x": 1.2876273091409924,
         "y": 6.938128270638948
       },
       "isLocked": false,
@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 2.9522111269614832,
-        "y": 4.714279600570615
+        "x": 2.719315263908701,
+        "y": 4.597831669044222
       },
       "prevControl": {
-        "x": 1.3672864768053996,
-        "y": 6.4522073478860715
+        "x": 1.1343906137526174,
+        "y": 6.3357594163596795
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LEFT End Align Wpt"
     }
   ],
   "rotationTargets": [
@@ -147,7 +147,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -27.121303404158777
+    "rotation": -16.7712238186304
   },
   "reversed": false,
   "folder": null,
