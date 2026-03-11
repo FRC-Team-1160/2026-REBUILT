@@ -47,7 +47,7 @@ public class Intake extends SubsystemBase {
         OFF
     }
 
-    private direction currentDirection = direction.EXTENDING;
+    public direction currentDirection = direction.EXTENDING;
     private intakeMode currentMode = intakeMode.AUTOMATIC;
     private intakeDirection currentIntakeDirection = intakeDirection.IN;
 

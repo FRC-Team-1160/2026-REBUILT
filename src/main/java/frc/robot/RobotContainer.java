@@ -85,6 +85,8 @@ public class RobotContainer {
 
   }
 
+  private int commandsCalled = 0;
+
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
@@ -92,6 +94,7 @@ public class RobotContainer {
   public RobotContainer() {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putNumber("Commands called", commandsCalled);
 
     NamedCommands.registerCommand("Align Hub", new RunCommand(() -> {
       if (DriverStation.isAutonomous() && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
@@ -109,14 +112,22 @@ public class RobotContainer {
         );
 
         SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
+        
+        commandsCalled += 1;
+        SmartDashboard.putNumber("Commands called", commandsCalled);
       }
     }).until(() -> facingHub));
 
-    NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> 
-      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70)
+    NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
+      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+      commandsCalled += 1;
+      SmartDashboard.putNumber("Commands called", commandsCalled);}
     ));
-    NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> 
-      m_shooter.stopMotors()
+    NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
+      m_shooter.stopMotors();
+      commandsCalled += 1;
+      SmartDashboard.putNumber("Commands called", commandsCalled);
+      }
     ));
 
     NamedCommands.registerCommand("Run Agitator",new InstantCommand(() -> {
@@ -128,11 +139,15 @@ public class RobotContainer {
 
     //setting up pathplanner commands
 
-    new EventTrigger("Extend Intake").onTrue(new InstantCommand(() -> 
-      m_intake.extendArm()
+    new EventTrigger("Extend Intake").onTrue(new InstantCommand(() -> {
+      m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
+      m_intake.extendArm();
+    }
     ));
-    new EventTrigger("Retract Intake").onTrue(new InstantCommand(() -> 
-      m_intake.retractArm()
+    new EventTrigger("Retract Intake").onTrue(new InstantCommand(() -> {
+      m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+      m_intake.retractArm();
+    }
     ));
 
     // Configure the trigger bindings
@@ -225,14 +240,14 @@ public class RobotContainer {
     //sequences
     new Trigger(() -> second_stick.getRawAxis(2) >= 0.2).whileTrue(
       new RunCommand(() -> {
-        
+
       })
     );
 
     //extend/retract hopper
     new JoystickButton(second_stick, 1).onTrue(
       new InstantCommand(() -> {
-        if (!m_intake.isFullyExtended()) {
+        if (m_intake.currentDirection == direction.RETRACTING) {
         m_intake.extendArm();
         m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
         m_intake.setIntakeDirection(intakeDirection.IN);
@@ -267,8 +282,8 @@ public class RobotContainer {
     );
 
     // agitator + gate forward/reverse
-    new Trigger(() -> second_stick.getRawButton(2) && 
-    (second_stick.getRawAxis(2) > 0.2) || second_stick.getRawButton(5)).whileTrue(
+    new Trigger(() -> (second_stick.getRawButton(2) && 
+    (second_stick.getRawAxis(2) > 0.2 || second_stick.getRawButton(5)))).whileTrue(
       new RunCommand(() -> {
         int mult = second_stick.getRawButton(5) ? -1 : 1;
         m_agitator.runAgitation(mult);
@@ -333,6 +348,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return new PathPlannerAuto("teststststst");
   } 
 }
