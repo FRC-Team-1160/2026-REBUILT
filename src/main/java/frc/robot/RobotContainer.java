@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import org.opencv.core.Mat;
 
 //import frc.robot.Constants.OperatorConstants;
@@ -36,6 +38,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.Intake.Intake;
+import frc.robot.Subsystems.Intake.Intake.direction;
+import frc.robot.Subsystems.Intake.Intake.intakeDirection;
+import frc.robot.Subsystems.Intake.Intake.intakeMode;
 import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.Vision.LimelightIO;
 import frc.robot.Subsystems.Vision.VisionSubsystem;
@@ -105,7 +110,7 @@ public class RobotContainer {
 
         SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
       }
-    }));
+    }).until(() -> facingHub));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> 
       m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70)
@@ -148,7 +153,7 @@ public class RobotContainer {
     double angle_radiansPerSecond;    
 
     // if pressing button 6 then we align to the hub
-    if (main_stick.getRawButton(5) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+    if ((main_stick.getRawAxis(2) >= 0.2) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
       double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
       degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
       facingHub = (degreeDifference == 0);
@@ -189,45 +194,104 @@ public class RobotContainer {
       new InstantCommand(m_drive::resetGyroAngle)
     );
 
-    //run intake
+    //stop intake
+    new JoystickButton(main_stick, 3).onTrue(
+      new InstantCommand(() -> {
+        m_intake.setIntakeDirection(intakeDirection.OFF);
+        m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
+      })
+    );
 
-    // hopper extension
-
+    //extend hopper
     new JoystickButton(main_stick, 5).onTrue(
-      new InstantCommand(() -> m_intake.toggleArmExtension())
+      new InstantCommand(() -> {
+        m_intake.extendArm();
+        m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
+        m_intake.setIntakeDirection(intakeDirection.IN);
+      })
+    );
+
+    //retract hopper
+    new JoystickButton(main_stick, 4).onTrue(
+      new InstantCommand(() -> {
+        m_intake.retractArm();
+        m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+        m_intake.setIntakeDirection(intakeDirection.OUT);
+      })
     );
 
     //SECOND STICK -------------------------
 
-    // agitator
-    new Trigger(() -> second_stick.getRawButton(4) || main_stick.getRawAxis(2) > 0.2).whileTrue(
-      new RunCommand(() -> m_agitator.runAgitation(
-      second_stick.getPOV() == 180 ? -1 : 1)
-      ).finallyDo(m_agitator::stopAgitation)
+    //extend/retract hopper
+    new JoystickButton(second_stick, 1).onTrue(
+      new InstantCommand(() -> {
+        if (!m_intake.isFullyExtended()) {
+        m_intake.extendArm();
+        m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
+        m_intake.setIntakeDirection(intakeDirection.IN);
+        } else {
+        m_intake.retractArm();
+        m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+        }
+      })
     );
 
-    //gate
-    new Trigger(() -> second_stick.getRawButton(4)).whileTrue(
-      new RunCommand(() -> m_agitator.runGate(
-        second_stick.getPOV() == 180 ? -1 : 1))
-        .finallyDo(m_agitator::stopGate)
+    //retract hopper
+    new JoystickButton(second_stick, 1).onTrue(
+      new InstantCommand(() -> {
+        m_intake.retractArm();
+        m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+        m_intake.setIntakeDirection(intakeDirection.OUT);
+      })
     );
 
+    //running intake
+    new Trigger(() -> second_stick.getRawButton(3) && 
+    (second_stick.getRawAxis(2) >= 0.2 || second_stick.getRawButton(5))).whileTrue(
+      new RunCommand(() -> {
+        boolean forward = second_stick.getRawAxis(2) >= 0.2;
+        m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
+        if (forward) {
+          m_intake.setIntakeDirection(intakeDirection.IN);
+        } else {m_intake.setIntakeDirection(intakeDirection.OUT);}
+      }).finallyDo(() -> {
+        m_intake.setIntakeDirection(intakeDirection.OFF);
+      })
+    );
+
+    // agitator + gate forward/reverse
+    new Trigger(() -> second_stick.getRawButton(2) && 
+    (second_stick.getRawAxis(2) > 0.2) || second_stick.getRawButton(5)).whileTrue(
+      new RunCommand(() -> {
+        int mult = second_stick.getRawButton(5) ? -1 : 1;
+        m_agitator.runAgitation(mult);
+        m_agitator.runGate(mult);
+      }
+      ).finallyDo(() -> {
+        m_agitator.stopGate();
+        m_agitator.stopAgitation();
+      })
+    );
    
     // shooter bindings
-
-    new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.runMotors(
-          facingHub ? m_vision.getBotToHubDistance() : 40))//150
-          .finallyDo(m_shooter::stopMotors)
+    new Trigger(() -> (second_stick.getRawButton(4) && 
+    ((second_stick.getRawAxis(2) >= 0.2) || second_stick.getRawButton(5)))).whileTrue(
+        new RunCommand(() -> {
+          boolean forwards = second_stick.getRawAxis(2) >= 0.2;
+          if (forwards) {
+            m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+            shooting = true;
+          } else {
+            m_shooter.reverseMotors();
+          }
+        })//150
+          .finallyDo(() -> {
+            m_shooter.stopMotors();
+            shooting = false;
+          })
           //if we are facing the hub then shoot correctly
           // otherwise were probably trying to shoot from the neutral zone
           // so just launch it at a constant distance basically
-      );
-
-      new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> shooting = true)
-          .finallyDo(() -> shooting = false)
       );
 
       // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
@@ -238,7 +302,6 @@ public class RobotContainer {
     // shooter test bindings
     
     if (testingShooter) {
-      
       new JoystickButton(test_stick, 5).onTrue(
         new InstantCommand(() -> m_shooter.changeTopRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
       );
@@ -263,7 +326,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Starting Hub");
-    //return autoChooser.getSelected();
+    return autoChooser.getSelected();
   } 
 }

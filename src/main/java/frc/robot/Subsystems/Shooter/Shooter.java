@@ -89,6 +89,15 @@ public class Shooter extends SubsystemBase {
         topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
     }
 
+    public void reverseMotors() {
+        double topRollerRPS = -20;
+        VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
+        VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
+
+        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-bottomRollerTargetRPS).withFeedForward(2.75));
+        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+    }
+
     public void testRunMotors() {
         double topRollerRPS = topRollerTargetRPS;
         VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);

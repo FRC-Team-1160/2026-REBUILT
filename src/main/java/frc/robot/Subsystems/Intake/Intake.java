@@ -30,12 +30,26 @@ public class Intake extends SubsystemBase {
     private boolean limitReached = !armLimit.get();
     private boolean positionSet = false;
 
-    private enum direction {
+    public enum direction {
         EXTENDING,
-        RETRACTING
+        RETRACTING,
+        IGNORE
     }
 
-    private direction currentDirection = direction.RETRACTING;
+    public enum intakeMode {
+        AUTOMATIC,
+        MANUAL
+    }
+
+    public enum intakeDirection {
+        IN,
+        OUT,
+        OFF
+    }
+
+    private direction currentDirection = direction.EXTENDING;
+    private intakeMode currentMode = intakeMode.AUTOMATIC;
+    private intakeDirection currentIntakeDirection = intakeDirection.IN;
 
     public Intake() {
         extenderMotor = new SparkMax(Port.INTAKE_EXTENDER_MOTOR, MotorType.kBrushless);
@@ -53,13 +67,12 @@ public class Intake extends SubsystemBase {
     }
 
     // intake functions
-    public void runIntake(int mult) {
-        intakeMotor.setVoltage(IntakeConstants.INTAKE_VOLTAGE * mult);
+    public void setIntakeDirection(intakeDirection direction) {
+        currentIntakeDirection = direction;
     }
 
-    /** Stops motor */
-    public void stopArm() {
-        extenderMotor.setVoltage(0);
+    public void runIntake(int mult) {
+        intakeMotor.setVoltage(IntakeConstants.INTAKE_VOLTAGE * mult);
     }
 
     /** Extend intake until max */
@@ -82,16 +95,9 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    public void toggleArmExtension() {
-        switch (currentDirection) {
-            case EXTENDING:
-            retractArm();
-            break;
-
-            case RETRACTING:
-            extendArm();
-            break;
-        }
+    public void setModes(direction setDirection, intakeMode setMode) {
+        currentDirection = (setDirection != direction.IGNORE) ? setDirection : currentDirection;
+        currentMode = setMode;
     }
 
     // getting intake arm positions
@@ -113,20 +119,40 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putBoolean("Intake Arm Max Reached", limitReached);
         SmartDashboard.putNumber("Intake position", encoder.getPosition());
         
+        //reset position once we INITIALLY hit the limit switch
         if (limitReached && !positionSet) {
             positionSet = true;
             encoder.setPosition(IntakeConstants.EXTENSION_MAX);
         }
 
+        //stop arm if we know what our position is and were outside of limits
         if (positionSet && 
         ((encoder.getPosition() <= IntakeConstants.EXTENSION_MAX && currentDirection == direction.EXTENDING)|| 
         (encoder.getPosition() >= IntakeConstants.EXTENSION_MIN && currentDirection == direction.RETRACTING))) {
-            stopArm();
+            extenderMotor.setVoltage(0);
         }
 
-        if ((encoder.getPosition() <= -23) && positionSet) {
-            runIntake(1);
-        } else {intakeMotor.stopMotor();}
+        //run intake when we extend and stop it when we retract if its automatic
+        //run whatever the codriver is doing if its manual
+        if (currentMode == intakeMode.AUTOMATIC) {
+            if ((encoder.getPosition() <= -23) && positionSet) {
+                runIntake(currentIntakeDirection == intakeDirection.OUT ? -1 : 1);
+            } else {runIntake(0);}
+        } else {
+            int mult;
+            switch (currentIntakeDirection) {
+                case IN:
+                mult = 1;
+                break;
+                case OUT:
+                mult = -1;
+                break;
+                default:
+                mult = 0;
+                break;
+            }
+            runIntake(mult);
+        }
     }
 }
 
