@@ -325,15 +325,6 @@ public class RobotContainer {
       })
     );
 
-    //retract hopper
-    new JoystickButton(second_stick, 1).onTrue(
-      new InstantCommand(() -> {
-        m_intake.retractArm();
-        m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
-        m_intake.setIntakeDirection(intakeDirection.OUT);
-      })
-    );
-
     //running intake
     new Trigger(() -> second_stick.getRawButton(3) && 
     (second_stick.getRawAxis(2) >= 0.2 || second_stick.getRawButton(5))).whileTrue(
@@ -368,7 +359,7 @@ public class RobotContainer {
         new RunCommand(() -> {
           boolean forwards = second_stick.getRawAxis(2) >= 0.2;
           if (forwards) {
-            m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+            m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 110);
             shooting = true;
           } else {
             m_shooter.reverseMotors();
@@ -415,6 +406,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("teststststst");
+    return new PathPlannerAuto("Starting Hub - Depot+Outpost");
   } 
 }

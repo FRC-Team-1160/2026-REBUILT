@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,14 +15,22 @@ public class Robot extends TimedRobot {
   private Command autonomous_command;
 
   private final RobotContainer m_robot_container;
+  public boolean blueAlliance;
 
   public Robot() {
     m_robot_container = new RobotContainer();
+
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+        blueAlliance = (alliance.get() == DriverStation.Alliance.Blue);
+    } else {blueAlliance = false;}
   }
 
   @Override
   public void robotPeriodic() {
-    LimelightHelpers.SetRobotOrientation("limelight", m_robot_container.m_drive.getGyroAngle().getDegrees(),0,0,0,0,0);
+    LimelightHelpers.SetRobotOrientation("limelight", 
+    m_robot_container.m_drive.getGyroAngle().getDegrees() + 
+    (blueAlliance == true ? 0 : 180),0,0,0,0,0);
     CommandScheduler.getInstance().run();
   }
 
