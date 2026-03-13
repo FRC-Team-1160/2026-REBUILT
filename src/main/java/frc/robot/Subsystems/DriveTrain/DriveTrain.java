@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Subsystems.Vision.LimelightIO;
 import frc.robot.Subsystems.Vision.VisionSubsystem;
 
@@ -373,6 +374,14 @@ public abstract class DriveTrain extends SubsystemBase {
     //SmartDashboard.putNumber("VISION SUB AT DIST", visionSub.getTagDitance());
     for (SwerveModule module : modules) {
       module.update();
+    }
+
+    //femboy
+    if (LimelightHelpers.getTV(Constants.ShooterConstants.LIMELIGHT_NAME)) {
+      pose_estimator.addVisionMeasurement(
+        LimelightHelpers.getBotPose2d(Constants.ShooterConstants.LIMELIGHT_NAME),
+        LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.ShooterConstants.LIMELIGHT_NAME).timestampSeconds
+      );
     }
 
     odom_pose = pose_estimator.update(getGyroAngle(), getModulePositions());

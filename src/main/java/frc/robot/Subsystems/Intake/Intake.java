@@ -50,6 +50,7 @@ public class Intake extends SubsystemBase {
     public direction currentDirection = direction.EXTENDING;
     private intakeMode currentMode = intakeMode.AUTOMATIC;
     private intakeDirection currentIntakeDirection = intakeDirection.IN;
+    private double hopperMult = 1;
 
     public Intake() {
         extenderMotor = new SparkMax(Port.INTAKE_EXTENDER_MOTOR, MotorType.kBrushless);
@@ -79,7 +80,7 @@ public class Intake extends SubsystemBase {
     public void extendArm() {
         if (!isFullyExtended() || !positionSet) {
             currentDirection = direction.EXTENDING;
-            extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE);
+            extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE * hopperMult);
         } else {
             extenderMotor.setVoltage(0);
         }
@@ -89,7 +90,7 @@ public class Intake extends SubsystemBase {
     public void retractArm() {
         if (!isFullyRetracted() || !positionSet) {
             currentDirection = direction.RETRACTING;
-            extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE);
+            extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE * hopperMult);
         } else {
             extenderMotor.setVoltage(0);
         }
@@ -98,6 +99,10 @@ public class Intake extends SubsystemBase {
     public void setModes(direction setDirection, intakeMode setMode) {
         currentDirection = (setDirection != direction.IGNORE) ? setDirection : currentDirection;
         currentMode = setMode;
+    }
+
+    public void setHopperSpeed(double mult) {
+        hopperMult = mult;
     }
 
     // getting intake arm positions

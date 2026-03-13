@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -85,7 +86,8 @@ public class RobotContainer {
 
   }
 
-  private int commandsCalled = 0;
+  Boolean runningSequence1 = false;
+  Boolean runningSequence2 = false;
 
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -94,7 +96,6 @@ public class RobotContainer {
   public RobotContainer() {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
-        SmartDashboard.putNumber("Commands called", commandsCalled);
 
     NamedCommands.registerCommand("Align Hub", new RunCommand(() -> {
       if (DriverStation.isAutonomous() && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
@@ -112,21 +113,15 @@ public class RobotContainer {
         );
 
         SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
-        
-        commandsCalled += 1;
-        SmartDashboard.putNumber("Commands called", commandsCalled);
       }
     }).until(() -> facingHub));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
       m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
-      commandsCalled += 1;
-      SmartDashboard.putNumber("Commands called", commandsCalled);}
+      }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
       m_shooter.stopMotors();
-      commandsCalled += 1;
-      SmartDashboard.putNumber("Commands called", commandsCalled);
       }
     ));
 
@@ -237,11 +232,83 @@ public class RobotContainer {
 
     //SECOND STICK -------------------------
 
-    //sequences
-    new Trigger(() -> second_stick.getRawAxis(2) >= 0.2).whileTrue(
-      new RunCommand(() -> {
+    //sequences fml
 
+    //sequence 1
+    new Trigger(() -> second_stick.getRawButton(6)).onTrue(
+      new InstantCommand(() -> {
+        //only run if were not running the other sequence and were not already running this sequence
+        if (!runningSequence2 && !runningSequence1) {
+        //start shooter first
+        runningSequence1 = true;
+        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+        shooting = true;
+        //give shooter time to rev up
+        new WaitCommand(0.4).finallyDo(() -> {
+          if (runningSequence1) {
+            m_agitator.runAgitation(1);
+            m_agitator.runGate(1);
+            //turn on gate and agitator
+  
+            m_intake.retractArm();
+            m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+            while (runningSequence1) {
+              //while were running sequence 1, have intake go in and out
+              new WaitCommand(0.5).finallyDo(() -> {
+                if (runningSequence1) {
+                  m_intake.extendArm();
+                  m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
+                }
+              });
+              new WaitCommand(0.5).finallyDo(() -> {
+                if (runningSequence1) {
+                  m_intake.retractArm();
+                  m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+                }
+              });
+            }
+          }
+        });
+        //make sure were still holding down this button when were gonna run everything else
+      }
+      }).finallyDo(() -> {
+        runningSequence1 = false;
+        m_agitator.stopAgitation();
+        m_agitator.stopGate();
+        m_shooter.stopMotors();
       })
+        //stop everything once we stop holding down the button
+    );
+    //sequence 2
+    new Trigger(() -> second_stick.getRawAxis(3) >= 0.2).onTrue(
+      new InstantCommand(() -> {
+        //only run if were not running the other sequence and were not already running this sequence
+        if (!runningSequence2 && !runningSequence1) {
+        //start shooter first
+        runningSequence2 = true;
+        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+        shooting = true;
+        //give shooter time to rev up
+        new WaitCommand(0.4).finallyDo(() -> {
+          if (runningSequence2) {
+            m_agitator.runAgitation(1);
+            m_agitator.runGate(1);
+            //turn on gate and agitator
+            m_intake.setHopperSpeed(0.3);
+            m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+            m_intake.retractArm();
+          }
+        });
+        //make sure were still holding down this button when were gonna run everything else
+      }
+      }).finallyDo(() -> {
+        runningSequence2 = false;
+        m_intake.setHopperSpeed(1);
+        m_agitator.stopAgitation();
+        m_agitator.stopGate();
+        m_shooter.stopMotors();
+      })
+        //stop everything once we stop holding down the button
     );
 
     //extend/retract hopper
