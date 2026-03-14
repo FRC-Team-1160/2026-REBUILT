@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.930057061340941,
-        "y": 5.619985734664765
+        "x": 3.8061626248216838,
+        "y": 5.697617689015692
       },
       "isLocked": false,
       "linkedName": "\"Hub Step Back\" End"
@@ -20,21 +20,26 @@
         "y": 5.969329529243937
       },
       "prevControl": {
-        "x": 1.5289586305278167,
-        "y": 5.374151212553495
+        "x": 2.201768901569186,
+        "y": 6.551569186875891
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "\"To Depot\" End"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.09381663113006534,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "Extend Intake",
-      "waypointRelativePos": 0.14854827819041308,
+      "waypointRelativePos": 0.15,
       "endWaypointRelativePos": null,
       "command": null
     }
