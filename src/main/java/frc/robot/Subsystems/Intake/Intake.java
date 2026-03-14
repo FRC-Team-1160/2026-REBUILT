@@ -49,7 +49,7 @@ public class Intake extends SubsystemBase {
 
     public direction currentDirection = direction.EXTENDING;
     private intakeMode currentMode = intakeMode.AUTOMATIC;
-    private intakeDirection currentIntakeDirection = intakeDirection.IN;
+    public intakeDirection currentIntakeDirection = intakeDirection.IN;
     private double hopperMult = 1;
 
     public Intake() {
