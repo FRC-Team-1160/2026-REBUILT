@@ -31,7 +31,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -86,8 +88,8 @@ public class RobotContainer {
 
   }
 
-  Boolean runningSequence1 = false;
-  Boolean runningSequence2 = false;
+  private boolean runningSequence1 = false;
+  private boolean runningSequence2 = false;
 
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -233,63 +235,70 @@ public class RobotContainer {
     //SECOND STICK -------------------------
 
     //sequences fml
+    var extendThingy = new InstantCommand(() -> {
+              if (runningSequence1) {
+                  m_intake.extendArm();
+                  m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
+                }
+            });
+    var retractThingy = new InstantCommand(() -> {
+              if (runningSequence1) {
+                  m_intake.retractArm();
+                  m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+                }
+            });
+    var sequenceasdfkjaskdlf = new SequentialCommandGroup(extendThingy, new WaitCommand(0.25), retractThingy, new WaitCommand(0.25));
+    var repeatjaskdfkjasd = new RepeatCommand(sequenceasdfkjaskdlf);
 
     //sequence 1
-    new Trigger(() -> second_stick.getRawButton(6)).onTrue(
-      new InstantCommand(() -> {
+    new Trigger(() -> second_stick.getRawButton(6)).whileTrue(
+      new StartEndCommand(() -> {
         //only run if were not running the other sequence and were not already running this sequence
-        if (!runningSequence2 && !runningSequence1) {
+        if (!runningSequence2) {
         //start shooter first
         runningSequence1 = true;
         m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
         shooting = true;
         //give shooter time to rev up
-        new WaitCommand(0.4).finallyDo(() -> {
+
+        m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
+        m_intake.setIntakeDirection(intakeDirection.OFF);
+        var sequenceP2 = new WaitCommand(0.4).finallyDo(() -> {
           if (runningSequence1) {
             m_agitator.runAgitation(1);
             m_agitator.runGate(1);
             //turn on gate and agitator
-  
-            m_intake.retractArm();
-            m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
-            while (runningSequence1) {
-              //while were running sequence 1, have intake go in and out
-              new WaitCommand(0.5).finallyDo(() -> {
-                if (runningSequence1) {
-                  m_intake.extendArm();
-                  m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
-                }
-              });
-              new WaitCommand(0.5).finallyDo(() -> {
-                if (runningSequence1) {
-                  m_intake.retractArm();
-                  m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
-                }
-              });
-            }
+            repeatjaskdfkjasd.schedule();
           }
         });
+        sequenceP2.schedule();
+
         //make sure were still holding down this button when were gonna run everything else
-      }
-      }).finallyDo(() -> {
-        runningSequence1 = false;
-        m_agitator.stopAgitation();
-        m_agitator.stopGate();
-        m_shooter.stopMotors();
-      })
-        //stop everything once we stop holding down the button
-    );
+      } else {return;}
+    },
+      () -> {
+        if (runningSequence1) {
+          runningSequence1 = false;
+          m_agitator.stopAgitation();
+          m_agitator.stopGate();
+          m_shooter.stopMotors();
+          m_intake.setModes(direction.IGNORE, intakeMode.AUTOMATIC);
+          repeatjaskdfkjasd.cancel();
+          shooting = false;
+        }
+      }));
+        //stop everything once we stop holding down the butto
     //sequence 2
-    new Trigger(() -> second_stick.getRawAxis(3) >= 0.2).onTrue(
-      new InstantCommand(() -> {
+    new Trigger(() -> second_stick.getRawAxis(3) >= 0.2).whileTrue(
+      new StartEndCommand(() -> {
         //only run if were not running the other sequence and were not already running this sequence
-        if (!runningSequence2 && !runningSequence1) {
+        if (!runningSequence2) {
         //start shooter first
         runningSequence2 = true;
         m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
         shooting = true;
         //give shooter time to rev up
-        new WaitCommand(0.4).finallyDo(() -> {
+        var kjasdfjklasjkldfj = new WaitCommand(0.4).finallyDo(() -> {
           if (runningSequence2) {
             m_agitator.runAgitation(1);
             m_agitator.runGate(1);
@@ -299,17 +308,20 @@ public class RobotContainer {
             m_intake.retractArm();
           }
         });
+        kjasdfjklasjkldfj.schedule();
         //make sure were still holding down this button when were gonna run everything else
       }
-      }).finallyDo(() -> {
+      },
+      () -> {
         runningSequence2 = false;
         m_intake.setHopperSpeed(1);
         m_agitator.stopAgitation();
         m_agitator.stopGate();
         m_shooter.stopMotors();
-      })
+        shooting = false;
+      }
         //stop everything once we stop holding down the button
-    );
+    ));
 
     //extend/retract hopper
     new JoystickButton(second_stick, 1).onTrue(
