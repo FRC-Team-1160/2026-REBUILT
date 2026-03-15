@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 //import frc.robot.commands.ExampleCommand;
 //import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -83,6 +84,57 @@ public class RobotContainer {
   public final LimelightIO m_limelightio = new LimelightIO();
   public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   public final Agitator m_agitator = new Agitator();
+
+  public final Timer allianceShiftTimer = new Timer();  
+
+  public enum TeleopPhases {
+    NOT_TELEOP {  // do not advance phase until teleop starts
+      @Override
+      public boolean advancePhase(Timer timer) {
+          return false;
+      }
+    },
+    TRANSITION_PHASE {
+      @Override
+      public boolean advancePhase(Timer timer) {
+          return timer.hasElapsed(10);
+      }
+    },
+    SHIFT1 {
+      @Override
+      public boolean advancePhase(Timer timer) {
+          return timer.hasElapsed(25);
+      }
+    },
+    SHIFT2 {
+      @Override
+      public boolean advancePhase(Timer timer) {
+          return timer.hasElapsed(25);
+      }
+    },
+    SHIFT3 {
+      @Override
+      public boolean advancePhase(Timer timer) {
+          return timer.hasElapsed(25);
+      }
+    },
+    SHIFT4 {
+      @Override
+      public boolean advancePhase(Timer timer) {
+          return timer.hasElapsed(25);
+      }
+    },
+    ENDGAME {  // stop advancing phase at endgame
+      @Override
+      public boolean advancePhase(Timer timer) {
+          return false;
+      }
+    };
+
+    public abstract boolean advancePhase(Timer timer);
+  }
+
+  public TeleopPhases currentPhase = TeleopPhases.NOT_TELEOP;
   
   private enum ROBOT_STATES {
 
