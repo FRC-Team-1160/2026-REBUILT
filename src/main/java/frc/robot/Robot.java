@@ -45,11 +45,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_robot_container.m_drive.resetGyroAngle();
     autonomous_command = m_robot_container.getAutonomousCommand();
     if (autonomous_command != null) {
       System.out.println("AUTO INITIALIZED");
       autonomous_command.schedule();
     }
+
   }
 
   @Override
@@ -57,7 +59,13 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+    m_robot_container.m_shooter.stopMotors();
+      m_robot_container.m_agitator.stopAgitation();
+      m_robot_container.m_agitator.stopGate();
+      m_robot_container.AlignHub.cancel();
+      m_robot_container.StopSwerve.schedule();
+  }
 
   @Override
   public void teleopInit() {
@@ -66,6 +74,8 @@ public class Robot extends TimedRobot {
       m_robot_container.m_shooter.stopMotors();
       m_robot_container.m_agitator.stopAgitation();
       m_robot_container.m_agitator.stopGate();
+      m_robot_container.AlignHub.cancel();
+      m_robot_container.StopSwerve.schedule();
     }
   }
 
