@@ -18,6 +18,7 @@ import frc.robot.LimelightHelpers;
 import frc.robot.RobotUtils;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.FieldConstants.HubMeasurements;
 
 public class LimelightIO extends SubsystemBase{
     public boolean blueAlliance;
@@ -27,6 +28,7 @@ public class LimelightIO extends SubsystemBase{
    // private final NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
    private final double[] defaultArray = {0};
    private LimelightHelpers.PoseEstimate poseEstimator;
+   private Pose2d allianceHub;
    // private final LimelightHelpers llHelpers;
    // nt instance above if needed
   
@@ -38,6 +40,9 @@ public class LimelightIO extends SubsystemBase{
 
     poseEstimator = getPoseEstimate();
     poseEstimator.isMegaTag2 = true;
+    if (blueAlliance) {
+        allianceHub = HubMeasurements.BLUEHUB_POSE;
+    } else {allianceHub = HubMeasurements.REDHUB_POSE;}
    }
 
    public Optional<VisionMeasurement> returnLLVisionMeasurement(){
@@ -48,9 +53,9 @@ public class LimelightIO extends SubsystemBase{
    }
 
    private LimelightHelpers.PoseEstimate getPoseEstimate() {
-    LimelightHelpers.PoseEstimate est;
-    if (blueAlliance) {est = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);}
-    else {est = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelightName);}
+    LimelightHelpers.PoseEstimate est = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+    // if (blueAlliance) {est = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);}
+    // else {est = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(limelightName);}
     return est;
    }
 
@@ -76,9 +81,9 @@ public class LimelightIO extends SubsystemBase{
    }
    // ======
 
-   public double getBotDistanceFromHubCenter(){
-    double distance = RobotUtils.hypot((poseEstimator.pose.getX() - FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX()), 
-        poseEstimator.pose.getY() - FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY());
+   public double getBotDistanceFromHubCenter(Pose2d odom){
+    double distance = RobotUtils.hypot((odom.getX() - allianceHub.getX()), 
+        odom.getY() - allianceHub.getY());
     return RobotUtils.metersToInches(distance);
    }
 
@@ -91,9 +96,12 @@ public class LimelightIO extends SubsystemBase{
     return 0;
    }
 
-   public double getAngleDegreeOffsetFromHubCenter(double yawDeg) {
-    double targetPoint = Math.atan2(FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getY() - poseEstimator.pose.getY(), 
-        FieldConstants.HubMeasurements.ALLIANCEHUB_POSE.getX() - poseEstimator.pose.getX()) * (180/Math.PI);
+   public double getAngleDegreeOffsetFromHubCenter(double yawDeg, Pose2d odom) {
+    if (!blueAlliance) {
+        yawDeg += 180;
+    }
+    double targetPoint = Math.atan2(allianceHub.getY() - odom.getY(), 
+        allianceHub.getX() - odom.getX()) * (180/Math.PI);
     double difference = yawDeg - targetPoint;
     return difference;
    }

@@ -103,11 +103,11 @@ public class RobotContainer {
       if (DriverStation.isAutonomous() && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
         double angle_radiansPerSecond;
 
-        double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
+        double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees(), m_drive.odom_pose);
         degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
         facingHub = (degreeDifference == 0);
         angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
-        * (degreeDifference < 0 ? -1 : 1) * (m_limelightio.blueAlliance == true ? 1 : -1);
+        * (degreeDifference < 0 ? -1 : 1);
 
         m_drive.setSwerveDrive(
         0,0,
@@ -119,7 +119,7 @@ public class RobotContainer {
     }).until(() -> facingHub));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
       }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
@@ -154,7 +154,7 @@ public class RobotContainer {
   public void updateSwerve() {
     if (!DriverStation.isAutonomous()){
     double mult = shooting ? 0.2 : 1;
-    SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees()));
+    SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees(),m_drive.odom_pose));
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
     double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(1);
@@ -166,11 +166,11 @@ public class RobotContainer {
 
     // if pressing button 6 then we align to the hub
     if ((main_stick.getRawAxis(2) >= 0.2) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
-      double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
+      double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees(),m_drive.odom_pose);
       degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
       facingHub = (degreeDifference == 0);
       angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
-      * (degreeDifference < 0 ? -1 : 1) * (m_limelightio.blueAlliance == true ? 1 : -1);
+      * (degreeDifference < 0 ? -1 : 1);
       
       SmartDashboard.putNumber("degree diff", degreeDifference);
 
@@ -280,7 +280,7 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         runningSequence1 = true;
         //start shooter first
-        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
         shooting = true;
         //give shooter time to rev up
         m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
@@ -313,7 +313,7 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         //start shooter first
         runningSequence2 = true;
-        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
         shooting = true;
         //give shooter time to rev up
         //slowly retract intake while shooting and such
@@ -416,7 +416,7 @@ public class RobotContainer {
     // shooter bindings
     RepeatCommand runShooter = new RepeatCommand(
       new InstantCommand(() -> {
-      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 110);
+      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 110);
     }));
     InstantCommand reverseShooter = new InstantCommand(() -> {
       m_shooter.runMotors(-70);

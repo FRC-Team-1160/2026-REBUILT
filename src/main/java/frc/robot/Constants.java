@@ -193,6 +193,9 @@ public static class ShooterConstants{
     public static class HubMeasurements {
       //inches
       public static final Pose2d ALLIANCEHUB_POSE = new Pose2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84),Rotation2d.fromDegrees(0));
+      
+      public static final Pose2d BLUEHUB_POSE = new Pose2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84),Rotation2d.fromDegrees(0));
+      public static final Pose2d REDHUB_POSE = new Pose2d(Units.inchesToMeters(651.22 - 182.11),Units.inchesToMeters(158.84),Rotation2d.fromDegrees(0));
       public static final double HUB_WIDTH = 47;
     }
   }

@@ -380,12 +380,14 @@ public abstract class DriveTrain extends SubsystemBase {
     }
 
     //femboy
-    // if (LimelightHelpers.getTV(Constants.ShooterConstants.LIMELIGHT_NAME)) {
-    //   pose_estimator.addVisionMeasurement(
-    //     LimelightHelpers.getBotPose2d(Constants.ShooterConstants.LIMELIGHT_NAME),
-    //     LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.ShooterConstants.LIMELIGHT_NAME).timestampSeconds
-    //   );
-    // }
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME);
+    if (limelightMeasurement.tagCount > 0) {
+      pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+      pose_estimator.addVisionMeasurement(
+        limelightMeasurement.pose,
+        limelightMeasurement.timestampSeconds
+      );
+    }
 
     odom_pose = pose_estimator.update(getGyroAngle(), getModulePositions());
 

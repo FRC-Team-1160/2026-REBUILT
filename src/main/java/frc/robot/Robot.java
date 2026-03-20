@@ -32,7 +32,8 @@ public class Robot extends TimedRobot {
     m_robot_container.m_drive.getGyroAngle().getDegrees() + 
     (blueAlliance == true ? 0 : 180),0,0,0,0,0);
     CommandScheduler.getInstance().run();
-  }
+    SmartDashboard.putNumber("botDistanceFromHub", m_robot_container.m_vision.getBotToHubDistance(m_robot_container.m_drive.odom_pose));
+   }
 
   @Override
   public void disabledInit() {}
