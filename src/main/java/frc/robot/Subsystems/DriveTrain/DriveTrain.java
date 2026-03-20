@@ -30,6 +30,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -62,6 +63,7 @@ public abstract class DriveTrain extends SubsystemBase {
   protected StructArrayPublisher<SwerveModuleState> adv_real_states_pub, adv_target_states_pub;
   /** State publisher for AdvantageScope. */
   protected StructPublisher<Rotation2d> adv_gyro_pub;
+  public boolean blueAlliance;
 
   public Orchestra orchestra;
 
@@ -133,8 +135,10 @@ public abstract class DriveTrain extends SubsystemBase {
         () -> {
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
+            blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
             return alliance.get() == DriverStation.Alliance.Red;
           }
+          blueAlliance = false;
           return false;
         },
         this // Reference to this subsystem to set requirements
@@ -374,16 +378,19 @@ public abstract class DriveTrain extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
     SmartDashboard.putNumber("pose_angle", odom_pose.getRotation().getDegrees());
-    //SmartDashboard.putNumber("VISION SUB AT DIST", visionSub.getTagDitance());
     for (SwerveModule module : modules) {
       module.update();
     }
 
+    double orientationYaw = getGyroAngle().getDegrees() + (blueAlliance ? 0 : 180);
+    LimelightHelpers.SetRobotOrientation(ShooterConstants.LIMELIGHT_NAME, orientationYaw, 0, 0, 0, 0, 0);
     //femboy
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME);
+    pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
     if (LimelightHelpers.getTV(Constants.ShooterConstants.LIMELIGHT_NAME)) {
       pose_estimator.addVisionMeasurement(
-        LimelightHelpers.getBotPose2d(Constants.ShooterConstants.LIMELIGHT_NAME),
-        LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.ShooterConstants.LIMELIGHT_NAME).timestampSeconds
+        limelightMeasurement.pose,
+        limelightMeasurement.timestampSeconds
       );
     }
 
