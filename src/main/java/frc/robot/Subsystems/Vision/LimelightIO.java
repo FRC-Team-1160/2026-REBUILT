@@ -82,10 +82,10 @@ public class LimelightIO extends SubsystemBase{
     return RobotUtils.metersToInches(distance);
    }
 
-   public double nonBrennanGetBotDistanceFromHubCenter(){
-        double[] distance = LimelightHelpers.getTargetPose_RobotSpace(limelightName);
-        return RobotUtils.metersToInches(Math.hypot(distance[0], distance[1]+0.5969));
-   }
+//    public double nonBrennanGetBotDistanceFromHubCenter(){
+//         double[] distance = LimelightHelpers.getTargetPose_RobotSpace(limelightName);
+//         return RobotUtils.metersToInches(Math.hypot(distance[0], distance[1]+0.5969));
+//    }
 
    public double getBotDistAnyTag(){
     return 0;
@@ -110,7 +110,7 @@ public class LimelightIO extends SubsystemBase{
    // SmartDashboard.putNumber("ASDFJASDFASJD", )
     SmartDashboard.putNumber("pose x", poseEstimator.pose.getX());
     SmartDashboard.putNumber("pose y", poseEstimator.pose.getY());
-    SmartDashboard.putNumber("hoepuflly acc adistance yes", nonBrennanGetBotDistanceFromHubCenter());
+    // SmartDashboard.putNumber("hoepuflly acc adistance yes", nonBrennanGetBotDistanceFromHubCenter());
    }
 }
 
