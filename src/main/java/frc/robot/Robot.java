@@ -63,8 +63,8 @@ public class Robot extends TimedRobot {
     m_robot_container.m_shooter.stopMotors();
       m_robot_container.m_agitator.stopAgitation();
       m_robot_container.m_agitator.stopGate();
-      m_robot_container.AlignHub.cancel();
-      m_robot_container.StopSwerve.schedule();
+      // m_robot_container.AlignHub.cancel();
+      // m_robot_container.StopSwerve.schedule();
   }
 
   @Override
@@ -74,8 +74,8 @@ public class Robot extends TimedRobot {
       m_robot_container.m_shooter.stopMotors();
       m_robot_container.m_agitator.stopAgitation();
       m_robot_container.m_agitator.stopGate();
-      m_robot_container.AlignHub.cancel();
-      m_robot_container.StopSwerve.schedule();
+      // m_robot_container.AlignHub.cancel();
+      // m_robot_container.StopSwerve.schedule();
     }
   }
 

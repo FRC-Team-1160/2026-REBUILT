@@ -83,13 +83,22 @@ public class RobotContainer {
   public final LimelightIO m_limelightio = new LimelightIO();
   public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   public final Agitator m_agitator = new Agitator();
-  
-  private enum ROBOT_STATES {
-
-  }
 
   private boolean runningSequence1 = false;
   private boolean runningSequence2 = false;
+
+  private double getHubDegreeDiff() {
+    double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees(), m_drive.odom_pose);
+    degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
+
+    return degreeDifference;
+  }
+  private double getTurnToHub() {
+    double degreeDifference = getHubDegreeDiff();
+    double angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
+    * (degreeDifference < 0 ? -1 : 1);
+    return angle_radiansPerSecond;
+  }
 
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -103,11 +112,9 @@ public class RobotContainer {
       if (DriverStation.isAutonomous() && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
         double angle_radiansPerSecond;
 
-        double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
-        degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
-        facingHub = (degreeDifference == 0);
-        angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
-        * (degreeDifference < 0 ? -1 : 1) * (m_limelightio.blueAlliance == true ? 1 : -1);
+        //double degreeDifference = getHubDegreeDiff();
+        //facingHub = (degreeDifference == 0);
+        angle_radiansPerSecond = getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
 
         m_drive.setSwerveDrive(
         0,0,
@@ -119,7 +126,7 @@ public class RobotContainer {
     }).until(() -> facingHub));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
       }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
@@ -154,7 +161,10 @@ public class RobotContainer {
   public void updateSwerve() {
     if (!DriverStation.isAutonomous()){
     double mult = shooting ? 0.2 : 1;
-    SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees()));
+    //double degreeDifference = getHubDegreeDiff();
+    //facingHub = (degreeDifference == 0);
+
+    SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees(), m_drive.odom_pose));
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
     double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(1);
@@ -166,14 +176,8 @@ public class RobotContainer {
 
     // if pressing button 6 then we align to the hub
     if ((main_stick.getRawAxis(2) >= 0.2) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
-      double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees());
-      degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
-      facingHub = (degreeDifference == 0);
-      angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
-      * (degreeDifference < 0 ? -1 : 1) * (m_limelightio.blueAlliance == true ? 1 : -1);
-      
-      SmartDashboard.putNumber("degree diff", degreeDifference);
-
+      angle_radiansPerSecond =  getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+      //SmartDashboard.putNumber("degree diff", degreeDifference);
       //angle_radiansPerSecond = degreeDifference < 0 ? 0.2 : -0.2;
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
@@ -203,7 +207,8 @@ public class RobotContainer {
   private void configureBindings() {
     //MAIN STICK -------------------------
     new JoystickButton(main_stick, 8).onTrue(
-      new InstantCommand(m_drive::resetGyroAngle)
+      
+    new InstantCommand(m_drive::resetGyroAngle)
     );
 
     //stop intake
@@ -280,7 +285,7 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         runningSequence1 = true;
         //start shooter first
-        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
         shooting = true;
         //give shooter time to rev up
         m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
@@ -313,7 +318,7 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         //start shooter first
         runningSequence2 = true;
-        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 70);
+        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
         shooting = true;
         //give shooter time to rev up
         //slowly retract intake while shooting and such
@@ -416,7 +421,7 @@ public class RobotContainer {
     // shooter bindings
     RepeatCommand runShooter = new RepeatCommand(
       new InstantCommand(() -> {
-      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 110);
+      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 110);
     }));
     InstantCommand reverseShooter = new InstantCommand(() -> {
       m_shooter.runMotors(-70);

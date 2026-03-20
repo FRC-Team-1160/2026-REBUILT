@@ -43,22 +43,18 @@ public class VisionSubsystem extends SubsystemBase {
    }
    // ==
 
-   public double getBotToHubDistance() {
-    return limelight.getBotDistanceFromHubCenter();
+   public double getBotToHubDistance(Pose2d odom) {
+    return limelight.getBotDistanceFromHubCenter(odom);
    }
 
-   public double getAngleDiffBotToHub(double yaw) {
-    return limelight.getAngleDegreeOffsetFromHubCenter(yaw);
-   }
-
-   public boolean botIsFacingHub() {
-    return limelight.botIsFacingHub();
+   public double getAngleDiffBotToHub(double yaw, Pose2d odom) {
+    return limelight.getAngleDegreeOffsetFromHubCenter(yaw, odom);
    }
 
    @Override
    public void periodic() {
     SmartDashboard.putNumber("LLTagCount", getTagCount());
-    SmartDashboard.putNumber("botDistanceFromHub", getBotToHubDistance());
+    //SmartDashboard.putNumber("botDistanceFromHub", getBotToHubDistance());
    }
 
    @Override
