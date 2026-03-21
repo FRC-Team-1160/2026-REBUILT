@@ -168,6 +168,12 @@ public abstract class DriveTrain extends SubsystemBase {
    * @param y_metersPerSecond  Y-axis speed in m/s. Right is positive.
    * @param a_radiansPerSecond Angular speed in rad/s. CCW is positive.
    */
+  public void setModuleMode(boolean brake) {
+    modules[1].setModuleMode(brake);
+    modules[2].setModuleMode(brake);
+    modules[3].setModuleMode(brake);
+    modules[0].setModuleMode(brake);
+  }
 
   public void setSwerveDrive(double x_metersPerSecond, double y_metersPerSecond, double a_radiansPerSecond) {
     // converts speeds from field's frame of reference to robot's frame of reference
@@ -381,23 +387,16 @@ public abstract class DriveTrain extends SubsystemBase {
     for (SwerveModule module : modules) {
       module.update();
     }
-
-    double orientationYaw = getGyroAngle().getDegrees() + (blueAlliance ? 0 : 180);
-    LimelightHelpers.SetRobotOrientation(ShooterConstants.LIMELIGHT_NAME, orientationYaw, 0, 0, 0, 0, 0);
     //femboy
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME);
     pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
-    if (LimelightHelpers.getTV(Constants.ShooterConstants.LIMELIGHT_NAME)) {
-      pose_estimator.addVisionMeasurement(
+    pose_estimator.addVisionMeasurement(
         limelightMeasurement.pose,
         limelightMeasurement.timestampSeconds
-      );
-    }
+    );
 
     odom_pose = pose_estimator.update(getGyroAngle(), getModulePositions());
-
     publishAdv();
-
   }
 
 

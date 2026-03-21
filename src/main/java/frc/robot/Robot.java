@@ -4,12 +4,15 @@
 
 package frc.robot;
 
+import java.util.concurrent.TransferQueue;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ShooterConstants;
 
 public class Robot extends TimedRobot {
   private Command autonomous_command;
@@ -24,15 +27,24 @@ public class Robot extends TimedRobot {
     if (alliance.isPresent()) {
         blueAlliance = (alliance.get() == DriverStation.Alliance.Blue);
     } else {blueAlliance = false;}
+
+    //LimelightHelpers.getLimelightNTTable("limelight").getEntry("imumode").setNumber(1);
   }
 
   @Override
   public void robotPeriodic() {
+    //LimelightHelpers.SetIMUMode("limelight", 1);
+    double orientationYaw = m_robot_container.m_drive.getGyroAngle().getDegrees() + (blueAlliance == true ? 0 : 180);
+    LimelightHelpers.SetRobotOrientation(ShooterConstants.LIMELIGHT_NAME, orientationYaw, 0, 0, 0, 0, 0);
+    
     CommandScheduler.getInstance().run();
+    SmartDashboard.putNumber("orientationYaw", orientationYaw);
+    SmartDashboard.putNumber("orientationYaw Radians", Math.toRadians(orientationYaw));
   }
 
   @Override
   public void disabledInit() {}
+
 
   @Override
   public void disabledPeriodic() {}
@@ -74,6 +86,8 @@ public class Robot extends TimedRobot {
       // m_robot_container.AlignHub.cancel();
       // m_robot_container.StopSwerve.schedule();
     }
+
+    SmartDashboard.putNumber("botDistanceFromHub", m_robot_container.m_vision.getBotToHubDistance(m_robot_container.m_drive.odom_pose));
   }
 
   @Override

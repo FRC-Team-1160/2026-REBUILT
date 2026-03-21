@@ -15,12 +15,13 @@ public abstract class SwerveModule {
 
   public SwerveModule() {
     target_state = new SwerveModuleState();
-
   }
 
   public void setState(SwerveModuleState state) {
     target_state = state;
   }
+
+  abstract void setModuleMode(boolean brake);
 
   public void update() {
     if (!RobotState.isDisabled()) { //just in case, idk

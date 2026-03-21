@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -110,6 +111,16 @@ public class SwerveModuleRealIO extends SwerveModule{
     SmartDashboard.putNumber("rotor_position", getPosition());
     return new SwerveModulePosition(getPosition(), getAngle());
   }
+
+  public void setModuleMode(boolean brake) {
+    if (brake) {
+      drive_motor.setNeutralMode(NeutralModeValue.Brake);
+      steer_motor.setNeutralMode(NeutralModeValue.Brake);
+    } else {
+      drive_motor.setNeutralMode(NeutralModeValue.Coast);
+      steer_motor.setNeutralMode(NeutralModeValue.Coast);
+    }
+  } 
 
   /**
    * @param speed the speed to go at, in meters per second.

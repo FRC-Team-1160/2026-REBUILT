@@ -26,7 +26,7 @@ public class Intake extends SubsystemBase {
 
     private TalonFX intakeMotor = new TalonFX(Port.INTAKE_MOTOR);
 
-    private DigitalInput armLimit = new DigitalInput(9);
+    private DigitalInput armLimit = new DigitalInput(1);
     private boolean limitReached = !armLimit.get();
     private boolean positionSet = false;
 
@@ -120,7 +120,7 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         // optional telemetry:
         super.periodic();
-        limitReached = armLimit.get();
+        limitReached = !armLimit.get();
         SmartDashboard.putBoolean("Intake Arm Max Reached", limitReached);
         SmartDashboard.putNumber("Intake position", encoder.getPosition());
         

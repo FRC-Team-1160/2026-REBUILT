@@ -88,8 +88,10 @@ public class RobotContainer {
   private boolean runningSequence2 = false;
 
   private double getHubDegreeDiff() {
-    double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.odom_pose.getRotation().getDegrees(), m_drive.odom_pose);
+    double addToYaw = m_limelightio.blueAlliance == true ? 0 : 180; 
+    double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees() + addToYaw, m_drive.odom_pose);
     degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
+    SmartDashboard.putNumber("bot-hub degreeDifference", degreeDifference);
 
     return degreeDifference;
   }
@@ -138,8 +140,8 @@ public class RobotContainer {
       m_agitator.runAgitation(1);
       m_agitator.runGate(1);}));
     NamedCommands.registerCommand("Stop Agitator",new InstantCommand(() -> {
-      m_agitator.runAgitation(0);
-      m_agitator.runGate(0);}));
+      m_agitator.stopGate();
+      m_agitator.stopAgitation();}));
 
     //setting up pathplanner commands
 
@@ -163,25 +165,25 @@ public class RobotContainer {
     double mult = shooting ? 0.2 : 1;
     //double degreeDifference = getHubDegreeDiff();
     //facingHub = (degreeDifference == 0);
-
-    SmartDashboard.putNumber("bot-hub degreeDifference", m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees(), m_drive.odom_pose));
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(1);
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(1);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.1 * -main_stick.getRawAxis(0);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(0);
 
     double angle_radiansPerSecond;    
 
     // if pressing button 6 then we align to the hub
-    if ((main_stick.getRawAxis(2) >= 0.2) && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
-      angle_radiansPerSecond =  getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+    if ((main_stick.getRawAxis(2) >= 0.2)) {
+      angle_radiansPerSecond = getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
       //SmartDashboard.putNumber("degree diff", degreeDifference);
       //angle_radiansPerSecond = degreeDifference < 0 ? 0.2 : -0.2;
+      SmartDashboard.putBoolean("align attemp", true);
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
       * Math.pow(main_stick.getRawAxis(4), 2);
+      SmartDashboard.putBoolean("align attemp", false);
     }
     
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
@@ -236,6 +238,15 @@ public class RobotContainer {
         m_intake.setIntakeDirection(intakeDirection.OUT);
       })
     );
+
+    new Trigger(() -> main_stick.getRawButton(6)).whileTrue(
+      new RunCommand(() -> {
+        m_drive.setModuleMode(true);
+      }).finallyDo(
+        () -> {
+          m_drive.setModuleMode(false);
+        })
+      );
 
     //SECOND STICK -------------------------
     //sequences fml
@@ -302,8 +313,8 @@ public class RobotContainer {
         if (runningSequence1) {
           //turn everything back off
           runningSequence1 = false;
-          m_agitator.runAgitation(0);
-          m_agitator.runGate(0);
+          m_agitator.stopAgitation();
+          m_agitator.stopGate();
           m_shooter.stopMotors();
           m_intake.setModes(direction.IGNORE, intakeMode.AUTOMATIC);
           repeatIntakeOuttakeCommand.cancel();
@@ -329,8 +340,8 @@ public class RobotContainer {
         //reset back to normal
         runningSequence2 = false;
         m_intake.setHopperSpeed(1);
-        m_agitator.runAgitation(0);
-        m_agitator.runGate(0);
+        m_agitator.stopAgitation();
+        m_agitator.stopGate();
         m_shooter.stopMotors();
         slowRetractSequence.cancel();
         shooting = false;
@@ -419,46 +430,45 @@ public class RobotContainer {
     );
    
     // shooter bindings
-    RepeatCommand runShooter = new RepeatCommand(
-      new InstantCommand(() -> {
-      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 110);
-    }));
-    InstantCommand reverseShooter = new InstantCommand(() -> {
-      m_shooter.runMotors(-70);
-    });
+    // RepeatCommand runShooter = new RepeatCommand(
+    //   new InstantCommand(() -> {
+    //   m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 110);
+    // }));
+    // InstantCommand reverseShooter = new InstantCommand(() -> {
+    //   m_shooter.runMotors(-70);
+    // });
 
-    new JoystickButton(second_stick, 4).onTrue(new InstantCommand(() -> {
-      if (second_stick.getRawButton(5)) {
-        if (reverseShooter.isScheduled()) {
-          reverseShooter.cancel();
-        } else {reverseShooter.schedule();}
-      } else {
-        if (runShooter.isScheduled()) {
-          runShooter.cancel();
-        } else {runShooter.schedule();}
-      }
-    }));
+    // new JoystickButton(second_stick, 4).onTrue(new InstantCommand(() -> {
+    //   if (second_stick.getRawButton(5)) {
+    //     if (reverseShooter.isScheduled()) {
+    //       reverseShooter.cancel();
+    //     } else {reverseShooter.schedule();}
+    //   } else {
+    //     if (runShooter.isScheduled()) {
+    //       runShooter.cancel();
+    //     } else {runShooter.schedule();}
+    //   }
+    // }));
 
     //old control
-    // new Trigger(() -> (second_stick.getRawButton(4) && 
-    // ((second_stick.getRawAxis(2) >= 0.2) || second_stick.getRawButton(5)))).whileTrue(
-    //     new RunCommand(() -> {
-    //       boolean forwards = second_stick.getRawAxis(2) >= 0.2;
-    //       if (forwards) {
-    //         m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance() : 110);
-    //         shooting = true;
-    //       } else {
-    //         m_shooter.reverseMotors();
-    //       }
-    //     })//150
-    //       .finallyDo(() -> {
-    //         m_shooter.stopMotors();
-    //         shooting = false;
-    //       })
-    //       //if we are facing the hub then shoot correctly
-    //       // otherwise were probably trying to shoot from the neutral zone
-    //       // so just launch it at a constant distance basically
-    //   );
+    new Trigger(() -> (second_stick.getRawButton(4))).whileTrue(
+        new RunCommand(() -> {
+          boolean forwards = !second_stick.getRawButton(5);
+          if (forwards) {
+            m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 110);
+            shooting = true;
+          } else {
+            m_shooter.reverseMotors();
+          }
+        })//150
+          .finallyDo(() -> {
+            m_shooter.stopMotors();
+            shooting = false;
+          })
+          //if we are facing the hub then shoot correctly
+          // otherwise were probably trying to shoot from the neutral zone
+          // so just launch it at a constant distance basically
+      );
 
       // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
       //   new RunCommand(() -> m_shooter.basketballin())
