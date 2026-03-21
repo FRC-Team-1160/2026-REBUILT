@@ -32,11 +32,8 @@ public class LimelightIO extends SubsystemBase{
    // private final LimelightHelpers llHelpers;
    // nt instance above if needed
   
-   public LimelightIO(){
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-        blueAlliance = (alliance.get() == DriverStation.Alliance.Blue);
-    } else {blueAlliance = false;}
+   public LimelightIO(boolean isBlue){
+    blueAlliance = isBlue;
 
     poseEstimator = getPoseEstimate();
     poseEstimator.isMegaTag2 = true;

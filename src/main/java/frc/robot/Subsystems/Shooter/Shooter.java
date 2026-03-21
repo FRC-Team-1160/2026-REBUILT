@@ -78,8 +78,7 @@ public class Shooter extends SubsystemBase {
         return 0.2203 + 0.1107*rps; // only for top roller
     }
 
-    public void runMotors(double distanceFromTargetInches) {
-        //double[] motorVoltages = getMotorVoltageFromDistanceMeters(distanceFromTargetInches); // should this be an april tag or where were planning on getting the balls to actually land???
+    public boolean runMotors(double distanceFromTargetInches) {
         double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);
 
         VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
@@ -87,38 +86,33 @@ public class Shooter extends SubsystemBase {
 
         nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(-2.75));
         topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+        return true;
     }
 
-    public void reverseMotors() {
+    public boolean reverseMotors() {
         double topRollerRPS = -20;
         VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
         VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
 
         nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-bottomRollerTargetRPS).withFeedForward(2.75));
         topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+        return true;
     }
 
-    public void testRunMotors() {
-        double topRollerRPS = topRollerTargetRPS;
-        VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
-        VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
-
-        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(topRollerRPS * 2).withFeedForward(-2.75));
-        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-    }
-
-    public void basketballin() {
+    public boolean basketballin() {
         double topRollerRPS = 70;
          VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
         VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
 
         nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-30).withFeedForward(-3.2));
         topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+        return true;
     }
 
-    public void stopMotors() {
+    public boolean stopMotors() {
         nearBottomRollerMotor.stopMotor();
         topRollerMotor.stopMotor();
+        return false;
     }
 
     // new functions for testing with rotations per second

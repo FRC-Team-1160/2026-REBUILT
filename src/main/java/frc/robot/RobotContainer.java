@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -80,23 +81,14 @@ public class RobotContainer {
   public final Intake m_intake = new Intake();
   //public final AgitatorTest m_agitatorTest = new AgitatorTest();
   public final Shooter m_shooter = new Shooter();
-  public final LimelightIO m_limelightio = new LimelightIO();
-  public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
+  // public final LimelightIO m_limelightio = new LimelightIO(m_drive.blueAlliance);
+  // public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   public final Agitator m_agitator = new Agitator();
 
   private boolean runningSequence1 = false;
   private boolean runningSequence2 = false;
 
-  private double getHubDegreeDiff() {
-    double addToYaw = m_limelightio.blueAlliance == true ? 0 : 180; 
-    double degreeDifference = m_vision.getAngleDiffBotToHub(m_drive.getGyroAngle().getDegrees() + addToYaw, m_drive.odom_pose);
-    degreeDifference = Math.abs(degreeDifference) < (2) ? 0 : degreeDifference;
-    SmartDashboard.putNumber("bot-hub degreeDifference", degreeDifference);
-
-    return degreeDifference;
-  }
-  private double getTurnToHub() {
-    double degreeDifference = getHubDegreeDiff();
+  private double getTurnToHub(double degreeDifference) {
     double angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
     * (degreeDifference < 0 ? -1 : 1);
     return angle_radiansPerSecond;
@@ -116,7 +108,8 @@ public class RobotContainer {
 
         //double degreeDifference = getHubDegreeDiff();
         //facingHub = (degreeDifference == 0);
-        angle_radiansPerSecond = getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+        double degreeDifference = m_drive.getAngleDegreeOffsetFromHubCenter();
+        angle_radiansPerSecond = getTurnToHub(degreeDifference); //* (m_limelightio.blueAlliance == true ? 1 : -1);
 
         m_drive.setSwerveDrive(
         0,0,
@@ -128,11 +121,11 @@ public class RobotContainer {
     }).until(() -> facingHub));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
+      shooting = m_shooter.runMotors(m_drive.getDistanceFromHub());
       }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
-      m_shooter.stopMotors();
+      shooting = m_shooter.stopMotors();
       }
     ));
 
@@ -176,7 +169,8 @@ public class RobotContainer {
 
     // if pressing button 6 then we align to the hub
     if ((main_stick.getRawAxis(2) >= 0.2)) {
-      angle_radiansPerSecond = getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+      double degreeDifference = m_drive.getAngleDegreeOffsetFromHubCenter();
+      angle_radiansPerSecond = getTurnToHub(degreeDifference); //* (m_limelightio.blueAlliance == true ? 1 : -1);
       //SmartDashboard.putNumber("degree diff", degreeDifference);
       //angle_radiansPerSecond = degreeDifference < 0 ? 0.2 : -0.2;
       SmartDashboard.putBoolean("align attemp", true);
@@ -250,6 +244,8 @@ public class RobotContainer {
 
     //SECOND STICK -------------------------
     //sequences fml
+
+    //creating our sequence commands
     InstantCommand extendHopperCommand = new InstantCommand(() -> {
               if (runningSequence1) {
                   m_intake.extendArm();
@@ -270,6 +266,11 @@ public class RobotContainer {
     //after waiting for .4 seconds, basically do the second half of sequence 1
     var spamIntakeSequence = new WaitCommand(0.4).finallyDo(() -> {
           if (runningSequence1) {
+            double distance = 90; // set distance
+            if (second_stick.getRawButton(6)) {
+              distance = m_drive.getDistanceFromHub();
+            }
+            shooting = m_shooter.runMotors(distance); // so we refresh our distance
             m_agitator.runAgitation(1);
             m_agitator.runGate(1);
             //turn on gate and agitator
@@ -277,6 +278,7 @@ public class RobotContainer {
           }
         });
     
+    //same explanation as above basically
     var slowRetractSequence = new WaitCommand(0.4).finallyDo(() -> {
           if (runningSequence2) {
             m_agitator.runAgitation(1);
@@ -287,17 +289,18 @@ public class RobotContainer {
             m_intake.retractArm();
           }
         });
+      //--------------------------------------
 
     //sequence 1
     //run shooter and such + intake goes in and out
-    new Trigger(() -> second_stick.getRawButton(6)).whileTrue(
+    new Trigger(() -> (second_stick.getRawButton(6) || second_stick.getRawAxis(3) >= 0.2)).whileTrue(
       new StartEndCommand(() -> {
         //only run if were not running the other sequence and were not already running this sequence
         if (!runningSequence2 && !runningSequence1) {
         runningSequence1 = true;
         //start shooter first
-        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
-        shooting = true;
+        shooting = m_shooter.runMotors(90); 
+          // 90 is where we usually are, so a good number to rev up to
         //give shooter time to rev up
         m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
         m_intake.setIntakeDirection(intakeDirection.OFF);
@@ -315,38 +318,36 @@ public class RobotContainer {
           runningSequence1 = false;
           m_agitator.stopAgitation();
           m_agitator.stopGate();
-          m_shooter.stopMotors();
+          shooting = m_shooter.stopMotors();
           m_intake.setModes(direction.IGNORE, intakeMode.AUTOMATIC);
           repeatIntakeOuttakeCommand.cancel();
-          shooting = false;
         }
       }));
+      
         //stop everything once we stop holding down the butto
     //sequence 2
-    new Trigger(() -> second_stick.getRawAxis(3) >= 0.2).whileTrue(
-      new StartEndCommand(() -> {
-        //only run if were not running the other sequence and were not already running this sequence
-        if (!runningSequence2 && !runningSequence1) {
-        //start shooter first
-        runningSequence2 = true;
-        m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 70);
-        shooting = true;
-        //give shooter time to rev up
-        //slowly retract intake while shooting and such
-        slowRetractSequence.schedule();
-      } else {return;} //return if were already running a sequence
-      },
-      () -> {
-        //reset back to normal
-        runningSequence2 = false;
-        m_intake.setHopperSpeed(1);
-        m_agitator.stopAgitation();
-        m_agitator.stopGate();
-        m_shooter.stopMotors();
-        slowRetractSequence.cancel();
-        shooting = false;
-      }
-    ));
+    // new Trigger(() -> second_stick.getRawAxis(3) >= 0.2).whileTrue(
+    //   new StartEndCommand(() -> {
+    //     //only run if were not running the other sequence and were not already running this sequence
+    //     if (!runningSequence2 && !runningSequence1) {
+    //     //start shooter first
+    //     runningSequence2 = true;
+    //     shooting = m_shooter.runMotors(m_drive.getDistanceFromHub());
+    //     //give shooter time to rev up
+    //     //slowly retract intake while shooting and such
+    //     slowRetractSequence.schedule();
+    //   } else {return;} //return if were already running a sequence
+    //   },
+    //   () -> {
+    //     //reset back to normal
+    //     runningSequence2 = false;
+    //     m_intake.setHopperSpeed(1);
+    //     m_agitator.stopAgitation();
+    //     m_agitator.stopGate();
+    //     shooting = m_shooter.stopMotors();
+    //     slowRetractSequence.cancel();
+    //   }
+    // ));
 
     //extend/retract hopper
     //new control
@@ -430,67 +431,29 @@ public class RobotContainer {
     );
    
     // shooter bindings
-    // RepeatCommand runShooter = new RepeatCommand(
-    //   new InstantCommand(() -> {
-    //   m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 110);
-    // }));
-    // InstantCommand reverseShooter = new InstantCommand(() -> {
-    //   m_shooter.runMotors(-70);
-    // });
-
-    // new JoystickButton(second_stick, 4).onTrue(new InstantCommand(() -> {
-    //   if (second_stick.getRawButton(5)) {
-    //     if (reverseShooter.isScheduled()) {
-    //       reverseShooter.cancel();
-    //     } else {reverseShooter.schedule();}
-    //   } else {
-    //     if (runShooter.isScheduled()) {
-    //       runShooter.cancel();
-    //     } else {runShooter.schedule();}
-    //   }
-    // }));
 
     //old control
     new Trigger(() -> (second_stick.getRawButton(4))).whileTrue(
         new RunCommand(() -> {
           boolean forwards = !second_stick.getRawButton(5);
           if (forwards) {
-            m_shooter.runMotors(facingHub ? m_vision.getBotToHubDistance(m_drive.odom_pose) : 110);
-            shooting = true;
+            shooting = m_shooter.runMotors(m_drive.getDistanceFromHub());
           } else {
-            m_shooter.reverseMotors();
+            shooting = m_shooter.reverseMotors();
           }
-        })//150
+        })
           .finallyDo(() -> {
-            m_shooter.stopMotors();
-            shooting = false;
+            shooting = m_shooter.stopMotors();
           })
-          //if we are facing the hub then shoot correctly
-          // otherwise were probably trying to shoot from the neutral zone
-          // so just launch it at a constant distance basically
       );
 
       // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
       //   new RunCommand(() -> m_shooter.basketballin())
       //     .finallyDo(m_shooter::stopMotors)
       // );
+      //remnant from when we shot into the hoops lolololol
 
     // shooter test bindings
-    
-    if (testingShooter) {
-      new JoystickButton(test_stick, 5).onTrue(
-        new InstantCommand(() -> m_shooter.changeTopRollerRPS(-0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
-      );
-
-      new JoystickButton(test_stick, 6).onTrue(
-        new InstantCommand(() -> m_shooter.changeTopRollerRPS(0.1 * (test_stick.getRawButton(4) ? 10 : 1)))
-      );
-
-      new Trigger(() -> test_stick.getRawButton(3)).whileTrue(
-        new RunCommand(() -> m_shooter.testRunMotors())
-          .finallyDo(m_shooter::stopMotors)
-      );
-    }
   }
 
   public Command getAutonomousCommand() {

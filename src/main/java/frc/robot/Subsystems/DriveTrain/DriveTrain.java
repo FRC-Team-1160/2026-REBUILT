@@ -38,8 +38,11 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.FieldConstants.HubMeasurements;
 import frc.robot.LimelightHelpers.PoseEstimate;
+import frc.robot.RobotUtils;
 import frc.robot.Subsystems.Vision.LimelightIO;
 import frc.robot.Subsystems.Vision.VisionSubsystem;
 
@@ -63,6 +66,8 @@ public abstract class DriveTrain extends SubsystemBase {
   protected StructArrayPublisher<SwerveModuleState> adv_real_states_pub, adv_target_states_pub;
   /** State publisher for AdvantageScope. */
   protected StructPublisher<Rotation2d> adv_gyro_pub;
+  private Pose2d allianceHub;
+  private double orientationYaw;
   public boolean blueAlliance;
 
   public Orchestra orchestra;
@@ -138,11 +143,15 @@ public abstract class DriveTrain extends SubsystemBase {
             blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
             return alliance.get() == DriverStation.Alliance.Red;
           }
-          blueAlliance = false;
+          blueAlliance = false; 
           return false;
         },
         this // Reference to this subsystem to set requirements
     );
+
+    if (blueAlliance) {
+      allianceHub = HubMeasurements.BLUEHUB_POSE;
+    } else {allianceHub = HubMeasurements.REDHUB_POSE;}
 
     setupDashboard();
 
@@ -308,6 +317,7 @@ public abstract class DriveTrain extends SubsystemBase {
    */
 
   public abstract Rotation2d getGyroAngle();
+  public abstract double getGyroRate();
 
   public abstract void resetGyroAngle();
 
@@ -380,6 +390,19 @@ public abstract class DriveTrain extends SubsystemBase {
     adv_gyro_pub.set(getGyroAngle());
   }
 
+  public double getDistanceFromHub() {
+    double distance = RobotUtils.hypot((odom_pose.getX() - allianceHub.getX()), 
+    odom_pose.getY() - allianceHub.getY());
+    return RobotUtils.metersToInches(distance);
+  }
+
+  public double getAngleDegreeOffsetFromHubCenter() {
+    double targetPoint = Math.atan2(allianceHub.getY() - odom_pose.getY(), 
+        allianceHub.getX() - odom_pose.getX()) * (180/Math.PI);
+    double difference = orientationYaw - targetPoint;
+    return difference;
+   }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
@@ -388,8 +411,18 @@ public abstract class DriveTrain extends SubsystemBase {
       module.update();
     }
     //femboy
+    orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees() + (blueAlliance == true ? 0 : 180);
+    //there is a chance we do not need to add 180 degrees for red alliance
+    //by using the pose_estimator estimated positon, it may already know correctly withoud adjustment
+    LimelightHelpers.SetRobotOrientation(ShooterConstants.LIMELIGHT_NAME, orientationYaw, 0, 0, 0, 0, 0);
+    
+    SmartDashboard.putNumber("orientationYaw", orientationYaw);
+    SmartDashboard.putNumber("orientationYaw Radians", Math.toRadians(orientationYaw));
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME);
-    pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+    
+    if (!(Math.abs(getGyroRate()) > 360 || limelightMeasurement.tagCount == 0))
+      //if were not moving faster than 360 degrees/sec and we see tags
+    pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
     pose_estimator.addVisionMeasurement(
         limelightMeasurement.pose,
         limelightMeasurement.timestampSeconds
