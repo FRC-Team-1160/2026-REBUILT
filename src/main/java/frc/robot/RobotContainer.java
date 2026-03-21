@@ -160,12 +160,12 @@ public class RobotContainer {
     //facingHub = (degreeDifference == 0);
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(1);
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(1);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(0);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(0);
 
-    double angle_radiansPerSecond;    
+    double angle_radiansPerSecond;    //df
 
     // if pressing button 6 then we align to the hub
     if ((main_stick.getRawAxis(2) >= 0.2)) {
@@ -175,7 +175,7 @@ public class RobotContainer {
       //angle_radiansPerSecond = degreeDifference < 0 ? 0.2 : -0.2;
       SmartDashboard.putBoolean("align attemp", true);
     } else {  
-      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
+      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1.5 * Math.signum(main_stick.getRawAxis(4))
       * Math.pow(main_stick.getRawAxis(4), 2);
       SmartDashboard.putBoolean("align attemp", false);
     }

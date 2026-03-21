@@ -155,8 +155,8 @@ public static class ShooterConstants{
     public static final double OFFSET = 12.23 * 0.0254;
 
     public static final double MAX_SPEED = 5;
-    public static final double DRIVE_SPEED = 0.5;
-    public static final double TURN_SPEED = 0.5;
+    public static final double DRIVE_SPEED = 0.9;
+    public static final double TURN_SPEED = 1;
 
     public static class DriveMotorConfigs {
       public static final double kP = .1; //0.1
