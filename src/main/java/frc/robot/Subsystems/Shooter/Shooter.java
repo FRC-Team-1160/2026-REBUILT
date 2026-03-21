@@ -35,6 +35,15 @@ public class Shooter extends SubsystemBase {
     private TalonFX nearBottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX topRollerMotor = new TalonFX(Port.SHOOTER_TOP_ROLLER_MOTOR);
 
+    public boolean enabled = false;
+    public boolean autoDistance = true;
+    public boolean reversed = false;
+
+    private VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
+    private VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
+
+    public double distanceFromTargetInches = 0;
+
     public Shooter() {
         TalonFXConfiguration topMotor_configs = new TalonFXConfiguration();
         TalonFXConfiguration bottomMotor_configs = new TalonFXConfiguration();
@@ -61,9 +70,6 @@ public class Shooter extends SubsystemBase {
         nearBottomRollerMotor.getConfigurator().apply(bottomMotor_configs);
         topRollerMotor.getConfigurator().apply(topMotor_configs);
 
-        SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
-        SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
-
         farBottomRollerMotor.setControl(new Follower(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
     }
 
@@ -78,61 +84,60 @@ public class Shooter extends SubsystemBase {
         return 0.2203 + 0.1107*rps; // only for top roller
     }
 
-    public boolean runMotors(double distanceFromTargetInches) {
-        double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);
+    //im keeping this just because im fond of it
+    // public boolean basketballin() {
+    //     double topRollerRPS = 70;
+    //      VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
+    //     VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
 
-        VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
-        VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
+    //     nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-30).withFeedForward(-3.2));
+    //     topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+    //     return true;
+    // }
 
-        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerTargetRPS).withFeedForward(-2.75));
-        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-        return true;
-    }
-
-    public boolean reverseMotors() {
-        double topRollerRPS = -20;
-        VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
-        VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
-
-        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-bottomRollerTargetRPS).withFeedForward(2.75));
-        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-        return true;
-    }
-
-    public boolean basketballin() {
-        double topRollerRPS = 70;
-         VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
-        VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
-
-        nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-30).withFeedForward(-3.2));
-        topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-        return true;
-    }
-
-    public boolean stopMotors() {
-        nearBottomRollerMotor.stopMotor();
-        topRollerMotor.stopMotor();
-        return false;
+    public void setModes(boolean enabled, boolean reversed, boolean autoDistance) {
+        this.enabled = enabled;
+        this.reversed = reversed;
+        this.autoDistance = autoDistance;
     }
 
     // new functions for testing with rotations per second
-    public void changeBottomRollerRPS(double change) {
-        bottomRollerTargetRPS += change;
-        SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
-    }
+    // public void changeBottomRollerRPS(double change) {
+    //     bottomRollerTargetRPS += change;
+    //     SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
+    // }
 
-    public void changeTopRollerRPS(double change) {
-        topRollerTargetRPS += change;
-        SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
-    }
+    // public void changeTopRollerRPS(double change) {
+    //     topRollerTargetRPS += change;
+    //     SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
+    // }
     
-    public void changeDistanceInches(double change) {
-        inchesFromHub += change;
-        SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
-    }
+    // public void changeDistanceInches(double change) {
+    //     inchesFromHub += change;
+    //     SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
+    // }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("distance from hub inches test", inchesFromHub);
+        SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
+        SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
+
+        if (enabled) {
+            double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);
+            double bottomRollerRPS = bottomRollerTargetRPS;
+            if (!autoDistance) {
+                topRollerRPS = ShooterConstants.STATIC_DISTANCE_INCHES;
+            }
+            if (reversed) {
+                topRollerRPS = -20;
+                bottomRollerRPS *= -1;
+            }
+            nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerRPS).withFeedForward(-2.75 * (reversed ? 1 : -1)));
+            topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+        } else {
+            nearBottomRollerMotor.stopMotor();
+            topRollerMotor.stopMotor();
+        }
     }
 }

@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     //LimelightHelpers.SetIMUMode("limelight", 1);
+    m_robot_container.updateShooterDistance();
     CommandScheduler.getInstance().run();
   }
 
@@ -57,7 +58,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    m_robot_container.m_shooter.stopMotors();
+    m_robot_container.m_shooter.enabled = false;
       m_robot_container.m_agitator.stopAgitation();
       m_robot_container.m_agitator.stopGate();
       // m_robot_container.AlignHub.cancel();
@@ -68,7 +69,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     if (autonomous_command != null) {
       autonomous_command.cancel();
-      m_robot_container.m_shooter.stopMotors();
+      m_robot_container.m_shooter.enabled = false;
       m_robot_container.m_agitator.stopAgitation();
       m_robot_container.m_agitator.stopGate();
       // m_robot_container.AlignHub.cancel();

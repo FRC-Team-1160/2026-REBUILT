@@ -63,7 +63,7 @@ public class Agitator extends SubsystemBase {
     }
 
     public void stopAgitation() {
-        agitatorMotor.setVoltage(0);
+        agitatorMotor.stopMotor();
     }
 
     public void 
@@ -75,7 +75,7 @@ public class Agitator extends SubsystemBase {
     }
 
     public void stopGate() {
-        gateMotor.setVoltage(0);
+        gateMotor.stopMotor();
     }
 
     @Override

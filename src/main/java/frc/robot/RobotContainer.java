@@ -121,11 +121,11 @@ public class RobotContainer {
     }).until(() -> facingHub));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      shooting = m_shooter.runMotors(m_drive.getDistanceFromHub());
-      }
+      m_shooter.setModes(true, false, true);
+    }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
-      shooting = m_shooter.stopMotors();
+      m_shooter.enabled = false;
       }
     ));
 
@@ -155,7 +155,7 @@ public class RobotContainer {
 
   public void updateSwerve() {
     if (!DriverStation.isAutonomous()){
-    double mult = shooting ? 0.2 : 1;
+    double mult = m_shooter.enabled ? 0.2 : 1;
     //double degreeDifference = getHubDegreeDiff();
     //facingHub = (degreeDifference == 0);
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
@@ -190,6 +190,10 @@ public class RobotContainer {
       );}
   }
 
+  public void updateShooterDistance() {
+    m_shooter.distanceFromTargetInches = m_drive.getDistanceFromHub();
+  }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -203,8 +207,7 @@ public class RobotContainer {
   private void configureBindings() {
     //MAIN STICK -------------------------
     new JoystickButton(main_stick, 8).onTrue(
-      
-    new InstantCommand(m_drive::resetGyroAngle)
+      new InstantCommand(m_drive::resetGyroAngle)
     );
 
     //stop intake
@@ -258,7 +261,7 @@ public class RobotContainer {
                   m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
                 }
             });
-    
+
     double waitInterval = 0.25;
     SequentialCommandGroup waitIntakeOuttakeCommand = new SequentialCommandGroup(extendHopperCommand, new WaitCommand(waitInterval), retractHopperCommand, new WaitCommand(waitInterval));
     RepeatCommand repeatIntakeOuttakeCommand = new RepeatCommand(waitIntakeOuttakeCommand);
@@ -266,11 +269,6 @@ public class RobotContainer {
     //after waiting for .4 seconds, basically do the second half of sequence 1
     var spamIntakeSequence = new WaitCommand(0.4).finallyDo(() -> {
           if (runningSequence1) {
-            double distance = 90; // set distance
-            if (second_stick.getRawButton(6)) {
-              distance = m_drive.getDistanceFromHub();
-            }
-            shooting = m_shooter.runMotors(distance); // so we refresh our distance
             m_agitator.runAgitation(1);
             m_agitator.runGate(1);
             //turn on gate and agitator
@@ -299,7 +297,7 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         runningSequence1 = true;
         //start shooter first
-        shooting = m_shooter.runMotors(90); 
+        m_shooter.setModes(true, false, false);
           // 90 is where we usually are, so a good number to rev up to
         //give shooter time to rev up
         m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
@@ -318,12 +316,12 @@ public class RobotContainer {
           runningSequence1 = false;
           m_agitator.stopAgitation();
           m_agitator.stopGate();
-          shooting = m_shooter.stopMotors();
+          m_shooter.enabled = false;
           m_intake.setModes(direction.IGNORE, intakeMode.AUTOMATIC);
           repeatIntakeOuttakeCommand.cancel();
         }
       }));
-      
+
         //stop everything once we stop holding down the butto
     //sequence 2
     // new Trigger(() -> second_stick.getRawAxis(3) >= 0.2).whileTrue(
@@ -436,14 +434,13 @@ public class RobotContainer {
     new Trigger(() -> (second_stick.getRawButton(4))).whileTrue(
         new RunCommand(() -> {
           boolean forwards = !second_stick.getRawButton(5);
-          if (forwards) {
-            shooting = m_shooter.runMotors(m_drive.getDistanceFromHub());
-          } else {
-            shooting = m_shooter.reverseMotors();
+          m_shooter.setModes(true, false, true);
+          if (!forwards) {
+            m_shooter.reversed = true;
           }
         })
           .finallyDo(() -> {
-            shooting = m_shooter.stopMotors();
+            m_shooter.enabled = false;
           })
       );
 

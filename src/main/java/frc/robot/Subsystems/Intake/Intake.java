@@ -142,7 +142,7 @@ public class Intake extends SubsystemBase {
         if (currentMode == intakeMode.AUTOMATIC) {
             if ((encoder.getPosition() <= -23) && positionSet) {
                 runIntake(currentIntakeDirection == intakeDirection.OUT ? -1 : 1);
-            } else {runIntake(0);}
+            } else {intakeMotor.stopMotor();}
         } else {
             int mult;
             switch (currentIntakeDirection) {

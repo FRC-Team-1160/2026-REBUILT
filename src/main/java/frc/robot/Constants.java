@@ -57,6 +57,7 @@ public static class ShooterConstants{
   public static final double GATE_RPM = -5100;
   public static final int GATE_CURRENT_LIMIT = 40;
   public static final String LIMELIGHT_NAME = "limelight";
+  public static final double STATIC_DISTANCE_INCHES = 90;
 
   public static class BottomMotorConfigs {
     public static final double kP = 0.5;
