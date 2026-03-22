@@ -179,6 +179,7 @@ public class RobotContainer {
       * Math.pow(main_stick.getRawAxis(4), 2);
       SmartDashboard.putBoolean("align attemp", false);
     }
+    //negative turn values go right, positive go left
     
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
     //SmartDashboard.putNumber("angle", angle_radiansPerSecond);

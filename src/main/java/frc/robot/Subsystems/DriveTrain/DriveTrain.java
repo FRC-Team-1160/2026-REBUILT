@@ -182,10 +182,12 @@ public abstract class DriveTrain extends SubsystemBase {
    * @param a_radiansPerSecond Angular speed in rad/s. CCW is positive.
    */
   public void setModuleMode(boolean brake) {
-    modules[1].setModuleMode(brake);
-    modules[2].setModuleMode(brake);
-    modules[3].setModuleMode(brake);
-    modules[0].setModuleMode(brake);
+    for (int i = 0; i <= 3; i++) {
+      modules[i].setModuleMode(brake);
+      if (brake) {
+        modules[i].setAngle(Rotation2d.fromDegrees(45 * (i % 2 == 0 ? 1 : -1))); // maybe?
+      }
+    }
   }
 
   public void setSwerveDrive(double x_metersPerSecond, double y_metersPerSecond, double a_radiansPerSecond) {
