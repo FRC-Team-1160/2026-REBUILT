@@ -399,15 +399,15 @@ public abstract class DriveTrain extends SubsystemBase {
   }
 
   public double getDistanceFromHub() {
-    double distance = RobotUtils.hypot((odom_pose.getX() - allianceHub.getX()), 
-    odom_pose.getY() - allianceHub.getY());
+    double distance = RobotUtils.hypot((pose_estimator.getEstimatedPosition().getX() - allianceHub.getX()), 
+    pose_estimator.getEstimatedPosition().getY() - allianceHub.getY());
     return RobotUtils.metersToInches(distance);
   }
 
   public double getAngleDegreeOffsetFromHubCenter() {
     // double targetPoint = Math.toDegrees(Math.atan2(allianceHub.getY() - odom_pose.getY(), 
     //     allianceHub.getX() - odom_pose.getX()));
-    Rotation2d targetAngle = allianceHub.minus(odom_pose.getTranslation()).getAngle();
+    Rotation2d targetAngle = allianceHub.minus(pose_estimator.getEstimatedPosition().getTranslation()).getAngle();
     double difference = targetAngle.minus(Rotation2d.fromDegrees(orientationYaw)).getDegrees();
     return (Math.abs(difference) < 1 ? 0 : difference);
   }
@@ -447,9 +447,9 @@ public abstract class DriveTrain extends SubsystemBase {
         limelightMeasurement.timestampSeconds
     );
     
-    field.setRobotPose(odom_pose);
-    SmartDashboard.putNumber("poseX Inches", RobotUtils.metersToInches(odom_pose.getX()));
-    SmartDashboard.putNumber("poseY Inches", RobotUtils.metersToInches(odom_pose.getY()));
+    field.setRobotPose(pose_estimator.getEstimatedPosition());
+    SmartDashboard.putNumber("poseX Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getX()));
+    SmartDashboard.putNumber("poseY Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getY()));
     SmartDashboard.putNumber("botHub-angleDiff", getAngleDegreeOffsetFromHubCenter());
     SmartDashboard.putNumber("botHub-distInches", getDistanceFromHub());
     publishAdv();
