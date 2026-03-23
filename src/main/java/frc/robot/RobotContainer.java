@@ -46,8 +46,8 @@ import frc.robot.Subsystems.Intake.Intake.direction;
 import frc.robot.Subsystems.Intake.Intake.intakeDirection;
 import frc.robot.Subsystems.Intake.Intake.intakeMode;
 import frc.robot.Subsystems.Shooter.Shooter;
-import frc.robot.Subsystems.Vision.LimelightIO;
-import frc.robot.Subsystems.Vision.VisionSubsystem;
+//import frc.robot.Subsystems.Vision.LimelightIO;
+//import frc.robot.Subsystems.Vision.VisionSubsystem;
 //import frc.robot.Subsystems.Vision.Vision;
 //import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ControllerButtonConstants;
@@ -88,12 +88,6 @@ public class RobotContainer {
   private boolean runningSequence1 = false;
   private boolean runningSequence2 = false;
 
-  private double getTurnToHub(double degreeDifference) {
-    double angle_radiansPerSecond = -Math.max(Math.min(Math.pow(degreeDifference * (Math.PI/180) * 4,2), 3),-3)
-    * (degreeDifference < 0 ? -1 : 1);
-    return angle_radiansPerSecond;
-  }
-
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
@@ -103,13 +97,9 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     NamedCommands.registerCommand("Align Hub", new RunCommand(() -> {
-      if (DriverStation.isAutonomous() && LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME)) {
+      if (DriverStation.isAutonomous()) {
         double angle_radiansPerSecond;
-
-        //double degreeDifference = getHubDegreeDiff();
-        //facingHub = (degreeDifference == 0);
-        double degreeDifference = m_drive.getAngleDegreeOffsetFromHubCenter();
-        angle_radiansPerSecond = getTurnToHub(degreeDifference); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+        angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
 
         m_drive.setSwerveDrive(
         0,0,
@@ -118,7 +108,7 @@ public class RobotContainer {
 
         SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
       }
-    }).until(() -> facingHub));
+    }));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
       m_shooter.setModes(true, false, true);
@@ -165,14 +155,11 @@ public class RobotContainer {
 
     double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(0);
 
-    double angle_radiansPerSecond;    //df
+    double angle_radiansPerSecond;
 
     // if pressing button 6 then we align to the hub
     if ((main_stick.getRawAxis(2) >= 0.2)) {
-      double degreeDifference = m_drive.getAngleDegreeOffsetFromHubCenter();
-      angle_radiansPerSecond = getTurnToHub(degreeDifference); //* (m_limelightio.blueAlliance == true ? 1 : -1);
-      //SmartDashboard.putNumber("degree diff", degreeDifference);
-      //angle_radiansPerSecond = degreeDifference < 0 ? 0.2 : -0.2;
+      angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
       SmartDashboard.putBoolean("align attemp", true);
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1.5 * Math.signum(main_stick.getRawAxis(4))

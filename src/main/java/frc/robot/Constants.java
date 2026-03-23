@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -193,10 +194,8 @@ public static class ShooterConstants{
 
     public static class HubMeasurements {
       //inches
-      public static final Pose2d ALLIANCEHUB_POSE = new Pose2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84),Rotation2d.fromDegrees(0));
-
-      public static final Pose2d BLUEHUB_POSE = new Pose2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84),Rotation2d.fromDegrees(0));
-      public static final Pose2d REDHUB_POSE = new Pose2d(Units.inchesToMeters(651.22 - 182.11),Units.inchesToMeters(158.84),Rotation2d.fromDegrees(0));
+      public static final Translation2d BLUEHUB_POSE = new Translation2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84));
+      public static final Translation2d REDHUB_POSE = new Translation2d(Units.inchesToMeters(651.22 - 182.11),Units.inchesToMeters(158.84));
       public static final double HUB_WIDTH = 47;
     }
   }

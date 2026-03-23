@@ -16,6 +16,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,8 +46,8 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.FieldConstants.HubMeasurements;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.RobotUtils;
-import frc.robot.Subsystems.Vision.LimelightIO;
-import frc.robot.Subsystems.Vision.VisionSubsystem;
+//import frc.robot.Subsystems.Vision.LimelightIO;
+//import frc.robot.Subsystems.Vision.VisionSubsystem;
 
 public abstract class DriveTrain extends SubsystemBase {
 
@@ -63,12 +64,12 @@ public abstract class DriveTrain extends SubsystemBase {
   public SwerveDrivePoseEstimator pose_estimator;
   /** Odometry-based 2d pose. */
   public Pose2d odom_pose;
-  public LimelightIO limelightInst;
+  //public LimelightIO limelightInst;
   /** State publisher for AdvantageScope. */
   protected StructArrayPublisher<SwerveModuleState> adv_real_states_pub, adv_target_states_pub;
   /** State publisher for AdvantageScope. */
   protected StructPublisher<Rotation2d> adv_gyro_pub;
-  private Pose2d allianceHub;
+  private Translation2d allianceHub;
   private double orientationYaw;
   public boolean blueAlliance;
 
@@ -76,6 +77,7 @@ public abstract class DriveTrain extends SubsystemBase {
   private Field2d field;
 
   public SwerveModuleState[] tempStates;
+  private PIDController alignmentPID = new PIDController(0.05, 0, 0.001);
   //public VisionSubsystem visionSub;
 
   public DriveTrain() {
@@ -403,11 +405,18 @@ public abstract class DriveTrain extends SubsystemBase {
   }
 
   public double getAngleDegreeOffsetFromHubCenter() {
-    double targetPoint = Math.atan2(allianceHub.getY() - odom_pose.getY(), 
-        allianceHub.getX() - odom_pose.getX()) * (180/Math.PI);
-    double difference = orientationYaw - targetPoint;
-    return difference;
-   }
+    // double targetPoint = Math.toDegrees(Math.atan2(allianceHub.getY() - odom_pose.getY(), 
+    //     allianceHub.getX() - odom_pose.getX()));
+    Rotation2d targetAngle = allianceHub.minus(odom_pose.getTranslation()).getAngle();
+    double difference = targetAngle.minus(Rotation2d.fromDegrees(orientationYaw)).getDegrees();
+    return (Math.abs(difference) < 2 ? 0 : difference);
+  }
+
+  public double getTurnToHub() {
+    double degreeDifference = getAngleDegreeOffsetFromHubCenter();
+    double rotationSpeed = alignmentPID.calculate(0, degreeDifference);
+    return rotationSpeed;
+  }
 
   @Override
   public void periodic() {
