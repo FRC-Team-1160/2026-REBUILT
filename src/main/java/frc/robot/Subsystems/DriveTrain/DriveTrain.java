@@ -409,7 +409,7 @@ public abstract class DriveTrain extends SubsystemBase {
     //     allianceHub.getX() - odom_pose.getX()));
     Rotation2d targetAngle = allianceHub.minus(odom_pose.getTranslation()).getAngle();
     double difference = targetAngle.minus(Rotation2d.fromDegrees(orientationYaw)).getDegrees();
-    return (Math.abs(difference) < 2 ? 0 : difference);
+    return (Math.abs(difference) < 1 ? 0 : difference);
   }
 
   public double getTurnToHub() {
