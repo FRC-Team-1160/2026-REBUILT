@@ -77,7 +77,7 @@ public abstract class DriveTrain extends SubsystemBase {
   //private Field2d field;
 
   public SwerveModuleState[] tempStates;
-  private PIDController alignmentPID = new PIDController(0.1, 0, 0.001);
+  private PIDController alignmentPID = new PIDController(0.1, 0, 0.002);
   //public VisionSubsystem visionSub;
 
   public DriveTrain() {

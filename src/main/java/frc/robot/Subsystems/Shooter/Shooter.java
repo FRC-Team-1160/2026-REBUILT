@@ -122,6 +122,9 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putNumber("Hub Distance Shooter", distanceFromTargetInches);
         SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
         SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
+        
+        SmartDashboard.putNumber("Bottom Roller Actual RPS", nearBottomRollerMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Top Roller Actual RPS", topRollerMotor.getVelocity().getValueAsDouble());
 
         if (enabled) {
             double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);

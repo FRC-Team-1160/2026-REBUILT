@@ -171,9 +171,10 @@ public class RobotContainer {
     //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
     //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
 
+    int forwards = (m_drive.blueAlliance ? 1 : -1);
     m_drive.setSwerveDrive(
-      x_metersPerSecond * mult, 
-      y_metersPerSecond * mult, 
+      x_metersPerSecond * mult * forwards, 
+      y_metersPerSecond * mult * forwards, 
       angle_radiansPerSecond
       );}
   }
@@ -224,6 +225,7 @@ public class RobotContainer {
       })
     );
 
+    //lock wheels
     new Trigger(() -> main_stick.getRawButton(6)).whileTrue(
       new RunCommand(() -> {
         m_drive.setModuleMode(true);
