@@ -285,7 +285,8 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         runningSequence1 = true;
         //start shooter first
-        m_shooter.setModes(true, false, false);
+        boolean autoDist = (second_stick.getRawButton(6) ? true : false);
+        m_shooter.setModes(true, false, autoDist);
           // 90 is where we usually are, so a good number to rev up to
         //give shooter time to rev up
         m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
@@ -309,6 +310,16 @@ public class RobotContainer {
           repeatIntakeOuttakeCommand.cancel();
         }
       }));
+
+      new Trigger(() -> second_stick.getRawButton(6) || second_stick.getRawAxis(3) >= 0.2).whileTrue(
+        new InstantCommand(() -> {
+          if (runningSequence1 || runningSequence2) {
+            if (second_stick.getRawAxis(3) >= 0.2) {
+            m_shooter.autoDistance = false;
+          } else {m_shooter.autoDistance = true;}
+          }
+        })
+      );
 
         //stop everything once we stop holding down the butto
     //sequence 2
