@@ -150,10 +150,10 @@ public class RobotContainer {
     //facingHub = (degreeDifference == 0);
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(1);
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(1);
     SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 1.5 * -main_stick.getRawAxis(0);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(0);
 
     double angle_radiansPerSecond;
 
@@ -162,7 +162,7 @@ public class RobotContainer {
       angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
       SmartDashboard.putBoolean("align attemp", true);
     } else {  
-      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -1.5 * Math.signum(main_stick.getRawAxis(4))
+      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
       * Math.pow(main_stick.getRawAxis(4), 2);
       SmartDashboard.putBoolean("align attemp", false);
     }
@@ -195,7 +195,7 @@ public class RobotContainer {
   private void configureBindings() {
     //MAIN STICK -------------------------
     new JoystickButton(main_stick, 8).onTrue(
-      new InstantCommand(m_drive::resetGyroAngle)
+      new InstantCommand(() -> m_drive.resetGyroAngle())
     );
 
     //stop intake
@@ -285,7 +285,7 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         runningSequence1 = true;
         //start shooter first
-        boolean autoDist = (second_stick.getRawButton(6) ? true : false);
+        boolean autoDist = (second_stick.getRawButton(6));
         m_shooter.setModes(true, false, autoDist);
           // 90 is where we usually are, so a good number to rev up to
         //give shooter time to rev up

@@ -74,10 +74,10 @@ public abstract class DriveTrain extends SubsystemBase {
   public boolean blueAlliance;
 
   public Orchestra orchestra;
-  private Field2d field;
+  //private Field2d field;
 
   public SwerveModuleState[] tempStates;
-  private PIDController alignmentPID = new PIDController(0.05, 0, 0.001);
+  private PIDController alignmentPID = new PIDController(0.1, 0, 0.001);
   //public VisionSubsystem visionSub;
 
   public DriveTrain() {
@@ -90,7 +90,7 @@ public abstract class DriveTrain extends SubsystemBase {
 
     orchestra = new Orchestra();
     orchestra.loadMusic("Music/output.chrp");
-    SmartDashboard.putData("Field",field);
+    //SmartDashboard.putData("Field",field);
 
     tempStates = new SwerveModuleState[]{
         new SwerveModuleState(),
@@ -146,15 +146,19 @@ public abstract class DriveTrain extends SubsystemBase {
         () -> {
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
-            blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
             return alliance.get() == DriverStation.Alliance.Red;
-          }
-          blueAlliance = false; 
+          } 
           return false;
         },
         this // Reference to this subsystem to set requirements
     );
 
+    var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
+          } else {blueAlliance = false;}
+
+    SmartDashboard.putBoolean("blueAlliance", blueAlliance);
     if (blueAlliance) {
       allianceHub = HubMeasurements.BLUEHUB_POSE;
     } else {allianceHub = HubMeasurements.REDHUB_POSE;}
@@ -428,7 +432,7 @@ public abstract class DriveTrain extends SubsystemBase {
     //femboy
     odom_pose = pose_estimator.update(getGyroAngle(), getModulePositions());
 
-    orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees() + (blueAlliance == true ? 0 : 180);
+    orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees();
     //orientationYaw = getGyroAngle().getDegrees() + (blueAlliance == true ? 0 : 180); //maybe?
     //there is a chance we do not need to add 180 degrees for red alliance
     //by using the pose_estimator estimated positon, it may already know correctly withoud adjustment
@@ -447,7 +451,7 @@ public abstract class DriveTrain extends SubsystemBase {
         limelightMeasurement.timestampSeconds
     );
     
-    field.setRobotPose(pose_estimator.getEstimatedPosition());
+    //field.setRobotPose(pose_estimator.getEstimatedPosition());
     SmartDashboard.putNumber("poseX Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getX()));
     SmartDashboard.putNumber("poseY Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getY()));
     SmartDashboard.putNumber("botHub-angleDiff", getAngleDegreeOffsetFromHubCenter());

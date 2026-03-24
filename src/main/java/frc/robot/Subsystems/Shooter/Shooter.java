@@ -119,7 +119,7 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("distance from hub inches test", inchesFromHub);
+        SmartDashboard.putNumber("Hub Distance Shooter", distanceFromTargetInches);
         SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
         SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
 

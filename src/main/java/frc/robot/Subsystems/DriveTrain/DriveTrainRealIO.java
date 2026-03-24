@@ -9,6 +9,7 @@ import com.studica.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrainRealIO extends DriveTrain {
@@ -16,9 +17,15 @@ public class DriveTrainRealIO extends DriveTrain {
   private AHRS gyro;
 
   public DriveTrainRealIO(){
+    boolean blueAlliance;
+    var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
+          } else {blueAlliance = false;}
+
     gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
     gyro.setAngleAdjustment(
-      0);
+      blueAlliance ? 0 : 180);
 
   }
 
