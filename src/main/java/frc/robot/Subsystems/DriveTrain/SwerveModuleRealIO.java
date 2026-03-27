@@ -32,6 +32,8 @@ public class SwerveModuleRealIO extends SwerveModule{
 
   public TalonFX steer_motor, drive_motor;
   public int steerPortVar;
+  private boolean braked = false;
+  private double brakeAngle = 90;
 
   public CANcoder steer_sensor;
 
@@ -112,26 +114,33 @@ public class SwerveModuleRealIO extends SwerveModule{
     return new SwerveModulePosition(getPosition(), getAngle());
   }
 
+  public void setBrakeAngle(double angle) {
+    brakeAngle = angle;
+  }
+
   public void setModuleMode(boolean brake) {
-    if (brake) {
-      drive_motor.setNeutralMode(NeutralModeValue.Brake);
-      steer_motor.setNeutralMode(NeutralModeValue.Brake);
-    } else {
-      drive_motor.setNeutralMode(NeutralModeValue.Coast);
-      steer_motor.setNeutralMode(NeutralModeValue.Coast);
-    }
+    braked = brake;
+    // if (brake) {
+    //   drive_motor.setNeutralMode(NeutralModeValue.Brake);
+    //   steer_motor.setNeutralMode(NeutralModeValue.Brake);
+    // } else {
+    //   drive_motor.setNeutralMode(NeutralModeValue.Coast);
+    //   steer_motor.setNeutralMode(NeutralModeValue.Coast);
+    // }
   } 
 
   /**
    * @param speed the speed to go at, in meters per second.
    */
   public void setSpeed(double speed){
+    if (braked) {speed = 0;}
     SmartDashboard.putNumber("in_speed", speed / Swerve.WHEEL_DIAMETER);
     drive_motor.setControl(new VelocityVoltage(speed / Swerve.WHEEL_DIAMETER));
 
   }
 
   public void setAngle(Rotation2d angle){
+    if (braked) {angle = Rotation2d.fromDegrees(brakeAngle);}
     SmartDashboard.putNumber("in_angle", angle.getRotations());
     SmartDashboard.putNumber("in_angle_degrees", angle.getDegrees());
     // this works fine

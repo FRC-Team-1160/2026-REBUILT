@@ -54,5 +54,6 @@ public class SwerveModuleSimIO extends SwerveModule {
     }
 
     public void setModuleMode(boolean brake) {};
+    public void setBrakeAngle(double angle) {};
     
 }

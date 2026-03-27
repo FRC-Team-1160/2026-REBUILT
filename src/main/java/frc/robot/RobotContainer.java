@@ -68,6 +68,7 @@ public class RobotContainer {
   private boolean testingShooter = false;
   private boolean facingHub = false;
   private boolean shooting = false;
+  private boolean lockSwerve = false;
   
   private final SendableChooser<Command> autoChooser;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
@@ -111,7 +112,7 @@ public class RobotContainer {
     }));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      m_shooter.setModes(true, false, true);
+      m_shooter.setModes(true, false, true, false);
     }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
@@ -144,8 +145,11 @@ public class RobotContainer {
   }
 
   public void updateSwerve() {
-    if (!DriverStation.isAutonomous()){
-    double mult = m_shooter.enabled ? 0.2 : 1;
+    if (!DriverStation.isAutonomous() && !lockSwerve){
+    double driveMult = 1.5; //change this constant to change the drive speed.
+    double rotationMult = 1.5; //change this constant to change the turn speed.
+    
+    double mult = m_shooter.enabled ? 0.2 : driveMult;
     //double degreeDifference = getHubDegreeDiff();
     //facingHub = (degreeDifference == 0);
     SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
@@ -163,7 +167,7 @@ public class RobotContainer {
       SmartDashboard.putBoolean("align attemp", true);
     } else {  
       angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
-      * Math.pow(main_stick.getRawAxis(4), 2);
+      * Math.pow(main_stick.getRawAxis(4), 2) * rotationMult;
       SmartDashboard.putBoolean("align attemp", false);
     }
     //negative turn values go right, positive go left
@@ -176,7 +180,8 @@ public class RobotContainer {
       x_metersPerSecond * mult * forwards, 
       y_metersPerSecond * mult * forwards, 
       angle_radiansPerSecond
-      );}
+      );
+    }
   }
 
   public void updateShooterDistance() {
@@ -229,9 +234,11 @@ public class RobotContainer {
     new Trigger(() -> main_stick.getRawButton(6)).whileTrue(
       new RunCommand(() -> {
         m_drive.setModuleMode(true);
+        lockSwerve = true;
       }).finallyDo(
         () -> {
           m_drive.setModuleMode(false);
+          lockSwerve = false;
         })
       );
 
@@ -288,7 +295,7 @@ public class RobotContainer {
         runningSequence1 = true;
         //start shooter first
         boolean autoDist = (second_stick.getRawButton(6));
-        m_shooter.setModes(true, false, autoDist);
+        m_shooter.setModes(true, false, autoDist, false);
           // 90 is where we usually are, so a good number to rev up to
         //give shooter time to rev up
         m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
@@ -432,13 +439,11 @@ public class RobotContainer {
     // shooter bindings
 
     //old control
-    new Trigger(() -> (second_stick.getRawButton(4))).whileTrue(
+    new Trigger(() -> (second_stick.getRawButton(4)) || second_stick.getRawAxis(2) >= 0.2).whileTrue(
         new RunCommand(() -> {
-          boolean forwards = !second_stick.getRawButton(5);
-          m_shooter.setModes(true, false, true);
-          if (!forwards) {
-            m_shooter.reversed = true;
-          }
+          boolean reversed = second_stick.getRawButton(5);
+          boolean againstHub = second_stick.getRawAxis(2) >= 0.2;
+          m_shooter.setModes(true, reversed, true, againstHub);
         })
           .finallyDo(() -> {
             m_shooter.enabled = false;
@@ -455,6 +460,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Starting Hub - Left");
+    return new PathPlannerAuto("Bump Intake Left");
   } 
 }

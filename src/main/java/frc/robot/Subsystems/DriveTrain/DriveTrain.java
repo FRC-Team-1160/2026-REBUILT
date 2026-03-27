@@ -17,6 +17,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -77,7 +78,7 @@ public abstract class DriveTrain extends SubsystemBase {
   //private Field2d field;
 
   public SwerveModuleState[] tempStates;
-  private PIDController alignmentPID = new PIDController(0.1, 0, 0.002);
+  private PIDController alignmentPID = new PIDController(0.1, 0, 0.004);
   //public VisionSubsystem visionSub;
 
   public DriveTrain() {
@@ -124,7 +125,14 @@ public abstract class DriveTrain extends SubsystemBase {
     };
     //visionSub = new VisionSubsystem(limelightInst);
     odom_pose = new Pose2d();
-    pose_estimator = new SwerveDrivePoseEstimator(kinematics, getGyroAngle(), module_positions, odom_pose);
+    pose_estimator = new SwerveDrivePoseEstimator(
+      kinematics, 
+      getGyroAngle(), 
+      module_positions, 
+      odom_pose,
+      VecBuilder.fill(0.1,0.1,0), // odometry trust
+      VecBuilder.fill(0.5,0.5,9999999)); // vision trust;
+    
 
     RobotConfig config;
     try {
@@ -190,9 +198,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public void setModuleMode(boolean brake) {
     for (int i = 0; i <= 3; i++) {
       modules[i].setModuleMode(brake);
-      if (brake) {
-        modules[i].setAngle(Rotation2d.fromDegrees(45 * (i % 2 == 0 ? 1 : -1))); // maybe?
-      }
+      modules[i].setBrakeAngle(i == 0 || i == 3 ? 45 : -45);
     }
   }
 
@@ -430,10 +436,10 @@ public abstract class DriveTrain extends SubsystemBase {
       module.update();
     }
     //femboy
-    odom_pose = pose_estimator.update(getGyroAngle(), getModulePositions());
-
-    orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees();
-    //orientationYaw = getGyroAngle().getDegrees() + (blueAlliance == true ? 0 : 180); //maybe?
+    odom_pose = pose_estimator.update(Rotation2d.fromDegrees(orientationYaw), getModulePositions());
+    orientationYaw = getGyroAngle().getDegrees();
+    //orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees();
+    //+ (blueAlliance == true ? 0 : 180); //maybe?
     //there is a chance we do not need to add 180 degrees for red alliance
     //by using the pose_estimator estimated positon, it may already know correctly withoud adjustment
     SmartDashboard.putNumber("orientationYaw", orientationYaw);
@@ -442,14 +448,17 @@ public abstract class DriveTrain extends SubsystemBase {
     double visionTrust = 0.5;
     
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME);
-    if (!(Math.abs(getGyroRate()) > 360 || limelightMeasurement.tagCount == 0))
+    if (!(Math.abs(getGyroRate()) > 360) && (limelightMeasurement.tagCount != 0)) {
       visionTrust += (0.5 * limelightMeasurement.avgTagDist);
       //if were not moving faster than 360 degrees/sec and we see tags 
       pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(visionTrust, visionTrust, 9999999));
-      pose_estimator.addVisionMeasurement(
-        limelightMeasurement.pose,
-        limelightMeasurement.timestampSeconds
-    );
+      if(limelightMeasurement.pose != null){
+        pose_estimator.addVisionMeasurement(
+          limelightMeasurement.pose,
+          limelightMeasurement.timestampSeconds
+        );
+      }
+    }
     
     //field.setRobotPose(pose_estimator.getEstimatedPosition());
     SmartDashboard.putNumber("poseX Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getX()));

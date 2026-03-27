@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.RobotState;
 public abstract class SwerveModule {
 
   public SwerveModuleState target_state;
+  private boolean isBraked = false;
 
   public SwerveModule() {
     target_state = new SwerveModuleState();
@@ -22,12 +23,12 @@ public abstract class SwerveModule {
   }
 
   abstract void setModuleMode(boolean brake);
+  abstract void setBrakeAngle(double angle);
 
   public void update() {
     if (!RobotState.isDisabled()) { //just in case, idk
       setSpeed(target_state.speedMetersPerSecond);
       setAngle(target_state.angle);
-      
     }
   }
 

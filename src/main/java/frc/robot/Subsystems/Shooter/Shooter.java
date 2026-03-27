@@ -27,7 +27,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase {
     private double inchesFromHub = 120; // only use for testing shooter
-    private double bottomRollerVoltage = 2.75; // i think this is the one we should keep constant
+    private double bottomRollerFF = -2.75; // i think this is the one we should keep constant
     private double bottomRollerTargetRPS = -22.5; //-22.5
     private double topRollerTargetRPS = 85;
 
@@ -38,6 +38,7 @@ public class Shooter extends SubsystemBase {
     public boolean enabled = false;
     public boolean autoDistance = true;
     public boolean reversed = false;
+    public boolean againstHub = false;
 
     private VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
     private VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
@@ -95,10 +96,11 @@ public class Shooter extends SubsystemBase {
     //     return true;
     // }
 
-    public void setModes(boolean enabled, boolean reversed, boolean autoDistance) {
+    public void setModes(boolean enabled, boolean reversed, boolean autoDistance, boolean againstHub) {
         this.enabled = enabled;
         this.reversed = reversed;
         this.autoDistance = autoDistance;
+        this.againstHub = againstHub;
     }
 
     // new functions for testing with rotations per second
@@ -120,8 +122,6 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Hub Distance Shooter", distanceFromTargetInches);
-        SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
-        SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
         
         SmartDashboard.putNumber("Bottom Roller Actual RPS", nearBottomRollerMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Top Roller Actual RPS", topRollerMotor.getVelocity().getValueAsDouble());
@@ -129,14 +129,27 @@ public class Shooter extends SubsystemBase {
         if (enabled) {
             double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);
             double bottomRollerRPS = bottomRollerTargetRPS;
+
+            SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerRPS);
+            SmartDashboard.putNumber("Top Roller Target RPS", topRollerRPS);
+            bottomRollerRPS = -22.5;
+            bottomRollerFF = -2.75;
+            
             if (!autoDistance) {
-                topRollerRPS = ShooterConstants.STATIC_DISTANCE_INCHES;
+                topRollerRPS = getTopMotorRPSFromDistanceInches(ShooterConstants.STATIC_DISTANCE_INCHES);
+            }
+            if (againstHub) {
+                topRollerRPS = 13;
+                bottomRollerRPS = -30;
+                bottomRollerFF = -3.1;
             }
             if (reversed) {
                 topRollerRPS = -20;
                 bottomRollerRPS *= -1;
+                bottomRollerFF *= -1;
             }
-            nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerRPS).withFeedForward(-2.75 * (reversed ? 1 : -1)));
+
+            nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerRPS).withFeedForward(bottomRollerFF));
             topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
         } else {
             nearBottomRollerMotor.stopMotor();
