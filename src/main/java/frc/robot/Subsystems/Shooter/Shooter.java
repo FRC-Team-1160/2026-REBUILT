@@ -75,6 +75,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getTopMotorRPSFromDistanceInches(double distanceFromTargetInches) {
+        double distanceOffset = (-1 * (distanceFromTargetInches/10)); //offset the distance
+        distanceFromTargetInches += distanceOffset;
         //distance is from center bottom of bot to ground center of hub
         double topRollerRPS = 0.00079997*Math.pow(distanceFromTargetInches,2) + 0.198584*distanceFromTargetInches+29.26717;//test function
         return topRollerRPS;
