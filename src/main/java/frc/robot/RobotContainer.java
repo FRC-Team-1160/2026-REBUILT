@@ -112,7 +112,7 @@ public class RobotContainer {
     }));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      m_shooter.setModes(true, false, true, false);
+      m_shooter.setModes(true, false, false, false);
     }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {

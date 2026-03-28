@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.52151212553495,
-        "y": 5.503537803138374
+        "x": 3.5473894436519258,
+        "y": 2.514707560627676
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.27151212553495,
-        "y": 5.503537803138374
+        "x": 3.2973894436519258,
+        "y": 2.514707560627676
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.745192582025677,
-        "y": 5.503537803138374
+        "x": 2.6158059914407983,
+        "y": 2.514707560627676
       },
       "prevControl": {
-        "x": 2.995192582025677,
-        "y": 5.503537803138374
+        "x": 2.8658059914407983,
+        "y": 2.514707560627676
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "\"LBump Step Back\" End"
+      "linkedName": "\"RBump Step Back\" End"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -45.96392981992133
+    "rotation": 43.6980473274211
   },
   "reversed": false,
   "folder": "Paths that skip 8 shot",

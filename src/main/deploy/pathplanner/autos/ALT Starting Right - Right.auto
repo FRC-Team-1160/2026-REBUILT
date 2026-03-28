@@ -51,12 +51,6 @@
           "data": {
             "pathName": "ALT Step Back Right 1 Row and Align"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Align Hub"
-          }
         }
       ]
     }

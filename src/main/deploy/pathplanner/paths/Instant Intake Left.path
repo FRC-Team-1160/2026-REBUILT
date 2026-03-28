@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.435,
+        "x": 2.745192582025677,
         "y": 5.503537803138374
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1632881597717546,
+        "x": 2.4734807417974314,
         "y": 5.503537803138374
       },
       "isLocked": false,
@@ -133,7 +133,18 @@
       }
     }
   ],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.6,
+        "y": 4.0
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 4.564483457123562,
+      "maxWaypointRelativePos": 5.0,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [
     {
       "name": "Extend Intake",
@@ -158,7 +169,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -43.40885972880544
+    "rotation": -36.02737338510361
   },
   "reversed": false,
   "folder": "Paths that skip 8 shot",

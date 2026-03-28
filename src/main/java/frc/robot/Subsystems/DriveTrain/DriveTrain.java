@@ -142,7 +142,7 @@ public abstract class DriveTrain extends SubsystemBase {
       return;
     }
     AutoBuilder.configure(
-        () -> odom_pose,
+        pose_estimator::getEstimatedPosition,
         pose_estimator::resetPose,
         () -> kinematics.toChassisSpeeds(module_states),
         (speeds, feedforwards) -> setSwerveDrive(speeds),

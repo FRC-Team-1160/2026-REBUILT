@@ -39,6 +39,7 @@ public class Shooter extends SubsystemBase {
     public boolean autoDistance = true;
     public boolean reversed = false;
     public boolean againstHub = false;
+    public double staticDistanceInches = ShooterConstants.STATIC_DISTANCE_INCHES;
 
     private VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
     private VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
@@ -138,7 +139,7 @@ public class Shooter extends SubsystemBase {
             bottomRollerFF = -2.75;
             
             if (!autoDistance) {
-                topRollerRPS = getTopMotorRPSFromDistanceInches(ShooterConstants.STATIC_DISTANCE_INCHES);
+                topRollerRPS = getTopMotorRPSFromDistanceInches(staticDistanceInches);
             }
             if (againstHub) {
                 topRollerRPS = 13;

@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LBump Step Back"
+            "pathName": "RBump Step Back"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Instant Intake Left"
+            "pathName": "Instant Intake Right"
           }
         },
         {
@@ -316,7 +316,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Instant Intake Left P2"
+            "pathName": "Instant Intake Right P2"
           }
         }
       ]

@@ -94,12 +94,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Align Hub"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
