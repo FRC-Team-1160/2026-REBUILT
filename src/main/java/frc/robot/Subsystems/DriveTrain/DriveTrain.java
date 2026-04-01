@@ -125,6 +125,7 @@ public abstract class DriveTrain extends SubsystemBase {
     };
     //visionSub = new VisionSubsystem(limelightInst);
     odom_pose = new Pose2d();
+    resetGyroAngle();
     pose_estimator = new SwerveDrivePoseEstimator(
       kinematics, 
       getGyroAngle(), 
@@ -448,8 +449,8 @@ public abstract class DriveTrain extends SubsystemBase {
     double visionTrust = 0.5;
     
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME);
-    if (!(Math.abs(getGyroRate()) > 360) && (limelightMeasurement.tagCount != 0)) {
-      visionTrust += (0.5 * limelightMeasurement.avgTagDist);
+    if ((Math.abs(getGyroRate()) < 360) && (limelightMeasurement.tagCount > 0)) {
+      // visionTrust += (0.5 * limelightMeasurement.avgTagDist);
       //if were not moving faster than 360 degrees/sec and we see tags 
       pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(visionTrust, visionTrust, 9999999));
       if(limelightMeasurement.pose != null){

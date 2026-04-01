@@ -6,6 +6,9 @@ package frc.robot;
 
 import java.util.concurrent.TransferQueue;
 
+import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -22,6 +25,8 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robot_container = new RobotContainer();
+    FollowPathCommand.warmupCommand().schedule();
+    SignalLogger.enableAutoLogging(false);
   }
 
   @Override
@@ -48,6 +53,7 @@ public class Robot extends TimedRobot {
     autonomous_command = m_robot_container.getAutonomousCommand();
     if (autonomous_command != null) {
       System.out.println("AUTO INITIALIZED");
+      //m_robot_container.m_drive.resetGyroAngle();
       autonomous_command.schedule();
     }
 
@@ -62,7 +68,7 @@ public class Robot extends TimedRobot {
     m_robot_container.m_shooter.enabled = false;
       m_robot_container.m_agitator.stopAgitation();
       m_robot_container.m_agitator.stopGate();
-      // m_robot_container.AlignHub.cancel();
+      //m_robot_container.alignHub.cancel();
       // m_robot_container.StopSwerve.schedule();
   }
 

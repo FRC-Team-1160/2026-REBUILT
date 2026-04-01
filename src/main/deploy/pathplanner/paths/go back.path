@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.344094151212553,
-        "y": 4.041469329529244
+        "x": 5.708145506419401,
+        "y": 5.542353780313838
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.594094151212553,
-        "y": 4.041469329529244
+        "x": 7.403109843081312,
+        "y": 5.619985734664765
       },
       "isLocked": false,
-      "linkedName": "\"Hub Step Back\" End"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.9522111269614832,
-        "y": 4.041469329529244
+        "x": 6.652667617689016,
+        "y": 2.9804992867332385
       },
       "prevControl": {
-        "x": 2.7754344316648463,
-        "y": 3.864692634232607
+        "x": 7.739514978601996,
+        "y": 2.838174037089873
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Paths that skip 8 shot",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

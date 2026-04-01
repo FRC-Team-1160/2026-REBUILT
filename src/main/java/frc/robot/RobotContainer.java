@@ -69,6 +69,7 @@ public class RobotContainer {
   private boolean facingHub = false;
   private boolean shooting = false;
   private boolean lockSwerve = false;
+  private boolean staticAuto = true;
   
   private final SendableChooser<Command> autoChooser;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
@@ -88,6 +89,7 @@ public class RobotContainer {
 
   private boolean runningSequence1 = false;
   private boolean runningSequence2 = false;
+  public RunCommand alignHub;
 
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -97,7 +99,7 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("Align Hub", new RunCommand(() -> {
+    RunCommand alignHub = new RunCommand(() -> {
       if (DriverStation.isAutonomous()) {
         double angle_radiansPerSecond;
         angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
@@ -109,10 +111,17 @@ public class RobotContainer {
 
         SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
       }
+    });
+
+    NamedCommands.registerCommand("Align Hub", alignHub);
+    NamedCommands.registerCommand("Cancel Align", new InstantCommand(() -> {alignHub.cancel();}));
+
+    NamedCommands.registerCommand("Hub Shooter", new InstantCommand(() -> {
+      m_shooter.setModes(true, false, true, true);
     }));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      m_shooter.setModes(true, false, false, false);
+      m_shooter.setModes(true, false, true, false);
     }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
@@ -146,7 +155,7 @@ public class RobotContainer {
 
   public void updateSwerve() {
     if (!DriverStation.isAutonomous() && !lockSwerve){
-    double driveMult = 1.5; //change this constant to change the drive speed.
+    double driveMult = 1.25; //change this constant to change the drive speed.
     double rotationMult = 1.5; //change this constant to change the turn speed.
     
     double mult = m_shooter.enabled ? 0.2 : driveMult;
@@ -460,6 +469,21 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Bump Intake Left");
-  } 
+    m_drive.resetGyroAngle();
+
+    if (staticAuto) {
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> {
+        m_shooter.setModes(true, false, false, true);
+      }),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> {
+        m_agitator.runAgitation(1);
+        m_agitator.runGate(1);
+      })
+    );
+    } else {
+      return new PathPlannerAuto("ALT Starting Hub - Left - MORE ROWS");
+    }
+  }
 }
