@@ -444,6 +444,7 @@ public abstract class DriveTrain extends SubsystemBase {
     //femboy
     //orientationYaw = getGyroAngle().getDegrees();
     orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees();
+    SmartDashboard.putNumber("poseEstimate_angle", orientationYaw);
     odom_pose = pose_estimator.update(Rotation2d.fromDegrees(orientationYaw), getModulePositions());
     //+ (blueAlliance == true ? 0 : 180); //maybe?
     //there is a chance we do not need to add 180 degrees for red alliance
