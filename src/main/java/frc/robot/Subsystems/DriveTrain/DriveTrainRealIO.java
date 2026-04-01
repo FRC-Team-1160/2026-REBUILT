@@ -17,16 +17,21 @@ public class DriveTrainRealIO extends DriveTrain {
   private AHRS gyro;
 
   public DriveTrainRealIO(){
-    boolean blueAlliance;
-    var alliance = DriverStation.getAlliance();
+    gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
+    refreshGyro();
+  }
+
+  public void refreshGyro() {
+    if (gyro !=  null) {
+      boolean blueAlliance;
+      var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
             blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
           } else {blueAlliance = false;}
 
-    gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
-    gyro.setAngleAdjustment(
+        gyro.setAngleAdjustment(
       blueAlliance ? 0 : 180);
-
+    }
   }
 
   public SwerveModule initializeModule(int drive_port, int steer_port, int sensor_port){

@@ -45,11 +45,14 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {}
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+    m_robot_container.m_drive.refreshAlliance();
+  }
 
   @Override
   public void autonomousInit() {
     //m_robot_container.m_drive.resetGyroAngle();
+    m_robot_container.m_drive.refreshAlliance();
     autonomous_command = m_robot_container.getAutonomousCommand();
     if (autonomous_command != null) {
       System.out.println("AUTO INITIALIZED");
@@ -74,6 +77,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robot_container.m_drive.refreshAlliance();
     if (autonomous_command != null) {
       autonomous_command.cancel();
       m_robot_container.m_shooter.enabled = false;

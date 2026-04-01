@@ -57,20 +57,19 @@ public class Agitator extends SubsystemBase {
     }
 
     public void runAgitation(int mult) {
-        //agitatorMotor.setVoltage(12 * mult); // 8
-        agitatorMotor.getClosedLoopController().
-        setReference(IntakeConstants.AGITATOR_RPM*mult, ControlType.kVelocity);
+        agitatorMotor.setVoltage(12 * mult); // 8
+        // agitatorMotor.getClosedLoopController().
+        // setReference(IntakeConstants.AGITATOR_RPM*mult, ControlType.kVelocity);
     }
 
     public void stopAgitation() {
         agitatorMotor.stopMotor();
     }
 
-    public void 
-    runGate(double mult) {
-        // gateMotor.setVoltage(-12 * mult);
-        gateMotor.getClosedLoopController().
-        setReference(ShooterConstants.GATE_RPM*mult, ControlType.kVelocity);
+    public void runGate(double mult) {
+        gateMotor.setVoltage(-12 * mult);
+        // gateMotor.getClosedLoopController().
+        // setReference(ShooterConstants.GATE_RPM*mult, ControlType.kVelocity);
         lastMult = mult;
     }
 

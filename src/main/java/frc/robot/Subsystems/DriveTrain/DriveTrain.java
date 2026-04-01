@@ -162,16 +162,7 @@ public abstract class DriveTrain extends SubsystemBase {
         this // Reference to this subsystem to set requirements
     );
 
-    var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
-          } else {blueAlliance = false;}
-
-    SmartDashboard.putBoolean("blueAlliance", blueAlliance);
-    if (blueAlliance) {
-      allianceHub = HubMeasurements.BLUEHUB_POSE;
-    } else {allianceHub = HubMeasurements.REDHUB_POSE;}
-
+    refreshAlliance();
     setupDashboard();
 
     SmartDashboard.putString("Music", " ");
@@ -339,6 +330,7 @@ public abstract class DriveTrain extends SubsystemBase {
   public abstract double getGyroRate();
 
   public abstract void resetGyroAngle();
+  public abstract void refreshGyro();
 
   /**
    * One-time method to instantiate NT publishers for AdvantageScope and Elastic.
@@ -429,6 +421,19 @@ public abstract class DriveTrain extends SubsystemBase {
     return rotationSpeed;
   }
 
+  public boolean refreshAlliance() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
+    } else {blueAlliance = false;}
+    if (blueAlliance) {
+      allianceHub = HubMeasurements.BLUEHUB_POSE;
+    } else {allianceHub = HubMeasurements.REDHUB_POSE;}
+    refreshGyro();
+    SmartDashboard.putBoolean("blueAlliance", blueAlliance);
+    return blueAlliance;
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
@@ -437,9 +442,9 @@ public abstract class DriveTrain extends SubsystemBase {
       module.update();
     }
     //femboy
-    orientationYaw = getGyroAngle().getDegrees();
+    //orientationYaw = getGyroAngle().getDegrees();
+    orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees();
     odom_pose = pose_estimator.update(Rotation2d.fromDegrees(orientationYaw), getModulePositions());
-    //orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees();
     //+ (blueAlliance == true ? 0 : 180); //maybe?
     //there is a chance we do not need to add 180 degrees for red alliance
     //by using the pose_estimator estimated positon, it may already know correctly withoud adjustment
@@ -448,7 +453,11 @@ public abstract class DriveTrain extends SubsystemBase {
     LimelightHelpers.SetRobotOrientation(ShooterConstants.LIMELIGHT_NAME, orientationYaw, 0, 0, 0, 0, 0);
     double visionTrust = 0.5;
     
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME);
+    boolean useMT2 = true;
+    LimelightHelpers.PoseEstimate limelightMeasurement = 
+      useMT2 ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME)
+      : LimelightHelpers.getBotPoseEstimate_wpiBlue(ShooterConstants.LIMELIGHT_NAME);
+
     if ((Math.abs(getGyroRate()) < 360) && (limelightMeasurement.tagCount > 0)) {
       // visionTrust += (0.5 * limelightMeasurement.avgTagDist);
       //if were not moving faster than 360 degrees/sec and we see tags 

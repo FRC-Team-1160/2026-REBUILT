@@ -10,6 +10,8 @@ public class DriveTrainSimIO extends DriveTrain {
         angle = new Rotation2d();
     }
 
+    public void refreshGyro() {};
+
     public Rotation2d getGyroAngle() {
         if (angle != null) return angle;
         return new Rotation2d();
