@@ -69,7 +69,7 @@ public class RobotContainer {
   private boolean facingHub = false;
   private boolean shooting = false;
   private boolean lockSwerve = false;
-  private boolean staticAuto = true;
+  private boolean staticAuto = false;
   
   private final SendableChooser<Command> autoChooser;
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
@@ -89,7 +89,7 @@ public class RobotContainer {
 
   private boolean runningSequence1 = false;
   private boolean runningSequence2 = false;
-  public RunCommand alignHub;
+  private boolean autoAlignHub = false;
 
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -100,22 +100,33 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    RunCommand alignHub = new RunCommand(() -> {
-      if (DriverStation.isAutonomous()) {
-        double angle_radiansPerSecond;
-        angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
-
-        m_drive.setSwerveDrive(
-        0,0,
-        angle_radiansPerSecond
-        );
-
-        SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
-      }
+    InstantCommand disableVisionMeasurement = new InstantCommand(() -> {
+      m_drive.autoVisionMeasurement = false;
     });
 
-    NamedCommands.registerCommand("Align Hub", alignHub);
-    NamedCommands.registerCommand("Cancel Align", new InstantCommand(() -> {alignHub.cancel();}));
+    InstantCommand enableVisionMeasurement = new InstantCommand(() -> {
+      m_drive.autoVisionMeasurement = true;
+    });
+
+    // RunCommand alignHub = new RunCommand(() -> {
+    //   if (DriverStation.isAutonomous()) {
+    //     double angle_radiansPerSecond;
+    //     angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+
+    //     m_drive.setSwerveDrive(
+    //     0,0,
+    //     angle_radiansPerSecond
+    //     );
+
+    //     SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
+    //   }
+    // });
+
+    NamedCommands.registerCommand("Enable Vision", enableVisionMeasurement);
+    NamedCommands.registerCommand("Disable Vision", disableVisionMeasurement);
+
+    NamedCommands.registerCommand("Align Hub", new InstantCommand(() -> {autoAlignHub = true;}));
+    NamedCommands.registerCommand("Cancel Align", new InstantCommand(() -> {autoAlignHub = false;}));
 
     NamedCommands.registerCommand("Hub Shooter", new InstantCommand(() -> {
       m_shooter.setModes(true, false, true, true);
@@ -152,6 +163,20 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  public void autoAlignSwerve() {
+    if (DriverStation.isAutonomous() && autoAlignHub) {
+        double angle_radiansPerSecond;
+        angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+
+        m_drive.setSwerveDrive(
+        0,0,
+        angle_radiansPerSecond
+        );
+
+        SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
+      }
   }
 
   public void updateSwerve() {
@@ -484,7 +509,7 @@ public class RobotContainer {
       })
     );
     } else {
-      return new PathPlannerAuto("ALT Starting Hub - Left - MORE ROWS");
+      return new PathPlannerAuto("Bump Intake Left");
     }
   }
 }

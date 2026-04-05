@@ -73,6 +73,7 @@ public abstract class DriveTrain extends SubsystemBase {
   private Translation2d allianceHub;
   private double orientationYaw;
   public boolean blueAlliance;
+  public boolean autoVisionMeasurement = false;
 
   public Orchestra orchestra;
   //private Field2d field;
@@ -438,12 +439,13 @@ public abstract class DriveTrain extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
     SmartDashboard.putNumber("pose_angle", odom_pose.getRotation().getDegrees());
+    SmartDashboard.putBoolean("auto Vision", autoVisionMeasurement);
     for (SwerveModule module : modules) {
       module.update();
     }
     //femboy
-    //orientationYaw = getGyroAngle().getDegrees();
-    orientationYaw = pose_estimator.getEstimatedPosition().getRotation().getDegrees();
+    orientationYaw = getGyroAngle().getDegrees();
+    //orientationYaw = odom_pose.getRotation().getDegrees();
     SmartDashboard.putNumber("poseEstimate_angle", orientationYaw);
     odom_pose = pose_estimator.update(Rotation2d.fromDegrees(orientationYaw), getModulePositions());
     //+ (blueAlliance == true ? 0 : 180); //maybe?
@@ -459,8 +461,9 @@ public abstract class DriveTrain extends SubsystemBase {
       useMT2 ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME)
       : LimelightHelpers.getBotPoseEstimate_wpiBlue(ShooterConstants.LIMELIGHT_NAME);
 
+    if (!(DriverStation.isAutonomous() && (autoVisionMeasurement == false))) {
     if ((Math.abs(getGyroRate()) < 360) && (limelightMeasurement.tagCount > 0)) {
-      // visionTrust += (0.5 * limelightMeasurement.avgTagDist);
+      visionTrust += (0.5 * limelightMeasurement.avgTagDist);
       //if were not moving faster than 360 degrees/sec and we see tags 
       pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(visionTrust, visionTrust, 9999999));
       if(limelightMeasurement.pose != null){
@@ -470,6 +473,7 @@ public abstract class DriveTrain extends SubsystemBase {
         );
       }
     }
+  }
     
     //field.setRobotPose(pose_estimator.getEstimatedPosition());
     SmartDashboard.putNumber("poseX Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getX()));

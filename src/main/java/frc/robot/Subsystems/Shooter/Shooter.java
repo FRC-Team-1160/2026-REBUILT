@@ -152,6 +152,10 @@ public class Shooter extends SubsystemBase {
                 bottomRollerFF *= -1;
             }
 
+            topRollerRPS = 10;
+            bottomRollerRPS *= 0.5;
+            bottomRollerFF *= 0.5;
+
             nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerRPS).withFeedForward(bottomRollerFF));
             topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
         } else {

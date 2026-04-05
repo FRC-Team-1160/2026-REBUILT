@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 2.3829101283880183,
-        "y": 1.9195292439372325
+        "y": 1.9195292439372322
       },
       "isLocked": false,
       "linkedName": "\"Instant Intake Right\" End"
@@ -41,7 +41,7 @@
       },
       "nextControl": {
         "x": 7.779536001934751,
-        "y": 1.7612838941069116
+        "y": 1.7612838941069113
       },
       "isLocked": false,
       "linkedName": null

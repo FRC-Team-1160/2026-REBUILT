@@ -151,8 +151,8 @@ public static class ShooterConstants{
   }
 
   public static class Swerve {
-    public static final double WHEEL_DIAMETER = 4 * 0.0254 * Math.PI;
-    public static final double GEAR_RATIO = 5.01;
+    public static final double WHEEL_DIAMETER = 3.78 * 0.0254 * Math.PI;
+    public static final double GEAR_RATIO = 6.75;
     public static final double OFFSET = 12.23 * 0.0254;
 
     public static final double MAX_SPEED = 5;
@@ -181,11 +181,11 @@ public static class ShooterConstants{
   }
 
   public static class Auto {
-    public static final double translation_kP = 0d;
+    public static final double translation_kP = 0.7d;
     public static final double translation_kI = 0d;
     public static final double translation_kD = 0d;
     
-    public static final double rotation_kP = 0d;
+    public static final double rotation_kP = 1.5d;
     public static final double rotation_kI = 0d;
     public static final double rotation_kD = 0d;
   }

@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reverse LBump Step Back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Go Left Midline"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Midline Right"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center to Hub"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Start Intake Autos",
+  "choreoAuto": false
+}

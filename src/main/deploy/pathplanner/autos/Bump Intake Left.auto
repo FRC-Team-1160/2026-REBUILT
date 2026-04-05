@@ -17,6 +17,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Enable Vision"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -76,6 +82,12 @@
           "type": "named",
           "data": {
             "name": "Cancel Align"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Disable Vision"
           }
         },
         {
