@@ -35,6 +35,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -76,7 +77,11 @@ public abstract class DriveTrain extends SubsystemBase {
   public boolean autoVisionMeasurement = false;
 
   public Orchestra orchestra;
-  //private Field2d field;
+
+  private Field2d field = new Field2d();
+  private final FieldObject2d visionPoseEstimate = field.getObject("Vision Pose");
+  private final FieldObject2d odomPoseEstimate = field.getObject("Odometry Pose");
+
 
   public SwerveModuleState[] tempStates;
   private PIDController alignmentPID = new PIDController(0.1, 0, 0.004);
@@ -92,7 +97,7 @@ public abstract class DriveTrain extends SubsystemBase {
 
     orchestra = new Orchestra();
     orchestra.loadMusic("Music/output.chrp");
-    //SmartDashboard.putData("Field",field);
+    SmartDashboard.putData("Field",field);
 
     tempStates = new SwerveModuleState[]{
         new SwerveModuleState(),
@@ -463,7 +468,7 @@ public abstract class DriveTrain extends SubsystemBase {
 
     if (!(DriverStation.isAutonomous() && (autoVisionMeasurement == false))) {
     if ((Math.abs(getGyroRate()) < 360) && (limelightMeasurement.tagCount > 0)) {
-      visionTrust += (0.5 * limelightMeasurement.avgTagDist);
+      visionTrust += (0.1 * limelightMeasurement.avgTagDist);
       //if were not moving faster than 360 degrees/sec and we see tags 
       pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(visionTrust, visionTrust, 9999999));
       if(limelightMeasurement.pose != null){
@@ -475,7 +480,10 @@ public abstract class DriveTrain extends SubsystemBase {
     }
   }
     
-    //field.setRobotPose(pose_estimator.getEstimatedPosition());
+    field.setRobotPose(pose_estimator.getEstimatedPosition());
+    visionPoseEstimate.setPose(limelightMeasurement.pose);
+    odomPoseEstimate.setPose(odom_pose);
+
     SmartDashboard.putNumber("poseX Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getX()));
     SmartDashboard.putNumber("poseY Inches", RobotUtils.metersToInches(pose_estimator.getEstimatedPosition().getY()));
     SmartDashboard.putNumber("botHub-angleDiff", getAngleDegreeOffsetFromHubCenter());
