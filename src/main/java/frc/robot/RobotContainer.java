@@ -492,6 +492,31 @@ public class RobotContainer {
       //remnant from when we shot into the hoops lolololol
 
     // shooter test bindings
+    new Trigger(() -> ((test_stick.getRawButton(4) || test_stick.getRawButton(1)) && 
+      (test_stick.getRawButton(5) || test_stick.getRawButton(6)))).onTrue(
+      new InstantCommand(() -> {
+        double base = 0.1 * (test_stick.getRawButton(5) ? -1 : 1);
+        double mult = test_stick.getRawAxis(3) >= 0.2 ? 10 : 1;
+        if (test_stick.getRawButton(4)) {
+        m_shooter.changeTopRollerRPS(base * mult);
+        } else {
+          m_shooter.changeBottomRollerRPS(base * mult);
+        }
+      })
+    );
+
+    new Trigger(() -> test_stick.getRawAxis(2)>= 0.2).onTrue(
+      new InstantCommand(() -> {
+        m_shooter.setModes(true, false, false, false);
+        m_agitator.runAgitation(1);
+        m_agitator.runGate(1);
+      }).finallyDo(
+        () -> {
+          m_shooter.enabled = false;
+          m_agitator.stopAgitation();
+          m_agitator.stopGate();
+        })
+    );
   }
 
   public Command getAutonomousCommand() {

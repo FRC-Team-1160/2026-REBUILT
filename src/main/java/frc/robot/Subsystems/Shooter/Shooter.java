@@ -26,6 +26,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase {
+    private boolean testingShooter = false;
+    private double testBRRPS = -22.5;
+    private double testTRRPS = 40;
+
     private double inchesFromHub = 120; // only use for testing shooter
     private double bottomRollerFF = -2.75; // i think this is the one we should keep constant
     private double bottomRollerTargetRPS = -22.5; //-22.5
@@ -107,20 +111,20 @@ public class Shooter extends SubsystemBase {
     }
 
     // new functions for testing with rotations per second
-    // public void changeBottomRollerRPS(double change) {
-    //     bottomRollerTargetRPS += change;
-    //     SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerTargetRPS);
-    // }
+    public void changeBottomRollerRPS(double change) {
+        testBRRPS += change;
+        SmartDashboard.putNumber("Bottom Roller Target RPS", testBRRPS);
+    }
 
-    // public void changeTopRollerRPS(double change) {
-    //     topRollerTargetRPS += change;
-    //     SmartDashboard.putNumber("Top Roller Target RPS", topRollerTargetRPS);
-    // }
+    public void changeTopRollerRPS(double change) {
+        testTRRPS += change;
+        SmartDashboard.putNumber("Top Roller Target RPS", testTRRPS);
+    }
     
-    // public void changeDistanceInches(double change) {
-    //     inchesFromHub += change;
-    //     SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
-    // }
+    public void changeDistanceInches(double change) {
+        inchesFromHub += change;
+        SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
+    }
 
     @Override
     public void periodic() {
@@ -152,12 +156,17 @@ public class Shooter extends SubsystemBase {
                 bottomRollerFF *= -1;
             }
 
-            topRollerRPS = 10;
-            bottomRollerRPS *= 0.5;
-            bottomRollerFF *= 0.5;
+            // topRollerRPS = 10;
+            // bottomRollerRPS *= 0.5;
+            // bottomRollerFF *= 0.5; juggle
 
-            nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerRPS).withFeedForward(bottomRollerFF));
-            topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+            if (!testingShooter) {
+                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerRPS).withFeedForward(bottomRollerFF));
+                topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
+            } else {
+                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(testBRRPS).withFeedForward(2));
+                topRollerMotor.setControl(topMotor_request.withVelocity(testTRRPS).withFeedForward(getVoltageFromRPS(testTRRPS)));
+            }
         } else {
             nearBottomRollerMotor.stopMotor();
             topRollerMotor.stopMotor();

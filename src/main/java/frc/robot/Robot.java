@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
     m_robot_container = new RobotContainer();
     FollowPathCommand.warmupCommand().schedule();
     SignalLogger.enableAutoLogging(false);
+    autonomous_command = m_robot_container.getAutonomousCommand();
   }
 
   @Override
@@ -54,7 +55,6 @@ public class Robot extends TimedRobot {
     //m_robot_container.m_drive.resetGyroAngle();
     m_robot_container.m_drive.refreshAlliance();
     m_robot_container.m_drive.autoVisionMeasurement = false;
-    autonomous_command = m_robot_container.getAutonomousCommand();
     if (autonomous_command != null) {
       System.out.println("AUTO INITIALIZED");
       //m_robot_container.m_drive.resetGyroAngle();
