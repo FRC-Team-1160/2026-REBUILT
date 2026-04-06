@@ -35,7 +35,7 @@ public class Agitator extends SubsystemBase {
         agitatorEncoderConfig = new AlternateEncoderConfig();  
         agitatorMotorConfig.idleMode(SparkMaxConfig.IdleMode.kCoast)
             .smartCurrentLimit(IntakeConstants.AGITATOR_CURRENT_LIMIT);
-        agitatorEncoderConfig.positionConversionFactor(IntakeConstants.EXTENDER_GEAR_RATIO);
+        agitatorEncoderConfig.positionConversionFactor(3); //agitator gear ratio
         agitatorEncoderConfig.apply(agitatorEncoderConfig);
         agitatorEncoder = agitatorMotor.getEncoder();
         
@@ -44,7 +44,7 @@ public class Agitator extends SubsystemBase {
         gateEncoderConfig = new AlternateEncoderConfig();  
         gateMotorConfig.idleMode(SparkMaxConfig.IdleMode.kCoast)
             .smartCurrentLimit(ShooterConstants.GATE_CURRENT_LIMIT);
-        gateEncoderConfig.positionConversionFactor(ShooterConstants.GATE_GEAR_RATIO);
+        gateEncoderConfig.positionConversionFactor(3); //gate gear ratio
         gateEncoderConfig.apply(gateEncoderConfig);
         gateEncoder = gateMotor.getEncoder();
 
