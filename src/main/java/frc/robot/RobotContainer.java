@@ -505,8 +505,8 @@ public class RobotContainer {
       })
     );
 
-    new Trigger(() -> test_stick.getRawAxis(2)>= 0.2).onTrue(
-      new InstantCommand(() -> {
+    new Trigger(() -> test_stick.getRawAxis(2)>= 0.2).whileTrue(
+      new RunCommand(() -> {
         m_shooter.setModes(true, false, false, false);
         m_agitator.runAgitation(1);
         m_agitator.runGate(1);

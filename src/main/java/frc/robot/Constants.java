@@ -61,9 +61,9 @@ public static class ShooterConstants{
   public static final double STATIC_DISTANCE_INCHES = 90;
 
   public static class BottomMotorConfigs {
-    public static final double kP = 0.5;
+    public static final double kP = 0.2;
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.002;
     public static final double kS = 0;
     public static final double kV = 0;
     public static final double kA = 0;
@@ -71,7 +71,7 @@ public static class ShooterConstants{
   }
 
   public static class TopMotorConfigs {
-    public static final double kP = 1;
+    public static final double kP = .7;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kS = 0;

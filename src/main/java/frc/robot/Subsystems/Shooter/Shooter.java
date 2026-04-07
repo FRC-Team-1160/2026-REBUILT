@@ -27,12 +27,12 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase {
     private boolean testingShooter = false;
-    private double testBRRPS = -22.5;
-    private double testTRRPS = 40;
+    private double testBRRPS = -25;
+    private double testTRRPS = 104;
 
     private double inchesFromHub = 120; // only use for testing shooter
-    private double bottomRollerFF = -2.75; // i think this is the one we should keep constant
-    private double bottomRollerTargetRPS = -22.5; //-22.5
+    private double bottomRollerFF = -0; // i think this is the one we should keep constant
+    private double bottomRollerTargetRPS = -25; //-22.5
     private double topRollerTargetRPS = 85;
 
     private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
@@ -77,13 +77,18 @@ public class Shooter extends SubsystemBase {
         topRollerMotor.getConfigurator().apply(topMotor_configs);
 
         farBottomRollerMotor.setControl(new Follower(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
+
+        SmartDashboard.putNumber("B Bottom Roller Target RPS", testBRRPS);
+        SmartDashboard.putNumber("B Top Roller Target RPS", testTRRPS);
     }
 
     public double getTopMotorRPSFromDistanceInches(double distanceFromTargetInches) {
-        double distanceOffset = (-1 * (distanceFromTargetInches/10)); //offset the distance
-        distanceFromTargetInches += distanceOffset;
+        //double distanceOffset = (-1 * (distanceFromTargetInches/10)); //offset the distance
+        //distanceFromTargetInches += distanceOffset;
         //distance is from center bottom of bot to ground center of hub
-        double topRollerRPS = 0.00079997*Math.pow(distanceFromTargetInches,2) + 0.198584*distanceFromTargetInches+29.26717;//test function
+        // double topRollerRPS = 0.00079997*Math.pow(distanceFromTargetInches,2) + 0.198584*distanceFromTargetInches+29.26717;//test function
+        //distanceFromTargetInches -= 41; //subtract half of bot length and half of hub length
+        double topRollerRPS = 0.00116398*(Math.pow(distanceFromTargetInches, 2)) + 0.272546*distanceFromTargetInches + 15.25056;
         return topRollerRPS;
         // item 0 is for the bottom voltage, item 1 is for the top voltage
     }
@@ -113,12 +118,12 @@ public class Shooter extends SubsystemBase {
     // new functions for testing with rotations per second
     public void changeBottomRollerRPS(double change) {
         testBRRPS += change;
-        SmartDashboard.putNumber("Bottom Roller Target RPS", testBRRPS);
+        SmartDashboard.putNumber("B Bottom Roller Target RPS", testBRRPS);
     }
 
     public void changeTopRollerRPS(double change) {
         testTRRPS += change;
-        SmartDashboard.putNumber("Top Roller Target RPS", testTRRPS);
+        SmartDashboard.putNumber("B Top Roller Target RPS", testTRRPS);
     }
     
     public void changeDistanceInches(double change) {
@@ -137,10 +142,11 @@ public class Shooter extends SubsystemBase {
             double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);
             double bottomRollerRPS = bottomRollerTargetRPS;
 
+            //topRollerRPS = 20;
             SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerRPS);
             SmartDashboard.putNumber("Top Roller Target RPS", topRollerRPS);
-            bottomRollerRPS = -22.5;
-            bottomRollerFF = -2.75;
+            bottomRollerRPS = -25;
+            bottomRollerFF = -3.5;
             
             if (!autoDistance) {
                 topRollerRPS = getTopMotorRPSFromDistanceInches(staticDistanceInches);
@@ -156,15 +162,14 @@ public class Shooter extends SubsystemBase {
                 bottomRollerFF *= -1;
             }
 
-            // topRollerRPS = 10;
             // bottomRollerRPS *= 0.5;
-            // bottomRollerFF *= 0.5; juggle
+            // bottomRollerFF *= 0.5; //juggle
 
             if (!testingShooter) {
-                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(bottomRollerRPS).withFeedForward(bottomRollerFF));
+                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-23).withFeedForward(bottomRollerFF));
                 topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
             } else {
-                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(testBRRPS).withFeedForward(2));
+                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(testBRRPS).withFeedForward(bottomRollerFF));
                 topRollerMotor.setControl(topMotor_request.withVelocity(testTRRPS).withFeedForward(getVoltageFromRPS(testTRRPS)));
             }
         } else {
