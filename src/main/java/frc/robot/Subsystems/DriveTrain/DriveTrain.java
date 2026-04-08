@@ -13,6 +13,9 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -81,6 +84,9 @@ public abstract class DriveTrain extends SubsystemBase {
   private Field2d field = new Field2d();
   private final FieldObject2d visionPoseEstimate = field.getObject("Vision Pose");
   private final FieldObject2d odomPoseEstimate = field.getObject("Odometry Pose");
+  private final FieldObject2d pathplannerPath = field.getObject("PathPlanner Path");
+  private final FieldObject2d pathplannerTarget = field.getObject("PathPlanner Target");
+  private final FieldObject2d pathplannerPose = field.getObject("PathPlanner Pose");
 
 
   public SwerveModuleState[] tempStates;
@@ -161,7 +167,12 @@ public abstract class DriveTrain extends SubsystemBase {
         () -> {
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
+            boolean red = alliance.get() == DriverStation.Alliance.Red;
+            if (red) {
+              //var transformedState = PathPlannerTrajectory.transformStateForAlliance(PathPlannerPath.getInitialState(), DriverStation.getAlliance());
+              //pose_estimator.resetPose(new Pose2d(transformedState.poseMeters.getTranslation(), transformedState.holonomicRotation));
+            }
+            return red;
           } 
           return false;
         },
@@ -170,7 +181,6 @@ public abstract class DriveTrain extends SubsystemBase {
 
     refreshAlliance();
     setupDashboard();
-
     SmartDashboard.putString("Music", " ");
   }
 
@@ -466,9 +476,9 @@ public abstract class DriveTrain extends SubsystemBase {
       useMT2 ? LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ShooterConstants.LIMELIGHT_NAME)
       : LimelightHelpers.getBotPoseEstimate_wpiBlue(ShooterConstants.LIMELIGHT_NAME);
 
-    if (!(DriverStation.isAutonomous() && (autoVisionMeasurement == false))) {
+    //if (!(DriverStation.isAutonomous() && (autoVisionMeasurement == false))) {
     if ((Math.abs(getGyroRate()) < 360) && (limelightMeasurement.tagCount > 0)) {
-      visionTrust += (0.1 * limelightMeasurement.avgTagDist);
+      visionTrust += (0.5 * limelightMeasurement.avgTagDist);
       //if were not moving faster than 360 degrees/sec and we see tags 
       pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(visionTrust, visionTrust, 9999999));
       if(limelightMeasurement.pose != null){
@@ -477,9 +487,17 @@ public abstract class DriveTrain extends SubsystemBase {
           limelightMeasurement.timestampSeconds
         );
       }
-    }
+    //}
   }
-    
+    PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+      pathplannerPath.setPoses(pose);
+    });
+    PathPlannerLogging.setLogActivePathCallback((poses) -> {
+      pathplannerPath.setPoses(poses);
+    });
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+      pathplannerTarget.setPose(pose);
+    });
     field.setRobotPose(pose_estimator.getEstimatedPosition());
     visionPoseEstimate.setPose(limelightMeasurement.pose);
     odomPoseEstimate.setPose(odom_pose);

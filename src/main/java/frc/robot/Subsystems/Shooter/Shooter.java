@@ -88,6 +88,7 @@ public class Shooter extends SubsystemBase {
         //distance is from center bottom of bot to ground center of hub
         // double topRollerRPS = 0.00079997*Math.pow(distanceFromTargetInches,2) + 0.198584*distanceFromTargetInches+29.26717;//test function
         //distanceFromTargetInches -= 41; //subtract half of bot length and half of hub length
+        distanceFromTargetInches += 5;
         double topRollerRPS = 0.00116398*(Math.pow(distanceFromTargetInches, 2)) + 0.272546*distanceFromTargetInches + 15.25056;
         return topRollerRPS;
         // item 0 is for the bottom voltage, item 1 is for the top voltage

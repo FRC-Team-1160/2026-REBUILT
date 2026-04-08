@@ -57,7 +57,7 @@ public class Agitator extends SubsystemBase {
     }
 
     public void runAgitation(int mult) {
-        agitatorMotor.setVoltage(12 * mult); // 8
+        agitatorMotor.setVoltage(11 * mult); // 8
         // agitatorMotor.getClosedLoopController().
         // setReference(IntakeConstants.AGITATOR_RPM*mult, ControlType.kVelocity);
     }

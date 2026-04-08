@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.io.SequenceInputStream;
+
 import org.opencv.core.Mat;
 
 //import frc.robot.Constants.OperatorConstants;
@@ -124,6 +126,34 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Enable Vision", enableVisionMeasurement);
     NamedCommands.registerCommand("Disable Vision", disableVisionMeasurement);
+
+    SequentialCommandGroup intakeInOut = new SequentialCommandGroup(
+      new InstantCommand(() -> {
+        m_intake.extendArm();
+        m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
+      }),
+      new WaitCommand(0.25),
+      new InstantCommand(() -> {
+        m_intake.retractArm();
+        m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
+      }),
+      new WaitCommand(0.25)
+    );
+
+    NamedCommands.registerCommand("Intake In Out", intakeInOut);
+
+    // NamedCommands.registerCommand("Intake 10x", new SequentialCommandGroup(
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut,
+    //   intakeInOut
+    // ));
 
     NamedCommands.registerCommand("Align Hub", new InstantCommand(() -> {autoAlignHub = true;}));
     NamedCommands.registerCommand("Cancel Align", new InstantCommand(() -> {autoAlignHub = false;}));
@@ -534,7 +564,7 @@ public class RobotContainer {
       })
     );
     } else {
-      return new PathPlannerAuto("Bump Intake Left");
+      return new PathPlannerAuto("Bump Intake Right");
     }
   }
 }

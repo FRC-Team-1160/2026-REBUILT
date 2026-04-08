@@ -47,7 +47,7 @@ public static class IntakeConstants{
   public static final double EXTENDER_VOLTAGE = 8; //8
   ;
 
-  public static final double INTAKE_VOLTAGE = -9; // -9
+  public static final double INTAKE_VOLTAGE = -10; // -9
 
   public static final int AGITATOR_CURRENT_LIMIT = 30;
   public static final int AGITATOR_RPM = 4500;
