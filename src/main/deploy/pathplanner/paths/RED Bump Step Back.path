@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.745192582025677,
-        "y": 5.503537803138374
+        "x": 4.547,
+        "y": 2.514707560627676
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.745192582025677,
-        "y": 5.503537803138374
+        "x": 4.297,
+        "y": 2.514707560627676
       },
       "isLocked": false,
-      "linkedName": "\"LBump Step Back\" End"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.295877318116975,
-        "y": 5.503537803138374
+        "x": 3.616,
+        "y": 2.514707560627676
       },
       "prevControl": {
-        "x": 7.295877318116975,
-        "y": 5.503537803138374
+        "x": 3.866,
+        "y": 2.514707560627676
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "\"Left Midline\" End"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5906183368869933,
-      "rotationDegrees": -45.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 43.6980473274211
   },
   "reversed": false,
   "folder": "Paths that skip 8 shot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -45.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

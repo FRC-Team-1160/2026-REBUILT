@@ -16,15 +16,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.util.HubTimer;
 
 public class Robot extends TimedRobot {
   private Command autonomous_command;
 
   private final RobotContainer m_robot_container;
+  private final HubTimer m_hubTimer;
   public boolean blueAlliance;
 
   public Robot() {
     m_robot_container = new RobotContainer();
+    m_hubTimer = new HubTimer();
     FollowPathCommand.warmupCommand().schedule();
     SignalLogger.enableAutoLogging(false);
     autonomous_command = m_robot_container.getAutonomousCommand();
@@ -34,8 +37,10 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     //LimelightHelpers.SetIMUMode("limelight", 1);
     m_robot_container.updateShooterDistance();
+    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+    SmartDashboard.putBoolean("Hub Active", m_hubTimer.isHubActive());
+    SmartDashboard.putNumber("Shift Time", m_hubTimer.getRemainingHubShift());
     CommandScheduler.getInstance().run();
-
   }
 
   @Override

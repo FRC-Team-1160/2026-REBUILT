@@ -145,7 +145,6 @@ public abstract class DriveTrain extends SubsystemBase {
       odom_pose,
       VecBuilder.fill(0.1,0.1,0), // odometry trust
       VecBuilder.fill(0.5,0.5,9999999)); // vision trust;
-    
 
     RobotConfig config;
     try {
@@ -156,7 +155,7 @@ public abstract class DriveTrain extends SubsystemBase {
     }
     AutoBuilder.configure(
         pose_estimator::getEstimatedPosition,
-        pose_estimator::resetPose,
+        (pose) -> pose_estimator.resetPose(pose),
         () -> kinematics.toChassisSpeeds(module_states),
         (speeds, feedforwards) -> setSwerveDrive(speeds),
         new PPHolonomicDriveController(
@@ -179,6 +178,13 @@ public abstract class DriveTrain extends SubsystemBase {
         this // Reference to this subsystem to set requirements
     );
 
+    pose_estimator.resetPose(
+      new Pose2d(
+        pose_estimator.getEstimatedPosition().getX(),
+        pose_estimator.getEstimatedPosition().getY() + 4,
+        pose_estimator.getEstimatedPosition().getRotation()
+      )
+    );
     refreshAlliance();
     setupDashboard();
     SmartDashboard.putString("Music", " ");
@@ -452,6 +458,7 @@ public abstract class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putBoolean("Aligned", getAngleDegreeOffsetFromHubCenter() == 0);
     SmartDashboard.putNumber("gyro", getGyroAngle().getDegrees());
     SmartDashboard.putNumber("pose_angle", odom_pose.getRotation().getDegrees());
     SmartDashboard.putBoolean("auto Vision", autoVisionMeasurement);

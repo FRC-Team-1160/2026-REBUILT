@@ -6,13 +6,16 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.io.IOException;
 import java.io.SequenceInputStream;
 
+import org.json.simple.parser.ParseException;
 import org.opencv.core.Mat;
 
 //import frc.robot.Constants.OperatorConstants;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.config.RobotConfig;
 
 import frc.robot.Subsystems.Agitator.Agitator;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
@@ -22,6 +25,9 @@ import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 import frc.robot.commands.Autos;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -58,6 +64,9 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.events.PointTowardsZoneTrigger;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.auto.NamedCommands;
 
 /**
@@ -329,7 +338,7 @@ public class RobotContainer {
     RepeatCommand repeatIntakeOuttakeCommand = new RepeatCommand(waitIntakeOuttakeCommand);
 
     //after waiting for .4 seconds, basically do the second half of sequence 1
-    var spamIntakeSequence = new WaitCommand(0.4).finallyDo(() -> {
+    var spamIntakeSequence = new WaitCommand(0.3).finallyDo(() -> {
           if (runningSequence1) {
             m_agitator.runAgitation(1);
             m_agitator.runGate(1);
@@ -564,7 +573,9 @@ public class RobotContainer {
       })
     );
     } else {
-      return new PathPlannerAuto("Bump Intake Right");
+      String autoName = "RED Bump Intake Right";
+      PathPlannerAuto m_auto = new PathPlannerAuto(autoName, true);
+      return m_auto;
     }
   }
 }
