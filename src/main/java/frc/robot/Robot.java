@@ -30,12 +30,12 @@ public class Robot extends TimedRobot {
     m_hubTimer = new HubTimer();
     FollowPathCommand.warmupCommand().schedule();
     SignalLogger.enableAutoLogging(false);
-    autonomous_command = m_robot_container.getAutonomousCommand();
+    m_robot_container.m_drive.refreshAlliance();
   }
 
   @Override
   public void robotPeriodic() {
-    //LimelightHelpers.SetIMUMode("limelight", 1);
+    //LimelightHelpers.SetIMU("limelight", 1);
     m_robot_container.updateShooterDistance();
     SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
     SmartDashboard.putBoolean("Hub Active", m_hubTimer.isHubActive());
@@ -48,7 +48,9 @@ public class Robot extends TimedRobot {
 
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robot_container.m_drive.refreshAlliance();
+  }
 
   @Override
   public void disabledExit() {
@@ -58,8 +60,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     //m_robot_container.m_drive.resetGyroAngle();
-    m_robot_container.m_drive.refreshAlliance();
+    //m_robot_container.m_drive.refreshAlliance();
     m_robot_container.m_drive.autoVisionMeasurement = false;
+    autonomous_command = m_robot_container.getAutonomousCommand();
     if (autonomous_command != null) {
       System.out.println("AUTO INITIALIZED");
       //m_robot_container.m_drive.resetGyroAngle();

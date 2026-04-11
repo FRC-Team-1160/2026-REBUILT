@@ -158,6 +158,8 @@ public class Intake extends SubsystemBase {
             }
             runIntake(mult);
         }
+
+        SmartDashboard.putBoolean("Intake Motor Running", intakeMotor.getMotorVoltage().getValueAsDouble() != 0);
     }
 }
 

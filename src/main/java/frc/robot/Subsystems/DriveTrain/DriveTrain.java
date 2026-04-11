@@ -447,7 +447,7 @@ public abstract class DriveTrain extends SubsystemBase {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       blueAlliance = !(alliance.get() == DriverStation.Alliance.Red);
-    } else {blueAlliance = false;}
+    } // else {blueAlliance = false;}
     if (blueAlliance) {
       allianceHub = HubMeasurements.BLUEHUB_POSE;
     } else {allianceHub = HubMeasurements.REDHUB_POSE;}

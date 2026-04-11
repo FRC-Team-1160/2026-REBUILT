@@ -82,7 +82,8 @@ public class RobotContainer {
   private boolean lockSwerve = false;
   private boolean staticAuto = false;
   
-  private final SendableChooser<Command> autoChooser;
+  //private final SendableChooser<Command> autoChooser;
+  private final SendableChooser<String> autoChooser2 = new SendableChooser<>();
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
@@ -108,8 +109,21 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     m_drive.resetGyroAngle();
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    // SendableChooser<String> leftRightAuto = new SendableChooser<>();
+    // leftRightAuto.addOption("Left", null);
+    // leftRightAuto.addOption("Right", null);
+
+    //autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser2.setDefaultOption("Red Right Bump", "RED Bump Intake Right");
+    autoChooser2.addOption("Blue Right Bump", "Bump Intake Right");
+    autoChooser2.addOption("Red Left Bump", "RED Bump Intake Left");
+    autoChooser2.addOption("Blue Left Bump", "Bump Intake Left");
+    //autoChooser2.addOption("Start Hub", "RED Bump Intake Right");
+
+    //SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putData("Auto Selection", autoChooser2);
+    // SmartDashboard.putData("Auto Side", leftRightAuto);
 
     InstantCommand disableVisionMeasurement = new InstantCommand(() -> {
       m_drive.autoVisionMeasurement = false;
@@ -275,7 +289,10 @@ public class RobotContainer {
   private void configureBindings() {
     //MAIN STICK -------------------------
     new JoystickButton(main_stick, 8).onTrue(
-      new InstantCommand(() -> m_drive.resetGyroAngle())
+      new InstantCommand(() -> {
+        m_drive.refreshAlliance();
+        m_drive.resetGyroAngle();
+      })
     );
 
     //stop intake
@@ -406,28 +423,28 @@ public class RobotContainer {
 
         //stop everything once we stop holding down the butto
     //sequence 2
-    // new Trigger(() -> second_stick.getRawAxis(3) >= 0.2).whileTrue(
-    //   new StartEndCommand(() -> {
-    //     //only run if were not running the other sequence and were not already running this sequence
-    //     if (!runningSequence2 && !runningSequence1) {
-    //     //start shooter first
-    //     runningSequence2 = true;
-    //     shooting = m_shooter.runMotors(m_drive.getDistanceFromHub());
-    //     //give shooter time to rev up
-    //     //slowly retract intake while shooting and such
-    //     slowRetractSequence.schedule();
-    //   } else {return;} //return if were already running a sequence
-    //   },
-    //   () -> {
-    //     //reset back to normal
-    //     runningSequence2 = false;
-    //     m_intake.setHopperSpeed(1);
-    //     m_agitator.stopAgitation();
-    //     m_agitator.stopGate();
-    //     shooting = m_shooter.stopMotors();
-    //     slowRetractSequence.cancel();
-    //   }
-    // ));
+    new Trigger(() -> second_stick.getRawAxis(2) >= 0.2).whileTrue(
+      new StartEndCommand(() -> {
+        //only run if were not running the other sequence and were not already running this sequence
+        if (!runningSequence2 && !runningSequence1) {
+        //start shooter first
+        runningSequence2 = true;
+        m_shooter.setModes(true,false,true,false);
+        //give shooter time to rev up
+        //slowly retract intake while shooting and such
+        slowRetractSequence.schedule();
+      } else {return;} //return if were already running a sequence
+      },
+      () -> {
+        //reset back to normal
+        runningSequence2 = false;
+        m_intake.setHopperSpeed(1);
+        m_agitator.stopAgitation();
+        m_agitator.stopGate();
+        shooting = m_shooter.enabled = false;
+        slowRetractSequence.cancel();
+      }
+    ));
 
     //extend/retract hopper
     //new control
@@ -513,10 +530,10 @@ public class RobotContainer {
     // shooter bindings
 
     //old control
-    new Trigger(() -> (second_stick.getRawButton(4)) || second_stick.getRawAxis(2) >= 0.2).whileTrue(
+    new Trigger(() -> (second_stick.getRawButton(4)) || second_stick.getRawButton(1)).whileTrue(
         new RunCommand(() -> {
           boolean reversed = second_stick.getRawButton(5);
-          boolean againstHub = second_stick.getRawAxis(2) >= 0.2;
+          boolean againstHub = second_stick.getRawButton(1);
           m_shooter.setModes(true, reversed, true, againstHub);
         })
           .finallyDo(() -> {
@@ -559,12 +576,13 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
+    //m_drive.refreshAlliance();
     m_drive.resetGyroAngle();
 
     if (staticAuto) {
     return new SequentialCommandGroup(
       new InstantCommand(() -> {
-        m_shooter.setModes(true, false, false, true);
+        m_shooter.setModes(true, false, true, false);
       }),
       new WaitCommand(0.5),
       new InstantCommand(() -> {
@@ -573,8 +591,13 @@ public class RobotContainer {
       })
     );
     } else {
-      String autoName = "RED Bump Intake Right";
-      PathPlannerAuto m_auto = new PathPlannerAuto(autoName, true);
+      //String autoName = "RED Bump Intake Left";
+      String autoName = autoChooser2.getSelected();
+      SmartDashboard.putString("Selected Auto", autoName);
+      if (autoName.charAt(0) == 'R' && m_drive.blueAlliance) {
+        autoName = "Bump Intake Left";
+      }
+      PathPlannerAuto m_auto = new PathPlannerAuto(autoName);
       return m_auto;
     }
   }
