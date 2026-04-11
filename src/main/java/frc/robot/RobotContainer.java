@@ -119,6 +119,7 @@ public class RobotContainer {
     autoChooser2.addOption("Blue Right Bump", "Bump Intake Right");
     autoChooser2.addOption("Red Left Bump", "RED Bump Intake Left");
     autoChooser2.addOption("Blue Left Bump", "Bump Intake Left");
+    autoChooser2.addOption("Center Shoot", "Center");
     //autoChooser2.addOption("Start Hub", "RED Bump Intake Right");
 
     //SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -578,8 +579,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     //m_drive.refreshAlliance();
     m_drive.resetGyroAngle();
+    String autoName = autoChooser2.getSelected();
 
-    if (staticAuto) {
+    if (autoName == "Center") {
     return new SequentialCommandGroup(
       new InstantCommand(() -> {
         m_shooter.setModes(true, false, true, false);
@@ -592,7 +594,6 @@ public class RobotContainer {
     );
     } else {
       //String autoName = "RED Bump Intake Left";
-      String autoName = autoChooser2.getSelected();
       SmartDashboard.putString("Selected Auto", autoName);
       if (autoName.charAt(0) == 'R' && m_drive.blueAlliance) {
         autoName = "Bump Intake Left";
