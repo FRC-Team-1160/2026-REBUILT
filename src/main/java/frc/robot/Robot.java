@@ -50,6 +50,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     m_robot_container.m_drive.refreshAlliance();
+    autonomous_command = m_robot_container.getAutonomousCommand();
   }
 
   @Override

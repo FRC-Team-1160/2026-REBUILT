@@ -83,7 +83,7 @@ public class RobotContainer {
   private boolean staticAuto = false;
   
   //private final SendableChooser<Command> autoChooser;
-  private final SendableChooser<String> autoChooser2 = new SendableChooser<>();
+  private final SendableChooser<Integer> autoChooser2 = new SendableChooser<>();
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
@@ -103,6 +103,23 @@ public class RobotContainer {
   private boolean runningSequence2 = false;
   private boolean autoAlignHub = false;
 
+  private final String redRightBumpAutoName = "RED Bump Intake Right";
+  private final String blueRightBumpAutoName = "Bump Intake Right";
+  private final String redLeftBumpAutoName = "RED Bump Intake Left";
+  private final String blueLeftBumpAutoName = "Bump Intake Left";
+
+  PathPlannerAuto redRightBumpAuto = new PathPlannerAuto(redRightBumpAutoName);
+  PathPlannerAuto blueRightBumpAuto = new PathPlannerAuto(blueRightBumpAutoName);
+  PathPlannerAuto redLeftBumpAuto = new PathPlannerAuto(redLeftBumpAutoName);
+  PathPlannerAuto blueLeftBumpAuto = new PathPlannerAuto(blueLeftBumpAutoName);
+  
+  PathPlannerAuto[] autos = {
+    redRightBumpAuto,
+    blueRightBumpAuto,
+    redLeftBumpAuto,
+    blueLeftBumpAuto
+  };
+
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
@@ -115,11 +132,12 @@ public class RobotContainer {
     // leftRightAuto.addOption("Right", null);
 
     //autoChooser = AutoBuilder.buildAutoChooser();
-    autoChooser2.setDefaultOption("Red Right Bump", "RED Bump Intake Right");
-    autoChooser2.addOption("Blue Right Bump", "Bump Intake Right");
-    autoChooser2.addOption("Red Left Bump", "RED Bump Intake Left");
-    autoChooser2.addOption("Blue Left Bump", "Bump Intake Left");
-    autoChooser2.addOption("Center Shoot", "Center");
+    autoChooser2.setDefaultOption("Red Right Bump", 0);
+    autoChooser2.addOption("Blue Right Bump", 1);
+    autoChooser2.addOption("Red Left Bump", 2);
+    autoChooser2.addOption("Blue Left Bump", 3);
+    autoChooser2.addOption("Center Shoot", 4);
+
     //autoChooser2.addOption("Start Hub", "RED Bump Intake Right");
 
     //SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -579,9 +597,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     //m_drive.refreshAlliance();
     m_drive.resetGyroAngle();
-    String autoName = autoChooser2.getSelected();
+    int autoNum = autoChooser2.getSelected();
 
-    if (autoName == "Center") {
+    if (autoNum == 4) {
     return new SequentialCommandGroup(
       new InstantCommand(() -> {
         m_shooter.setModes(true, false, true, false);
@@ -593,12 +611,7 @@ public class RobotContainer {
       })
     );
     } else {
-      //String autoName = "RED Bump Intake Left";
-      SmartDashboard.putString("Selected Auto", autoName);
-      if (autoName.charAt(0) == 'R' && m_drive.blueAlliance) {
-        autoName = "Bump Intake Left";
-      }
-      PathPlannerAuto m_auto = new PathPlannerAuto(autoName);
+      PathPlannerAuto m_auto = autos[autoNum];
       return m_auto;
     }
   }
