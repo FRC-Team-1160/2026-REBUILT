@@ -67,6 +67,9 @@ public class Intake extends SubsystemBase {
     }
 
     // intake functions
+    /**
+     * @param direction intakeDirection object
+     */
     public void setIntakeDirection(intakeDirection direction) {
         currentIntakeDirection = direction;
     }
@@ -75,7 +78,9 @@ public class Intake extends SubsystemBase {
         intakeMotor.setVoltage(IntakeConstants.INTAKE_VOLTAGE * mult);
     }
 
-    /** Extend intake until max */
+    /** Extend intake extension until fully extended,
+     *  stop arm once it reaches goal
+     */
     public void extendArm() {
         if (!isFullyExtended() || !positionSet) {
             currentDirection = direction.EXTENDING;
@@ -85,7 +90,9 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    /** Retract intake until fully retracted */
+    /** Retract intake extension until fully retracted,
+     *  stop arm once it reaches goal
+    */
     public void retractArm() {
         if (!isFullyRetracted() || !positionSet) {
             currentDirection = direction.RETRACTING;
@@ -130,13 +137,14 @@ public class Intake extends SubsystemBase {
         }
 
         //stop arm if we know what our position is and were outside of limits
+        //either over max or under min
         if (positionSet && 
         ((encoder.getPosition() <= IntakeConstants.EXTENSION_MAX && currentDirection == direction.EXTENDING)|| 
         (encoder.getPosition() >= IntakeConstants.EXTENSION_MIN && currentDirection == direction.RETRACTING))) {
             extenderMotor.setVoltage(0);
         }
 
-        //run intake when we extend and stop it when we retract if its automatic
+        //run intake rollers when we extend and stop it when we retract IF its in automatic mode
         //run whatever the codriver is doing if its manual
         if (currentMode == intakeMode.AUTOMATIC) {
             if ((encoder.getPosition() <= -23) && positionSet) {
