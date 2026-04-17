@@ -1,29 +1,17 @@
 package frc.robot.Subsystems.Shooter;
 
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
-
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotUtils;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Port;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.BottomMotorConfigs;
 import frc.robot.Constants.ShooterConstants.TopMotorConfigs;
-
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.AlternateEncoderConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase {
     private boolean testingShooter = false;
@@ -33,7 +21,6 @@ public class Shooter extends SubsystemBase {
     private double inchesFromHub = 120; // only use for testing shooter
     private double bottomRollerFF = -0; // i think this is the one we should keep constant
     private double bottomRollerTargetRPS = -25; //-22.5
-    private double topRollerTargetRPS = 85;
 
     private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX nearBottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
@@ -83,15 +70,9 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getTopMotorRPSFromDistanceInches(double distanceFromTargetInches) {
-        //double distanceOffset = (-1 * (distanceFromTargetInches/10)); //offset the distance
-        //distanceFromTargetInches += distanceOffset;
-        //distance is from center bottom of bot to ground center of hub
-        // double topRollerRPS = 0.00079997*Math.pow(distanceFromTargetInches,2) + 0.198584*distanceFromTargetInches+29.26717;//test function
-        //distanceFromTargetInches -= 41; //subtract half of bot length and half of hub length
         distanceFromTargetInches += 5;
         double topRollerRPS = 0.00116398*(Math.pow(distanceFromTargetInches, 2)) + 0.272546*distanceFromTargetInches + 15.25056;
         return topRollerRPS;
-        // item 0 is for the bottom voltage, item 1 is for the top voltage
     }
 
     public double getVoltageFromRPS(double rps) {

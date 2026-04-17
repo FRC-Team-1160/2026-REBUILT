@@ -4,41 +4,18 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
-
-import java.io.IOException;
-import java.io.SequenceInputStream;
-
-import org.json.simple.parser.ParseException;
-import org.opencv.core.Mat;
-
 //import frc.robot.Constants.OperatorConstants;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.config.RobotConfig;
 
 import frc.robot.Subsystems.Agitator.Agitator;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
-// import frc.robot.SubsystemManager;
-import frc.robot.commands.Autos;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-//import frc.robot.commands.ExampleCommand;
-//import frc.robot.commands.IntakeCommand.ToggleIntake;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -48,25 +25,13 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Subsystems.Intake.Intake;
 import frc.robot.Subsystems.Intake.Intake.direction;
 import frc.robot.Subsystems.Intake.Intake.intakeDirection;
 import frc.robot.Subsystems.Intake.Intake.intakeMode;
 import frc.robot.Subsystems.Shooter.Shooter;
-//import frc.robot.Subsystems.Vision.LimelightIO;
-//import frc.robot.Subsystems.Vision.VisionSubsystem;
-//import frc.robot.Subsystems.Vision.Vision;
-//import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ControllerButtonConstants;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import com.pathplanner.lib.events.EventTrigger;
-import com.pathplanner.lib.events.PointTowardsZoneTrigger;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
-import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.auto.NamedCommands;
 
 /**
@@ -76,11 +41,7 @@ import com.pathplanner.lib.auto.NamedCommands;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private boolean testingShooter = false;
-  private boolean facingHub = false;
-  private boolean shooting = false;
   private boolean lockSwerve = false;
-  private boolean staticAuto = false;
   
   //private final SendableChooser<Command> autoChooser;
   private final SendableChooser<Integer> autoChooser2 = new SendableChooser<>();
@@ -93,10 +54,7 @@ public class RobotContainer {
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Intake m_intake = new Intake();
-  //public final AgitatorTest m_agitatorTest = new AgitatorTest();
   public final Shooter m_shooter = new Shooter();
-  // public final LimelightIO m_limelightio = new LimelightIO(m_drive.blueAlliance);
-  // public final VisionSubsystem m_vision = new VisionSubsystem(m_limelightio);
   public final Agitator m_agitator = new Agitator();
 
   private boolean runningSequence1 = false;
@@ -127,10 +85,6 @@ public class RobotContainer {
   public RobotContainer() {
     m_drive.resetGyroAngle();
 
-    // SendableChooser<String> leftRightAuto = new SendableChooser<>();
-    // leftRightAuto.addOption("Left", null);
-    // leftRightAuto.addOption("Right", null);
-
     //autoChooser = AutoBuilder.buildAutoChooser();
     autoChooser2.setDefaultOption("Red Right Bump", 0);
     autoChooser2.addOption("Blue Right Bump", 1);
@@ -152,20 +106,6 @@ public class RobotContainer {
       m_drive.autoVisionMeasurement = true;
     });
 
-    // RunCommand alignHub = new RunCommand(() -> {
-    //   if (DriverStation.isAutonomous()) {
-    //     double angle_radiansPerSecond;
-    //     angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
-
-    //     m_drive.setSwerveDrive(
-    //     0,0,
-    //     angle_radiansPerSecond
-    //     );
-
-    //     SmartDashboard.putNumber("auto angle", angle_radiansPerSecond);
-    //   }
-    // });
-
     NamedCommands.registerCommand("Enable Vision", enableVisionMeasurement);
     NamedCommands.registerCommand("Disable Vision", disableVisionMeasurement);
 
@@ -183,19 +123,6 @@ public class RobotContainer {
     );
 
     NamedCommands.registerCommand("Intake In Out", intakeInOut);
-
-    // NamedCommands.registerCommand("Intake 10x", new SequentialCommandGroup(
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut,
-    //   intakeInOut
-    // ));
 
     NamedCommands.registerCommand("Align Hub", new InstantCommand(() -> {autoAlignHub = true;}));
     NamedCommands.registerCommand("Cancel Align", new InstantCommand(() -> {autoAlignHub = false;}));
@@ -460,7 +387,7 @@ public class RobotContainer {
         m_intake.setHopperSpeed(1);
         m_agitator.stopAgitation();
         m_agitator.stopGate();
-        shooting = m_shooter.enabled = false;
+        m_shooter.enabled = false;
         slowRetractSequence.cancel();
       }
     ));
@@ -480,35 +407,6 @@ public class RobotContainer {
         m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
     }));
 
-    //old control
-    // new JoystickButton(second_stick, 1).onTrue(
-    //   new InstantCommand(() -> {
-    //     if (m_intake.currentDirection == direction.RETRACTING) {
-    //     m_intake.extendArm();
-    //     m_intake.setModes(direction.EXTENDING, intakeMode.AUTOMATIC);
-    //     m_intake.setIntakeDirection(intakeDirection.IN);
-    //     } else {
-    //     m_intake.retractArm();
-    //     m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
-    //     }
-    //   })
-    // );
-
-    //running intake
-    //new control
-    // new JoystickButton(second_stick, 3).onTrue(
-    //   new InstantCommand(() -> {
-    //     intakeDirection iDirection = intakeDirection.IN;
-    //     if (second_stick.getRawButton(5)) {iDirection = intakeDirection.OUT;}
-    //     if (m_intake.currentIntakeDirection != intakeDirection.OFF && m_intake.currentIntakeDirection == iDirection) {
-    //       iDirection = intakeDirection.OFF;
-    //     }
-    //     m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
-    //     m_intake.setIntakeDirection(iDirection);
-    //   })
-    // );
-
-    //old control
     new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
       new RunCommand(() -> {
         boolean forward = !second_stick.getRawButton(5);
@@ -521,19 +419,6 @@ public class RobotContainer {
       })
     );
 
-    // agitator + gate forward/reverse
-    //new control
-    // new JoystickButton(second_stick, 2).onTrue(
-    //   new InstantCommand(() -> {
-    //     int mult = 1;
-    //     if (second_stick.getRawButton(5)) {mult = -1;}
-    //     if (m_agitator.lastMult == mult) {mult = 0;}
-    //     m_agitator.runAgitation(mult);
-    //     m_agitator.runGate(mult);
-    //   }) 
-    // );
-
-    //old control
     new Trigger(() -> (second_stick.getRawButton(2))).whileTrue(
       new RunCommand(() -> {
         int mult = second_stick.getRawButton(5) ? -1 : 1;
@@ -547,8 +432,6 @@ public class RobotContainer {
     );
    
     // shooter bindings
-
-    //old control
     new Trigger(() -> (second_stick.getRawButton(4)) || second_stick.getRawButton(1)).whileTrue(
         new RunCommand(() -> {
           boolean reversed = second_stick.getRawButton(5);
@@ -559,12 +442,6 @@ public class RobotContainer {
             m_shooter.enabled = false;
           })
       );
-
-      // new Trigger(() -> second_stick.getRawButton(3)).whileTrue(
-      //   new RunCommand(() -> m_shooter.basketballin())
-      //     .finallyDo(m_shooter::stopMotors)
-      // );
-      //remnant from when we shot into the hoops lolololol
 
     // shooter test bindings
     new Trigger(() -> ((test_stick.getRawButton(4) || test_stick.getRawButton(1)) && 

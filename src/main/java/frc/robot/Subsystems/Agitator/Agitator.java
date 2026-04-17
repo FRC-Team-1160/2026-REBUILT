@@ -1,11 +1,8 @@
 package frc.robot.Subsystems.Agitator;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.AlternateEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -14,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Port;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.ShooterConstants.BottomMotorConfigs;
 
 public class Agitator extends SubsystemBase {
     private final SparkMax agitatorMotor;
@@ -26,8 +22,6 @@ public class Agitator extends SubsystemBase {
     private final RelativeEncoder gateEncoder;
     private final SparkMaxConfig gateMotorConfig;
     private final AlternateEncoderConfig gateEncoderConfig;
-
-    public double lastMult;
 
     public Agitator() {
         agitatorMotor = new SparkMax(Port.AGITATOR_MOTOR, MotorType.kBrushless);
@@ -48,18 +42,12 @@ public class Agitator extends SubsystemBase {
         gateEncoderConfig.apply(gateEncoderConfig);
         gateEncoder = gateMotor.getEncoder();
 
-        gateMotorConfig.closedLoop.pidf(0.0006, 0, 0, 6).outputRange(-1, 1);
-        agitatorMotorConfig.closedLoop.pidf(0.0006, 0, 0, 6).outputRange(-1, 1);
-
-        //gateEncoder.setPosition(0);
         gateMotor.configure(gateMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
     public void runAgitation(int mult) {
-        agitatorMotor.setVoltage(11 * mult); // 8
-        // agitatorMotor.getClosedLoopController().
-        // setReference(IntakeConstants.AGITATOR_RPM*mult, ControlType.kVelocity);
+        agitatorMotor.setVoltage(11 * mult);
     }
 
     public void stopAgitation() {
@@ -68,9 +56,6 @@ public class Agitator extends SubsystemBase {
 
     public void runGate(double mult) {
         gateMotor.setVoltage(-12 * mult);
-        // gateMotor.getClosedLoopController().
-        // setReference(ShooterConstants.GATE_RPM*mult, ControlType.kVelocity);
-        lastMult = mult;
     }
 
     public void stopGate() {

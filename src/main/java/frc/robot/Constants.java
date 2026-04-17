@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
@@ -113,41 +111,6 @@ public static class ShooterConstants{
   public static class IO {
     public static final int MAIN_PORT = 0;
     public static final int COPILOT_PORT = 1; // reset to 1
-    public static final int LEFT_BOARD_PORT = 2;
-    public static final int RIGHT_BOARD_PORT = 3;
-
-    public static final class Board {
-      public static final class Left {
-        /* 
-        these are the constants i stole from motif
-        im only leaving them here for future reference when we need to map buttons
-        because i have the memory of a sad goldfish
-
-        public static final int SHOOT = 1;
-        public static final int AIM = 2;
-
-        public static final int AMP = 3;
-
-        public static final int SHOOT_OVERRIDE = 5;
-        public static final int REV = 6;
-
-        public static final int LEFT_CLIMB = 0;
-        */
-      }
-      public static final class Right {
-        /*
-        public static final int UP_DOWN_INTAKE = 1;
-        public static final int OVERRIDE = 4;
-        public static final int OUTTAKE = 9;
-        public static final int INTAKE = 8;
-
-        public static final int INC_OR_DEC_TAR = 3;
-        public static final int MOVE_TAR = 6;
-
-        public static final int RIGHT_CLIMB = 0;
-        */
-      }
-    }
   }
 
   public static class Swerve {
