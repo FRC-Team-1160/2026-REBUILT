@@ -80,8 +80,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousExit() {
     m_robot_container.m_shooter.enabled = false;
-      m_robot_container.m_agitator.stopAgitation();
-      m_robot_container.m_agitator.stopGate();
+      m_robot_container.m_agitator.stopMotors.schedule();
       //m_robot_container.alignHub.cancel();
       // m_robot_container.StopSwerve.schedule();
   }
@@ -92,8 +91,7 @@ public class Robot extends TimedRobot {
     if (autonomous_command != null) {
       autonomous_command.cancel();
       m_robot_container.m_shooter.enabled = false;
-      m_robot_container.m_agitator.stopAgitation();
-      m_robot_container.m_agitator.stopGate();
+      m_robot_container.m_agitator.stopMotors.schedule();
       // m_robot_container.AlignHub.cancel();
       // m_robot_container.StopSwerve.schedule();
     }

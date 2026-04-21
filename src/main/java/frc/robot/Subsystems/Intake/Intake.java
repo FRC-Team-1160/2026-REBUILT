@@ -86,7 +86,7 @@ public class Intake extends SubsystemBase {
             currentDirection = direction.EXTENDING;
             extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE * hopperMult);
         } else {
-            extenderMotor.setVoltage(0);
+            extenderMotor.stopMotor();
         }
     }
 
@@ -98,7 +98,7 @@ public class Intake extends SubsystemBase {
             currentDirection = direction.RETRACTING;
             extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE * hopperMult);
         } else {
-            extenderMotor.setVoltage(0);
+            extenderMotor.stopMotor();;
         }
     }
 
@@ -112,11 +112,11 @@ public class Intake extends SubsystemBase {
     }
 
     // getting intake arm positions
-    public boolean isFullyRetracted() {
+    private boolean isFullyRetracted() {
         return positionSet ? encoder.getPosition() >= IntakeConstants.EXTENSION_MIN : false;
     }
 
-    public boolean isFullyExtended() {
+    private boolean isFullyExtended() {
         return positionSet ? (encoder.getPosition() <= IntakeConstants.EXTENSION_MAX) : false;
     }
 

@@ -30,6 +30,7 @@ import frc.robot.Subsystems.Intake.Intake.direction;
 import frc.robot.Subsystems.Intake.Intake.intakeDirection;
 import frc.robot.Subsystems.Intake.Intake.intakeMode;
 import frc.robot.Subsystems.Shooter.Shooter;
+import frc.robot.Subsystems.Shooter.Shooter.SHOOTER_MODES;
 import frc.robot.Constants.ShooterConstants;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -128,11 +129,11 @@ public class RobotContainer {
     NamedCommands.registerCommand("Cancel Align", new InstantCommand(() -> {autoAlignHub = false;}));
 
     NamedCommands.registerCommand("Hub Shooter", new InstantCommand(() -> {
-      m_shooter.setModes(true, false, true, true);
+      m_shooter.setMode(SHOOTER_MODES.AUTO_DISTANCE);
     }));
 
     NamedCommands.registerCommand("Run Shooter",new InstantCommand(() -> {
-      m_shooter.setModes(true, false, true, false);
+      m_shooter.setMode(SHOOTER_MODES.AUTO_DISTANCE);
     }
     ));
     NamedCommands.registerCommand("Stop Shooter",new InstantCommand(() -> {
@@ -140,12 +141,8 @@ public class RobotContainer {
       }
     ));
 
-    NamedCommands.registerCommand("Run Agitator",new InstantCommand(() -> {
-      m_agitator.runAgitation(1);
-      m_agitator.runGate(1);}));
-    NamedCommands.registerCommand("Stop Agitator",new InstantCommand(() -> {
-      m_agitator.stopGate();
-      m_agitator.stopAgitation();}));
+    NamedCommands.registerCommand("Run Agitator",m_agitator.runMotors);
+    NamedCommands.registerCommand("Stop Agitator",m_agitator.stopMotors);
 
     //setting up pathplanner commands
 
@@ -303,8 +300,7 @@ public class RobotContainer {
     //after waiting for .4 seconds, basically do the second half of sequence 1
     var spamIntakeSequence = new WaitCommand(0.3).finallyDo(() -> {
           if (runningSequence1) {
-            m_agitator.runAgitation(1);
-            m_agitator.runGate(1);
+            m_agitator.runMotors.schedule();
             //turn on gate and agitator
             repeatIntakeOuttakeCommand.schedule();
           }
@@ -313,8 +309,7 @@ public class RobotContainer {
     //same explanation as above basically
     var slowRetractSequence = new WaitCommand(0.4).finallyDo(() -> {
           if (runningSequence2) {
-            m_agitator.runAgitation(1);
-            m_agitator.runGate(1);
+            m_agitator.runMotors.schedule();
             //turn on gate and agitator
             m_intake.setHopperSpeed(0.3);
             m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
@@ -332,7 +327,7 @@ public class RobotContainer {
         runningSequence1 = true;
         //start shooter first
         boolean autoDist = (second_stick.getRawButton(6));
-        m_shooter.setModes(true, false, autoDist, false);
+        m_shooter.setMode(autoDist ? SHOOTER_MODES.AUTO_DISTANCE : SHOOTER_MODES.STATIC_DISTANCE);
           // 90 is where we usually are, so a good number to rev up to
         //give shooter time to rev up
         m_intake.setModes(direction.IGNORE, intakeMode.MANUAL);
@@ -349,8 +344,7 @@ public class RobotContainer {
         if (runningSequence1) {
           //turn everything back off
           runningSequence1 = false;
-          m_agitator.stopAgitation();
-          m_agitator.stopGate();
+          m_agitator.stopMotors.schedule();
           m_shooter.enabled = false;
           m_intake.setModes(direction.IGNORE, intakeMode.AUTOMATIC);
           repeatIntakeOuttakeCommand.cancel();
@@ -361,8 +355,8 @@ public class RobotContainer {
         new InstantCommand(() -> {
           if (runningSequence1 || runningSequence2) {
             if (second_stick.getRawAxis(3) >= 0.2) {
-            m_shooter.autoDistance = false;
-          } else {m_shooter.autoDistance = true;}
+            m_shooter.setMode(SHOOTER_MODES.STATIC_DISTANCE);
+          } else {m_shooter.setMode(SHOOTER_MODES.AUTO_DISTANCE);}
           }
         })
       );
@@ -375,7 +369,7 @@ public class RobotContainer {
         if (!runningSequence2 && !runningSequence1) {
         //start shooter first
         runningSequence2 = true;
-        m_shooter.setModes(true,false,true,false);
+        m_shooter.setMode(SHOOTER_MODES.AUTO_DISTANCE);
         //give shooter time to rev up
         //slowly retract intake while shooting and such
         slowRetractSequence.schedule();
@@ -385,8 +379,7 @@ public class RobotContainer {
         //reset back to normal
         runningSequence2 = false;
         m_intake.setHopperSpeed(1);
-        m_agitator.stopAgitation();
-        m_agitator.stopGate();
+        m_agitator.stopMotors.schedule();
         m_shooter.enabled = false;
         slowRetractSequence.cancel();
       }
@@ -422,12 +415,10 @@ public class RobotContainer {
     new Trigger(() -> (second_stick.getRawButton(2))).whileTrue(
       new RunCommand(() -> {
         int mult = second_stick.getRawButton(5) ? -1 : 1;
-        m_agitator.runAgitation(mult);
-        m_agitator.runGate(mult);
+        m_agitator.runMotors.schedule();
       }
       ).finallyDo(() -> {
-        m_agitator.stopGate();
-        m_agitator.stopAgitation();
+        m_agitator.stopMotors.schedule();
       })
     );
    
@@ -435,41 +426,12 @@ public class RobotContainer {
     new Trigger(() -> (second_stick.getRawButton(4)) || second_stick.getRawButton(1)).whileTrue(
         new RunCommand(() -> {
           boolean reversed = second_stick.getRawButton(5);
-          boolean againstHub = second_stick.getRawButton(1);
-          m_shooter.setModes(true, reversed, true, againstHub);
+          m_shooter.setMode(reversed ? SHOOTER_MODES.REVERSED : SHOOTER_MODES.AUTO_DISTANCE);
         })
           .finallyDo(() -> {
             m_shooter.enabled = false;
           })
-      );
-
-    // shooter test bindings
-    new Trigger(() -> ((test_stick.getRawButton(4) || test_stick.getRawButton(1)) && 
-      (test_stick.getRawButton(5) || test_stick.getRawButton(6)))).onTrue(
-      new InstantCommand(() -> {
-        double base = 0.1 * (test_stick.getRawButton(5) ? -1 : 1);
-        double mult = test_stick.getRawAxis(3) >= 0.2 ? 10 : 1;
-        if (test_stick.getRawButton(4)) {
-        m_shooter.changeTopRollerRPS(base * mult);
-        } else {
-          m_shooter.changeBottomRollerRPS(base * mult);
-        }
-      })
-    );
-
-    new Trigger(() -> test_stick.getRawAxis(2)>= 0.2).whileTrue(
-      new RunCommand(() -> {
-        m_shooter.setModes(true, false, false, false);
-        m_agitator.runAgitation(1);
-        m_agitator.runGate(1);
-      }).finallyDo(
-        () -> {
-          m_shooter.enabled = false;
-          m_agitator.stopAgitation();
-          m_agitator.stopGate();
-        })
-    );
-  }
+      );}
 
   public Command getAutonomousCommand() {
     //m_drive.refreshAlliance();
@@ -479,13 +441,11 @@ public class RobotContainer {
     if (autoNum == 4) {
     return new SequentialCommandGroup(
       new InstantCommand(() -> {
-        m_shooter.setModes(true, false, true, false);
+        m_shooter.enabled = true;
+        m_shooter.setMode(SHOOTER_MODES.AUTO_DISTANCE);
       }),
       new WaitCommand(0.5),
-      new InstantCommand(() -> {
-        m_agitator.runAgitation(1);
-        m_agitator.runGate(1);
-      })
+      m_agitator.runMotors
     );
     } else {
       PathPlannerAuto m_auto = autos[autoNum];

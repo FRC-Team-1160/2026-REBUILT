@@ -14,23 +14,22 @@ import frc.robot.Constants.ShooterConstants.BottomMotorConfigs;
 import frc.robot.Constants.ShooterConstants.TopMotorConfigs;
 
 public class Shooter extends SubsystemBase {
-    private boolean testingShooter = false;
-    private double testBRRPS = -25;
-    private double testTRRPS = 104;
-
-    private double inchesFromHub = 120; // only use for testing shooter
-    private double bottomRollerFF = -0; // i think this is the one we should keep constant
-    private double bottomRollerTargetRPS = -25; //-22.5
+    private double bottomRollerFF = 0;
+    private double bottomRollerTargetRPS = -25;
 
     private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX nearBottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX topRollerMotor = new TalonFX(Port.SHOOTER_TOP_ROLLER_MOTOR);
 
     public boolean enabled = false;
-    public boolean autoDistance = true;
-    public boolean reversed = false;
-    public boolean againstHub = false;
-    public double staticDistanceInches = ShooterConstants.STATIC_DISTANCE_INCHES;
+
+    public enum SHOOTER_MODES {
+        AUTO_DISTANCE,
+        STATIC_DISTANCE,
+        REVERSED
+    }
+
+    private SHOOTER_MODES currentModes = SHOOTER_MODES.AUTO_DISTANCE;
 
     private VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
     private VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
@@ -64,53 +63,21 @@ public class Shooter extends SubsystemBase {
         topRollerMotor.getConfigurator().apply(topMotor_configs);
 
         farBottomRollerMotor.setControl(new Follower(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
-
-        SmartDashboard.putNumber("B Bottom Roller Target RPS", testBRRPS);
-        SmartDashboard.putNumber("B Top Roller Target RPS", testTRRPS);
     }
 
-    public double getTopMotorRPSFromDistanceInches(double distanceFromTargetInches) {
-        distanceFromTargetInches += 5;
+    private double getTopMotorRPSFromDistanceInches(double distanceFromTargetInches) {
+        distanceFromTargetInches += 5; // just offsetting distance to shoot slightly further
         double topRollerRPS = 0.00116398*(Math.pow(distanceFromTargetInches, 2)) + 0.272546*distanceFromTargetInches + 15.25056;
         return topRollerRPS;
     }
 
-    public double getVoltageFromRPS(double rps) {
-        return 0.2203 + 0.1107*rps; // only for top roller
+    private double getVoltageFromRPS(double rps) {
+        return 0.2203 + 0.1107*rps;
     }
 
-    //im keeping this just because im fond of it
-    // public boolean basketballin() {
-    //     double topRollerRPS = 70;
-    //      VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
-    //     VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
+    public void setMode(SHOOTER_MODES mode) {
+        currentModes = mode;
 
-    //     nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-30).withFeedForward(-3.2));
-    //     topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-    //     return true;
-    // }
-
-    public void setModes(boolean enabled, boolean reversed, boolean autoDistance, boolean againstHub) {
-        this.enabled = enabled;
-        this.reversed = reversed;
-        this.autoDistance = autoDistance;
-        this.againstHub = againstHub;
-    }
-
-    // new functions for testing with rotations per second
-    public void changeBottomRollerRPS(double change) {
-        testBRRPS += change;
-        SmartDashboard.putNumber("B Bottom Roller Target RPS", testBRRPS);
-    }
-
-    public void changeTopRollerRPS(double change) {
-        testTRRPS += change;
-        SmartDashboard.putNumber("B Top Roller Target RPS", testTRRPS);
-    }
-    
-    public void changeDistanceInches(double change) {
-        inchesFromHub += change;
-        SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
     }
 
     @Override
@@ -130,30 +97,24 @@ public class Shooter extends SubsystemBase {
             bottomRollerRPS = -25;
             bottomRollerFF = -3.5;
             
-            if (!autoDistance) {
-                topRollerRPS = getTopMotorRPSFromDistanceInches(staticDistanceInches);
-            }
-            if (againstHub) {
-                topRollerRPS = 13;
-                bottomRollerRPS = -30;
-                bottomRollerFF = -3.1;
-            }
-            if (reversed) {
+            switch (currentModes) {
+                case STATIC_DISTANCE:
+                topRollerRPS = getTopMotorRPSFromDistanceInches(ShooterConstants.STATIC_DISTANCE_INCHES);
+                break;
+                case REVERSED:
                 topRollerRPS = -20;
                 bottomRollerRPS *= -1;
                 bottomRollerFF *= -1;
+                break;
+                default:
+                break;
             }
 
             // bottomRollerRPS *= 0.5;
             // bottomRollerFF *= 0.5; //juggle
 
-            if (!testingShooter) {
-                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-23).withFeedForward(bottomRollerFF));
-                topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-            } else {
-                nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(testBRRPS).withFeedForward(bottomRollerFF));
-                topRollerMotor.setControl(topMotor_request.withVelocity(testTRRPS).withFeedForward(getVoltageFromRPS(testTRRPS)));
-            }
+            nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-23).withFeedForward(bottomRollerFF));
+            topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
         } else {
             nearBottomRollerMotor.stopMotor();
             topRollerMotor.stopMotor();

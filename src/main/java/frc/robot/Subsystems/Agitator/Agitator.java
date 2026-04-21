@@ -7,7 +7,8 @@ import com.revrobotics.spark.config.AlternateEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;                          //config stuff allat 
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Port;
 import frc.robot.Constants.ShooterConstants;
@@ -46,21 +47,19 @@ public class Agitator extends SubsystemBase {
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
-    public void runAgitation(int mult) {
-        agitatorMotor.setVoltage(11 * mult);
+    private void runAgitation() {
+        agitatorMotor.setVoltage(11);
+        gateMotor.setVoltage(-12);
     }
 
-    public void stopAgitation() {
+    private void stopAgitation() {
         agitatorMotor.stopMotor();
-    }
-
-    public void runGate(double mult) {
-        gateMotor.setVoltage(-12 * mult);
-    }
-
-    public void stopGate() {
         gateMotor.stopMotor();
     }
+
+    // commands
+    public InstantCommand runMotors = new InstantCommand(() -> runAgitation());
+    public InstantCommand stopMotors = new InstantCommand(() -> stopAgitation());
 
     @Override
     public void periodic() {
