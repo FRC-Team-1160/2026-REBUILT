@@ -27,13 +27,13 @@ public class Robot extends TimedRobot {
     m_robot_container = new RobotContainer();
     FollowPathCommand.warmupCommand().schedule();
     SignalLogger.enableAutoLogging(false);
-    m_robot_container.m_drive.refreshAlliance();
+    // m_robot_container.m_drive.refreshAlliance(); --
   }
 
   @Override
   public void robotPeriodic() {
     //LimelightHelpers.SetIMU("limelight", 1);
-    m_robot_container.updateShooterDistance();
+    // m_robot_container.updateShooterDistance(); --
     SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
     CommandScheduler.getInstance().run();
   }
@@ -44,20 +44,20 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    m_robot_container.m_drive.refreshAlliance();
+    // m_robot_container.m_drive.refreshAlliance(); --
     autonomous_command = m_robot_container.getAutonomousCommand();
   }
 
   @Override
   public void disabledExit() {
-    m_robot_container.m_drive.refreshAlliance();
+    // m_robot_container.m_drive.refreshAlliance(); --
   }
 
   @Override
   public void autonomousInit() {
     //m_robot_container.m_drive.resetGyroAngle();
     //m_robot_container.m_drive.refreshAlliance();
-    m_robot_container.m_drive.autoVisionMeasurement = false;
+    // m_robot_container.m_drive.autoVisionMeasurement = false; --
     autonomous_command = m_robot_container.getAutonomousCommand();
     if (autonomous_command != null) {
       System.out.println("AUTO INITIALIZED");
@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    m_robot_container.m_drive.refreshAlliance();
+    //  m_robot_container.m_drive.refreshAlliance(); --
     if (autonomous_command != null) {
       autonomous_command.cancel();
     }
@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-     m_robot_container.updateSwerve();
+    //  m_robot_container.updateSwerve(); --
   }
 
   @Override

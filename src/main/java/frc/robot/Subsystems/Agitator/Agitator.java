@@ -51,9 +51,5 @@ public class Agitator extends SubsystemBase {
     public void periodic() {
         // optional telemetry:
         super.periodic();
-        SmartDashboard.putNumber("Agitator Current", agitatorMotor.getOutputCurrent());
-        SmartDashboard.putNumber("Gate Current", gateMotor.getOutputCurrent());
-        SmartDashboard.putNumber("Agitator Velocity", agitatorEncoder.getVelocity());
-        SmartDashboard.putNumber("Gate Velocity", gateEncoder.getVelocity());
     }
 }

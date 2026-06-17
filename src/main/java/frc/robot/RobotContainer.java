@@ -8,9 +8,9 @@ package frc.robot;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import frc.robot.Subsystems.Agitator.Agitator;
-import frc.robot.Subsystems.DriveTrain.DriveTrain;
-import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
-import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
+// import frc.robot.Subsystems.DriveTrain.DriveTrain;
+// import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
+// import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -25,8 +25,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Subsystems.Intake.Intake;
-import frc.robot.Subsystems.Shooter.Shooter;
+// import frc.robot.Subsystems.Intake.Intake;
+// import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Constants.ShooterConstants;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -49,9 +49,9 @@ public class RobotContainer {
   private Joystick test_stick = new Joystick(3);
   //
 
-  public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
-  public final Intake m_intake = new Intake();
-  public final Shooter m_shooter = new Shooter();
+  //public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO(); --
+  //public final Intake m_intake = new Intake(); --
+  //public final Shooter m_shooter = new Shooter(); --
   public final Agitator m_agitator = new Agitator();
 
   //The robot's subsystems and commands are defined here...
@@ -59,56 +59,54 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    m_drive.resetGyroAngle();
+    //m_drive.resetGyroAngle(); --
     // Configure the trigger bindings
     configureBindings();
-    
-
   }
 
-  public void updateSwerve() {
-    if (!DriverStation.isAutonomous() && !lockSwerve){
-    double driveMult = 1.25; //change this constant to change the drive speed.
-    double rotationMult = 1.5; //change this constant to change the turn speed.
+  // public void updateSwerve() {
+  //   if (!DriverStation.isAutonomous() && !lockSwerve){
+  //   double driveMult = 1.25; //change this constant to change the drive speed.
+  //   double rotationMult = 1.5; //change this constant to change the turn speed.
     
-    double mult = m_shooter.enabled ? 0.2 : driveMult;
-    //double degreeDifference = getHubDegreeDiff();
-    //facingHub = (degreeDifference == 0);
-    SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
+  //   double mult = m_shooter.enabled ? 0.2 : driveMult;
+  //   //double degreeDifference = getHubDegreeDiff();
+  //   //facingHub = (degreeDifference == 0);
+  //   SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
 
-    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(1);
-    SmartDashboard.putNumber("x_mps", x_metersPerSecond);
+  //   double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(1);
+  //   SmartDashboard.putNumber("x_mps", x_metersPerSecond);
 
-    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(0);
+  //   double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(0);
 
-    double angle_radiansPerSecond;
+  //   double angle_radiansPerSecond;
 
-    // if pressing button 6 then we align to the hub
-    if ((main_stick.getRawAxis(2) >= 0.2)) {
-      angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
-      SmartDashboard.putBoolean("align attemp", true);
-    } else {  
-      angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
-      * Math.pow(main_stick.getRawAxis(4), 2) * rotationMult;
-      SmartDashboard.putBoolean("align attemp", false);
-    }
-    //negative turn values go right, positive go left
+  //   // if pressing button 6 then we align to the hub
+  //   if ((main_stick.getRawAxis(2) >= 0.2)) {
+  //     angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
+  //     SmartDashboard.putBoolean("align attemp", true);
+  //   } else {  
+  //     angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
+  //     * Math.pow(main_stick.getRawAxis(4), 2) * rotationMult;
+  //     SmartDashboard.putBoolean("align attemp", false);
+  //   }
+  //   //negative turn values go right, positive go left
     
-    //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
-    //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
+  //   //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
+  //   //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
 
-    int forwards = (m_drive.blueAlliance ? 1 : -1);
-    m_drive.setSwerveDrive(
-      x_metersPerSecond * mult * forwards, 
-      y_metersPerSecond * mult * forwards, 
-      angle_radiansPerSecond
-      );
-    }
-  }
+  //   int forwards = (m_drive.blueAlliance ? 1 : -1);
+  //   m_drive.setSwerveDrive(
+  //     x_metersPerSecond * mult * forwards, 
+  //     y_metersPerSecond * mult * forwards, 
+  //     angle_radiansPerSecond
+  //     );
+  //   }
+  // }
 
-  public void updateShooterDistance() {
-    m_shooter.distanceFromTargetInches = m_drive.getDistanceFromHub();
-  }
+  // public void updateShooterDistance() {
+  //   m_shooter.distanceFromTargetInches = m_drive.getDistanceFromHub();
+  // }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -124,15 +122,15 @@ public class RobotContainer {
     //MAIN STICK -------------------------
     new JoystickButton(main_stick, 8).onTrue(
       new InstantCommand(() -> {
-        m_drive.refreshAlliance();
-        m_drive.resetGyroAngle();
+        //m_drive.refreshAlliance(); --
+        //m_drive.resetGyroAngle(); --
       })
     );
   }
 
   public Command getAutonomousCommand() {
     //m_drive.refreshAlliance();
-    m_drive.resetGyroAngle();
+    //m_drive.resetGyroAngle(); --
     return new SequentialCommandGroup(
     );
 }
