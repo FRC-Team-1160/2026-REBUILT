@@ -47,20 +47,6 @@ public class Agitator extends SubsystemBase {
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
-    private void runAgitation() {
-        agitatorMotor.setVoltage(11);
-        gateMotor.setVoltage(-12);
-    }
-
-    private void stopAgitation() {
-        agitatorMotor.stopMotor();
-        gateMotor.stopMotor();
-    }
-
-    // commands
-    public InstantCommand runMotors = new InstantCommand(() -> runAgitation());
-    public InstantCommand stopMotors = new InstantCommand(() -> stopAgitation());
-
     @Override
     public void periodic() {
         // optional telemetry:

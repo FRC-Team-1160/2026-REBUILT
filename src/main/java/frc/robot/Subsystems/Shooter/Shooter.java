@@ -14,22 +14,11 @@ import frc.robot.Constants.ShooterConstants.BottomMotorConfigs;
 import frc.robot.Constants.ShooterConstants.TopMotorConfigs;
 
 public class Shooter extends SubsystemBase {
-    private double bottomRollerFF = 0;
-    private double bottomRollerTargetRPS = -25;
-
-    private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
+    private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR); //creating motor objects
     private TalonFX nearBottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX topRollerMotor = new TalonFX(Port.SHOOTER_TOP_ROLLER_MOTOR);
 
     public boolean enabled = false;
-
-    public enum SHOOTER_MODES {
-        AUTO_DISTANCE,
-        STATIC_DISTANCE,
-        REVERSED
-    }
-
-    private SHOOTER_MODES currentModes = SHOOTER_MODES.AUTO_DISTANCE;
 
     private VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
     private VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
@@ -75,49 +64,7 @@ public class Shooter extends SubsystemBase {
         return 0.2203 + 0.1107*rps;
     }
 
-    public void setMode(SHOOTER_MODES mode) {
-        currentModes = mode;
-
-    }
-
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Hub Distance Shooter", distanceFromTargetInches);
-        
-        SmartDashboard.putNumber("Bottom Roller Actual RPS", nearBottomRollerMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Top Roller Actual RPS", topRollerMotor.getVelocity().getValueAsDouble());
-
-        if (enabled) {
-            double topRollerRPS = getTopMotorRPSFromDistanceInches(distanceFromTargetInches);
-            double bottomRollerRPS = bottomRollerTargetRPS;
-
-            //topRollerRPS = 20;
-            SmartDashboard.putNumber("Bottom Roller Target RPS", bottomRollerRPS);
-            SmartDashboard.putNumber("Top Roller Target RPS", topRollerRPS);
-            bottomRollerRPS = -25;
-            bottomRollerFF = -3.5;
-            
-            switch (currentModes) {
-                case STATIC_DISTANCE:
-                topRollerRPS = getTopMotorRPSFromDistanceInches(ShooterConstants.STATIC_DISTANCE_INCHES);
-                break;
-                case REVERSED:
-                topRollerRPS = -20;
-                bottomRollerRPS *= -1;
-                bottomRollerFF *= -1;
-                break;
-                default:
-                break;
-            }
-
-            // bottomRollerRPS *= 0.5;
-            // bottomRollerFF *= 0.5; //juggle
-
-            nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-23).withFeedForward(bottomRollerFF));
-            topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-        } else {
-            nearBottomRollerMotor.stopMotor();
-            topRollerMotor.stopMotor();
-        }
     }
 }

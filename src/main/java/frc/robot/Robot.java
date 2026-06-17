@@ -16,18 +16,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.util.HubTimer;
 
 public class Robot extends TimedRobot {
   private Command autonomous_command;
 
   private final RobotContainer m_robot_container;
-  private final HubTimer m_hubTimer;
   public boolean blueAlliance;
 
   public Robot() {
     m_robot_container = new RobotContainer();
-    m_hubTimer = new HubTimer();
     FollowPathCommand.warmupCommand().schedule();
     SignalLogger.enableAutoLogging(false);
     m_robot_container.m_drive.refreshAlliance();
@@ -38,8 +35,6 @@ public class Robot extends TimedRobot {
     //LimelightHelpers.SetIMU("limelight", 1);
     m_robot_container.updateShooterDistance();
     SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-    SmartDashboard.putBoolean("Hub Active", m_hubTimer.isHubActive());
-    SmartDashboard.putNumber("Shift Time", m_hubTimer.getRemainingHubShift());
     CommandScheduler.getInstance().run();
   }
 
@@ -74,15 +69,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    m_robot_container.autoAlignSwerve();
+
   }
 
   @Override
   public void autonomousExit() {
-    m_robot_container.m_shooter.enabled = false;
-      m_robot_container.m_agitator.stopMotors.schedule();
-      //m_robot_container.alignHub.cancel();
-      // m_robot_container.StopSwerve.schedule();
   }
 
   @Override
@@ -90,10 +81,6 @@ public class Robot extends TimedRobot {
     m_robot_container.m_drive.refreshAlliance();
     if (autonomous_command != null) {
       autonomous_command.cancel();
-      m_robot_container.m_shooter.enabled = false;
-      m_robot_container.m_agitator.stopMotors.schedule();
-      // m_robot_container.AlignHub.cancel();
-      // m_robot_container.StopSwerve.schedule();
     }
   }
 
