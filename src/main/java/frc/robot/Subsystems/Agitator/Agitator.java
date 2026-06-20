@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.Agitator;
 
+import java.time.chrono.HijrahChronology;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -45,6 +47,11 @@ public class Agitator extends SubsystemBase {
 
         gateMotor.configure(gateMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+    }
+
+    public void purple() {
+        agitatorMotor.setVoltage(5);
+        //setVoltage()
     }
 
     @Override

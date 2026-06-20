@@ -62,6 +62,7 @@ public class RobotContainer {
     //m_drive.resetGyroAngle(); --
     // Configure the trigger bindings
     configureBindings();
+    m_agitator.purple();
   }
 
   // public void updateSwerve() {
@@ -126,6 +127,8 @@ public class RobotContainer {
         //m_drive.resetGyroAngle(); --
       })
     );
+
+
   }
 
   public Command getAutonomousCommand() {
