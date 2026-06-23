@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;                          //config stuff allat 
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Port;
@@ -51,8 +52,9 @@ public class Agitator extends SubsystemBase {
 
     public void purple() {
         agitatorMotor.setVoltage(5);
-        //setVoltage()
     }
+
+    public InstantCommand runMotorCommand = new InstantCommand(this::purple);
 
     @Override
     public void periodic() {

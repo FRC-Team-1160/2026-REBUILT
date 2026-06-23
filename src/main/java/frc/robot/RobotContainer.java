@@ -38,20 +38,11 @@ import com.pathplanner.lib.auto.NamedCommands;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private boolean lockSwerve = false;
-  
-  //private final SendableChooser<Command> autoChooser;
-  private final SendableChooser<Integer> autoChooser2 = new SendableChooser<>();
+
   public record JoystickInputs(double drive_x, double drive_y, double drive_a) {}
   //check is need joystick inputs or not
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
-  private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
-  private Joystick test_stick = new Joystick(3);
   //
-
-  //public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO(); --
-  //public final Intake m_intake = new Intake(); --
-  //public final Shooter m_shooter = new Shooter(); --
   public final Agitator m_agitator = new Agitator();
 
   //The robot's subsystems and commands are defined here...
@@ -62,52 +53,7 @@ public class RobotContainer {
     //m_drive.resetGyroAngle(); --
     // Configure the trigger bindings
     configureBindings();
-    m_agitator.purple();
   }
-
-  // public void updateSwerve() {
-  //   if (!DriverStation.isAutonomous() && !lockSwerve){
-  //   double driveMult = 1.25; //change this constant to change the drive speed.
-  //   double rotationMult = 1.5; //change this constant to change the turn speed.
-    
-  //   double mult = m_shooter.enabled ? 0.2 : driveMult;
-  //   //double degreeDifference = getHubDegreeDiff();
-  //   //facingHub = (degreeDifference == 0);
-  //   SmartDashboard.putBoolean("tv",LimelightHelpers.getTV(ShooterConstants.LIMELIGHT_NAME));
-
-  //   double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(1);
-  //   SmartDashboard.putNumber("x_mps", x_metersPerSecond);
-
-  //   double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(0);
-
-  //   double angle_radiansPerSecond;
-
-  //   // if pressing button 6 then we align to the hub
-  //   if ((main_stick.getRawAxis(2) >= 0.2)) {
-  //     angle_radiansPerSecond = m_drive.getTurnToHub(); //* (m_limelightio.blueAlliance == true ? 1 : -1);
-  //     SmartDashboard.putBoolean("align attemp", true);
-  //   } else {  
-  //     angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
-  //     * Math.pow(main_stick.getRawAxis(4), 2) * rotationMult;
-  //     SmartDashboard.putBoolean("align attemp", false);
-  //   }
-  //   //negative turn values go right, positive go left
-    
-  //   //SmartDashboard.putNumber("axis_0", leftStickLeftRight);
-  //   //SmartDashboard.putNumber("angle", angle_radiansPerSecond);
-
-  //   int forwards = (m_drive.blueAlliance ? 1 : -1);
-  //   m_drive.setSwerveDrive(
-  //     x_metersPerSecond * mult * forwards, 
-  //     y_metersPerSecond * mult * forwards, 
-  //     angle_radiansPerSecond
-  //     );
-  //   }
-  // }
-
-  // public void updateShooterDistance() {
-  //   m_shooter.distanceFromTargetInches = m_drive.getDistanceFromHub();
-  // }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -128,7 +74,7 @@ public class RobotContainer {
       })
     );
 
-
+    new JoystickButton(CONTROLLER VARIABLE, BUTTON NUMBER).onTrue(CLASS.Command)
   }
 
   public Command getAutonomousCommand() {
