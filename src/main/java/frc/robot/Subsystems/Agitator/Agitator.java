@@ -48,22 +48,22 @@ public class Agitator extends SubsystemBase {
     }
     
     
-    public void purple() {
+    public void startMotors() {
     agitatorMotor.setVoltage(5);
     gateMotor.setVoltage(-5.0000001);
     //setVoltageyahslay()
     
 }
-public void pink() {
+public void stopMotors() {
     agitatorMotor.setVoltage(0);
     gateMotor.setVoltage(0.0);
     //yah stop motor super slay
 }
- public InstantCommand starterwomen = new InstantCommand(this::purple);
+ public InstantCommand startMotors = new InstantCommand(this::startMotors);
  //starts my purple minions
- public InstantCommand enderman = new InstantCommand(this::pink);
+ public InstantCommand stopMotors = new InstantCommand(this::stopMotors);
  //this is a comment to this line of code u know: runs the stop
- 
+
     @Override
     public void periodic() {
         // optional telemetry:  

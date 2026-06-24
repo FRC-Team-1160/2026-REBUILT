@@ -8,6 +8,7 @@ package frc.robot;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import frc.robot.Subsystems.Agitator.Agitator;
+import frc.robot.Subsystems.Shooter.Shooter;
 // import frc.robot.Subsystems.DriveTrain.DriveTrain;
 // import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 // import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
@@ -44,6 +45,7 @@ public class RobotContainer {
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   //
   public final Agitator m_agitator = new Agitator();
+  public final Shooter m_Shooter = new Shooter();
 
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -74,8 +76,8 @@ public class RobotContainer {
       })
     );
 
-    new JoystickButton(main_stick, 1).onTrue(m_agitator.starterwomen);
-    new JoystickButton(main_stick, 2).onTrue(m_agitator.enderman);
+    new JoystickButton(main_stick, 1).onTrue(m_agitator.startMotors);
+    new JoystickButton(main_stick, 2).onTrue(m_agitator.stopMotors);
     //turkey is not helpful: these connect my commands to controller keys
   }
 
