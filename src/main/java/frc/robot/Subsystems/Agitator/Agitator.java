@@ -1,7 +1,5 @@
 package frc.robot.Subsystems.Agitator;
 
-import java.time.chrono.HijrahChronology;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -10,7 +8,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;                          //config stuff allat 
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Port;
@@ -49,16 +46,27 @@ public class Agitator extends SubsystemBase {
         gateMotor.configure(gateMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
-
+    
+    
     public void purple() {
-        agitatorMotor.setVoltage(5);
-    }
-
-    public InstantCommand runMotorCommand = new InstantCommand(this::purple);
-
+    agitatorMotor.setVoltage(5);
+    gateMotor.setVoltage(-5.0000001);
+    //setVoltageyahslay()
+    
+}
+public void pink() {
+    agitatorMotor.setVoltage(0);
+    gateMotor.setVoltage(0.0);
+    //yah stop motor super slay
+}
+ public InstantCommand starterwomen = new InstantCommand(this::purple);
+ //starts my purple minions
+ public InstantCommand enderman = new InstantCommand(this::pink);
+ //this is a comment to this line of code u know: runs the stop
+ 
     @Override
     public void periodic() {
-        // optional telemetry:
+        // optional telemetry:  
         super.periodic();
     }
 }

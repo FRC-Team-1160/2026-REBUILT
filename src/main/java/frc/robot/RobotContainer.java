@@ -74,7 +74,9 @@ public class RobotContainer {
       })
     );
 
-    new JoystickButton(CONTROLLER VARIABLE, BUTTON NUMBER).onTrue(CLASS.Command)
+    new JoystickButton(main_stick, 1).onTrue(m_agitator.starterwomen);
+    new JoystickButton(main_stick, 2).onTrue(m_agitator.enderman);
+    //turkey is not helpful: these connect my commands to controller keys
   }
 
   public Command getAutonomousCommand() {
