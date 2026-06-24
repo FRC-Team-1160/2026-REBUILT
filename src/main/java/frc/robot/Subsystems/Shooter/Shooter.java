@@ -26,10 +26,6 @@ public class Shooter extends SubsystemBase {
         bottomMotor2.setControl(new Follower(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
     }
 
-    //Create a method that starts both the topMotor and the bottomMotor
-    //*Make sure the motors are going in opposite directions
-    //Create a method that stops both the topMotor and the bottomMotor
-
     @Override
     public void periodic() { 
         super.periodic();

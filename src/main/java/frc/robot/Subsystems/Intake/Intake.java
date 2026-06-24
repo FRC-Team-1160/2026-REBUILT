@@ -35,18 +35,9 @@ public class Intake extends SubsystemBase {
         extenderMotor.configure(extenderMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
-    //Create a method that extends the arm
-    //Create a method that retracts the arm
-    
-    //Create a method that starts the intake roller
-    //Create a method that stops the intake roller
-
-    //Create corresponding commands that do all of the above methods
-
     @Override
     public void periodic() { 
-        limitReached = !armLimitSwitch.get();   
-        //Create a method that stops the arm if the limit is hit
+        limitReached = !armLimitSwitch.get(); // true/false of whether or not the limit switch is being hit
         super.periodic();
     }
 }
