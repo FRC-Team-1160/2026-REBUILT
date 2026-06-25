@@ -49,20 +49,21 @@ public class Agitator extends SubsystemBase {
     
     
     public void startMotors() {
-    agitatorMotor.setVoltage(5);
-    gateMotor.setVoltage(-5.0000001);
-    //setVoltageyahslay()
-    
-}
-public void stopMotors() {
-    agitatorMotor.setVoltage(0);
-    gateMotor.setVoltage(0.0);
-    //yah stop motor super slay
-}
+        agitatorMotor.setVoltage(5);
+        gateMotor.setVoltage(-5);
+        //start the motors with setVoltage
+    }
+
+    public void stopMotors() {
+        agitatorMotor.setVoltage(0);
+        gateMotor.setVoltage(0);
+        //stop the motors
+    }
+
  public InstantCommand startMotors = new InstantCommand(this::startMotors);
- //starts my purple minions
+ //starts motors with a command
  public InstantCommand stopMotors = new InstantCommand(this::stopMotors);
- //this is a comment to this line of code u know: runs the stop
+ //stops the motors with a command
 
     @Override
     public void periodic() {

@@ -78,7 +78,9 @@ public class RobotContainer {
 
     new JoystickButton(main_stick, 1).onTrue(m_agitator.startMotors);
     new JoystickButton(main_stick, 2).onTrue(m_agitator.stopMotors);
-    //turkey is not helpful: these connect my commands to controller keys
+    //connect commands to controller bindings
+
+    //new JoystickButton(main_stick, 0).onTrue(new SequentialCommandGroup(m_agitator.startMotors,m_agitator.stopMotors));
   }
 
   public Command getAutonomousCommand() {
