@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotUtils;
 import frc.robot.Constants.IntakeConstants;
@@ -25,6 +26,20 @@ public class Shooter extends SubsystemBase {
     public Shooter() {
         bottomMotor2.setControl(new Follower(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
     }
+
+    public void startMotors () {
+        topMotor.setVoltage(5);
+        bottomMotor.setVoltage(-5);
+    }
+
+    public void stopMotors(){
+        topMotor.setVoltage(0);
+        bottomMotor.setVoltage(0);
+    }
+
+    
+ public InstantCommand startMotors = new InstantCommand(this::startMotors);
+ public InstantCommand stopMotors = new InstantCommand(this::stopMotors);
 
     @Override
     public void periodic() { 
