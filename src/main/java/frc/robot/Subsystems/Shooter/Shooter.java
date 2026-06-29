@@ -1,30 +1,19 @@
 package frc.robot.Subsystems.Shooter;
 
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
-
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotUtils;
-import frc.robot.Constants.IntakeConstants;
+
 import frc.robot.Constants.Port;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.BottomMotorConfigs;
 import frc.robot.Constants.ShooterConstants.TopMotorConfigs;
-
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.AlternateEncoderConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase {
     private boolean testingShooter = false;
@@ -34,7 +23,6 @@ public class Shooter extends SubsystemBase {
     private double inchesFromHub = 120; // only use for testing shooter
     private double bottomRollerFF = -0; // i think this is the one we should keep constant
     private double bottomRollerTargetRPS = -25; //-22.5
-    private double topRollerTargetRPS = 85;
 
     private TalonFX farBottomRollerMotor = new TalonFX(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
     private TalonFX nearBottomRollerMotor = new TalonFX(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR);
@@ -98,17 +86,6 @@ public class Shooter extends SubsystemBase {
     public double getVoltageFromRPS(double rps) {
         return 0.2203 + 0.1107*rps; // only for top roller
     }
-
-    //im keeping this just because im fond of it
-    // public boolean basketballin() {
-    //     double topRollerRPS = 70;
-    //      VelocityVoltage bottomMotor_request = new VelocityVoltage(0).withSlot(0);
-    //     VelocityVoltage topMotor_request = new VelocityVoltage(0).withSlot(0);
-
-    //     nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-30).withFeedForward(-3.2));
-    //     topRollerMotor.setControl(topMotor_request.withVelocity(topRollerRPS).withFeedForward(getVoltageFromRPS(topRollerRPS)));
-    //     return true;
-    // }
 
     public void setModes(boolean enabled, boolean reversed, boolean autoDistance, boolean againstHub) {
         this.enabled = enabled;
