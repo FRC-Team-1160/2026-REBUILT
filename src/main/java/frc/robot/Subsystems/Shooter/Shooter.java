@@ -94,22 +94,6 @@ public class Shooter extends SubsystemBase {
         this.againstHub = againstHub;
     }
 
-    // new functions for testing with rotations per second
-    public void changeBottomRollerRPS(double change) {
-        testBRRPS += change;
-        SmartDashboard.putNumber("B Bottom Roller Target RPS", testBRRPS);
-    }
-
-    public void changeTopRollerRPS(double change) {
-        testTRRPS += change;
-        SmartDashboard.putNumber("B Top Roller Target RPS", testTRRPS);
-    }
-    
-    public void changeDistanceInches(double change) {
-        inchesFromHub += change;
-        SmartDashboard.putNumber("Inches From Hub", inchesFromHub);
-    }
-
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Hub Distance Shooter", distanceFromTargetInches);
@@ -140,9 +124,6 @@ public class Shooter extends SubsystemBase {
                 bottomRollerRPS *= -1;
                 bottomRollerFF *= -1;
             }
-
-            // bottomRollerRPS *= 0.5;
-            // bottomRollerFF *= 0.5; //juggle
 
             if (!testingShooter) {
                 nearBottomRollerMotor.setControl(bottomMotor_request.withVelocity(-23).withFeedForward(bottomRollerFF));

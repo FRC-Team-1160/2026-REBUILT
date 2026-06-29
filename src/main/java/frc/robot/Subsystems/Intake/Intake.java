@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Intake extends SubsystemBase {
 
-    //public static final Intake instance = new Intake();
-
     private final SparkMax extenderMotor;
     private final RelativeEncoder encoder;
     private final SparkMaxConfig extenderMotorConfig;
@@ -55,8 +53,6 @@ public class Intake extends SubsystemBase {
         extenderMotor = new SparkMax(Port.INTAKE_EXTENDER_MOTOR, MotorType.kBrushless);
         extenderMotorConfig = new SparkMaxConfig();
         extenderEncoderConfig = new AlternateEncoderConfig();  
-        // extenderMotor.restoreFactoryDefaults();
-        // extenderMotorConfig = new SparkBaseConfig();
         extenderMotorConfig.idleMode(SparkMaxConfig.IdleMode.kCoast)
             .smartCurrentLimit(IntakeConstants.EXTENDER_CURRENT_LIMIT);
         extenderEncoderConfig.positionConversionFactor(IntakeConstants.EXTENDER_GEAR_RATIO);
@@ -81,7 +77,7 @@ public class Intake extends SubsystemBase {
             currentDirection = direction.EXTENDING;
             extenderMotor.setVoltage(-IntakeConstants.EXTENDER_VOLTAGE * hopperMult);
         } else {
-            extenderMotor.setVoltage(0);
+            extenderMotor.stopMotor();
         }
     }
 
@@ -91,7 +87,7 @@ public class Intake extends SubsystemBase {
             currentDirection = direction.RETRACTING;
             extenderMotor.setVoltage(IntakeConstants.EXTENDER_VOLTAGE * hopperMult);
         } else {
-            extenderMotor.setVoltage(0);
+            extenderMotor.stopMotor();
         }
     }
 
