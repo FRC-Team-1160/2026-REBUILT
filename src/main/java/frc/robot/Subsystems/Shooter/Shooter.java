@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -76,7 +77,7 @@ public class Shooter extends SubsystemBase {
         nearBottomRollerMotor.getConfigurator().apply(bottomMotor_configs);
         topRollerMotor.getConfigurator().apply(topMotor_configs);
 
-        farBottomRollerMotor.setControl(new Follower(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
+        farBottomRollerMotor.setControl(new Follower(Port.NEAR_SHOOTER_BOTTOM_ROLLER_MOTOR, MotorAlignmentValue.Aligned));
 
         SmartDashboard.putNumber("B Bottom Roller Target RPS", testBRRPS);
         SmartDashboard.putNumber("B Top Roller Target RPS", testTRRPS);
