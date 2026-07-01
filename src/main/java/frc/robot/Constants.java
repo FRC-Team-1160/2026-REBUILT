@@ -159,6 +159,9 @@ public static class ShooterConstants{
       //inches
       public static final Translation2d BLUEHUB_POSE = new Translation2d(Units.inchesToMeters(182.11),Units.inchesToMeters(158.84));
       public static final Translation2d REDHUB_POSE = new Translation2d(Units.inchesToMeters(651.22 - 182.11),Units.inchesToMeters(158.84));
+
+      public static final double[] positionXBoundaries = {-1000,1000};
+      public static final double[] positionYBoundaries = {-1000,1000};
     }
   }
 }

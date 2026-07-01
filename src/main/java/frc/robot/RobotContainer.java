@@ -9,9 +9,9 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import frc.robot.Subsystems.Agitator.Agitator;
 import frc.robot.Subsystems.Shooter.Shooter;
-// import frc.robot.Subsystems.DriveTrain.DriveTrain;
-// import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
-// import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
+import frc.robot.Subsystems.DriveTrain.DriveTrain;
+import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
+import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,9 +26,9 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-// import frc.robot.Subsystems.Intake.Intake;
-// import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.FieldConstants.HubMeasurements;
+
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -44,6 +44,7 @@ public class RobotContainer {
   //check is need joystick inputs or not
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   //
+  public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Agitator m_agitator = new Agitator();
   public final Shooter m_Shooter = new Shooter();
 
@@ -52,9 +53,47 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    //m_drive.resetGyroAngle(); --
+    m_drive.resetGyroAngle();
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  double rotationMult = 0;
+  double driveMult = 0;
+
+  public double allowMovement(boolean directionIsX, double motion) {
+    double positionOnAxis = directionIsX ? m_drive.pose_estimator.getEstimatedPosition().getX() : m_drive.pose_estimator.getEstimatedPosition().getY();
+    double[] positionBoundaries = directionIsX ? HubMeasurements.positionXBoundaries : HubMeasurements.positionYBoundaries;
+    
+    double distanceMoving = motion * 0.1; // tune: find out how much distance is actually covered in a second
+    double estimatePositionUpdate = positionOnAxis + distanceMoving;
+    if (estimatePositionUpdate > positionBoundaries[0] && estimatePositionUpdate < positionBoundaries[1]) {
+      return motion;
+    } else {
+      return 0;
+    }
+  }
+
+  public void updateSwerve() {
+    double x_metersPerSecond = (Math.abs(main_stick.getRawAxis(1)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(1);
+    double y_metersPerSecond = (Math.abs(main_stick.getRawAxis(0)) < 0.1) ? 0 : 2.7 * -main_stick.getRawAxis(0);
+
+    double angle_radiansPerSecond = (Math.abs(main_stick.getRawAxis(4)) < 0.2) ? 0 : -3 * Math.signum(main_stick.getRawAxis(4))
+      * Math.pow(main_stick.getRawAxis(4), 2) * rotationMult;
+
+    int forwards = (m_drive.blueAlliance ? 1 : -1);
+
+    double finalXMeters = x_metersPerSecond * driveMult * forwards;
+    double finalYMeters = y_metersPerSecond * driveMult * forwards;
+
+    // finalXMeters = allowMovement(true, finalXMeters);
+    // finalYMeters = allowMovement(false, finalYMeters);
+
+    m_drive.setSwerveDrive(
+      finalXMeters, 
+      finalYMeters, 
+      angle_radiansPerSecond
+    );
   }
 
   /**
@@ -71,8 +110,8 @@ public class RobotContainer {
     //MAIN STICK -------------------------
     new JoystickButton(main_stick, 8).onTrue(
       new InstantCommand(() -> {
-        //m_drive.refreshAlliance(); --
-        //m_drive.resetGyroAngle(); --
+        m_drive.refreshAlliance();
+        m_drive.resetGyroAngle();
       })
     );
 
