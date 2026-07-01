@@ -23,8 +23,6 @@ public class Agitator extends SubsystemBase {
     private final SparkMaxConfig gateMotorConfig;
     private final AlternateEncoderConfig gateEncoderConfig;
 
-    public double lastMult;
-
     public Agitator() {
         agitatorMotor = new SparkMax(Port.AGITATOR_MOTOR, MotorType.kBrushless);
         agitatorMotorConfig = new SparkMaxConfig();
@@ -52,21 +50,16 @@ public class Agitator extends SubsystemBase {
         agitatorMotor.configure(agitatorMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
 
-    public void runAgitation(int mult) {
-        agitatorMotor.setVoltage(11 * mult); // 8
-        // agitatorMotor.getClosedLoopController().
-        // setReference(IntakeConstants.AGITATOR_RPM*mult, ControlType.kVelocity);
+    public void runAgitation(boolean forwards) {
+        agitatorMotor.setVoltage(11 * (forwards ? 1 : -1));
     }
 
     public void stopAgitation() {
         agitatorMotor.stopMotor();
     }
 
-    public void runGate(double mult) {
-        gateMotor.setVoltage(-12 * mult);
-        // gateMotor.getClosedLoopController().
-        // setReference(ShooterConstants.GATE_RPM*mult, ControlType.kVelocity);
-        lastMult = mult;
+    public void runGate(boolean forwards) {
+        gateMotor.setVoltage(-12 * (forwards ? 1 : -1));
     }
 
     public void stopGate() {

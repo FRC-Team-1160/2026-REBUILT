@@ -47,7 +47,6 @@ public class RobotContainer {
   //check is need joystick inputs or not
   private Joystick main_stick = new Joystick(Constants.IO.MAIN_PORT);
   private Joystick second_stick = new Joystick(Constants.IO.COPILOT_PORT);
-  private Joystick test_stick = new Joystick(3);
   //
 
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
@@ -95,17 +94,6 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Selection", autoChooser2);
     // SmartDashboard.putData("Auto Side", leftRightAuto);
 
-    InstantCommand disableVisionMeasurement = new InstantCommand(() -> {
-      m_drive.autoVisionMeasurement = false;
-    });
-
-    InstantCommand enableVisionMeasurement = new InstantCommand(() -> {
-      m_drive.autoVisionMeasurement = true;
-    });
-
-    NamedCommands.registerCommand("Enable Vision", enableVisionMeasurement);
-    NamedCommands.registerCommand("Disable Vision", disableVisionMeasurement);
-
     SequentialCommandGroup intakeInOut = new SequentialCommandGroup(
       new InstantCommand(() -> {
         m_intake.extendArm();
@@ -138,8 +126,8 @@ public class RobotContainer {
     ));
 
     NamedCommands.registerCommand("Run Agitator",new InstantCommand(() -> {
-      m_agitator.runAgitation(1);
-      m_agitator.runGate(1);}));
+      m_agitator.runAgitation(true);
+      m_agitator.runGate(true);}));
     NamedCommands.registerCommand("Stop Agitator",new InstantCommand(() -> {
       m_agitator.stopGate();
       m_agitator.stopAgitation();}));
@@ -286,8 +274,8 @@ public class RobotContainer {
     //after waiting for .4 seconds, basically do the second half of sequence 1
     var spamIntakeSequence = new WaitCommand(0.3).finallyDo(() -> {
           if (runningSequence1) {
-            m_agitator.runAgitation(1);
-            m_agitator.runGate(1);
+            m_agitator.runAgitation(true);
+            m_agitator.runGate(true);
             //turn on gate and agitator
             repeatIntakeOuttakeCommand.schedule();
           }
@@ -296,8 +284,8 @@ public class RobotContainer {
     //same explanation as above basically
     var slowRetractSequence = new WaitCommand(0.4).finallyDo(() -> {
           if (runningSequence2) {
-            m_agitator.runAgitation(1);
-            m_agitator.runGate(1);
+            m_agitator.runAgitation(true);
+            m_agitator.runGate(true);
             //turn on gate and agitator
             m_intake.setHopperSpeed(0.3);
             m_intake.setModes(direction.RETRACTING, intakeMode.AUTOMATIC);
@@ -403,9 +391,8 @@ public class RobotContainer {
 
     new Trigger(() -> (second_stick.getRawButton(2))).whileTrue(
       new RunCommand(() -> {
-        int mult = second_stick.getRawButton(5) ? -1 : 1;
-        m_agitator.runAgitation(mult);
-        m_agitator.runGate(mult);
+        m_agitator.runAgitation(!second_stick.getRawButton(5));
+        m_agitator.runGate(!second_stick.getRawButton(5));
       }
       ).finallyDo(() -> {
         m_agitator.stopGate();
@@ -436,8 +423,8 @@ public class RobotContainer {
       }),
       new WaitCommand(0.5),
       new InstantCommand(() -> {
-        m_agitator.runAgitation(1);
-        m_agitator.runGate(1);
+        m_agitator.runAgitation(true);
+        m_agitator.runGate(true);
       })
     );
     } else {
