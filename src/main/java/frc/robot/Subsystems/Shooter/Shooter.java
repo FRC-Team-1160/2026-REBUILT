@@ -28,8 +28,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public void startMotorsyah () {
-        topMotor.setVoltage(5);
-        bottomMotor.setVoltage(-5);
+        topMotor.setVoltage(2.5);
+        bottomMotor.setVoltage(-2.5);
     }
 
     public void stopMotorsyah(){

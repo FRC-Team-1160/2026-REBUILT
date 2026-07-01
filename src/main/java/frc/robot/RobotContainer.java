@@ -12,6 +12,7 @@ import frc.robot.Subsystems.Shooter.Shooter;
 import frc.robot.Subsystems.DriveTrain.DriveTrain;
 import frc.robot.Subsystems.DriveTrain.DriveTrainRealIO;
 import frc.robot.Subsystems.DriveTrain.DriveTrainSimIO;
+import frc.robot.Subsystems.Intake.Intake;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -47,6 +48,7 @@ public class RobotContainer {
   public final DriveTrain m_drive = Robot.isReal() ? new DriveTrainRealIO() : new DriveTrainSimIO();
   public final Agitator m_agitator = new Agitator();
   public final Shooter m_Shooter = new Shooter();
+  public final Intake m_Intake = new Intake();
 
   //The robot's subsystems and commands are defined here...
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -119,7 +121,17 @@ public class RobotContainer {
     new JoystickButton(main_stick, 2).onTrue(m_agitator.stopMotors);
     new JoystickButton(main_stick, 3).onTrue(m_Shooter.startMotorsyah);
     new JoystickButton(main_stick, 4).onTrue(m_Shooter.stopMotorsyah);
+    new JoystickButton(main_stick, 5).onTrue(m_Intake.badextender);
+    new JoystickButton(main_stick, 6).onTrue(m_Intake.badintake);
+    new JoystickButton(main_stick, 7).onTrue(m_Intake.superextender);
+    new JoystickButton(main_stick, 8).onTrue(m_Intake.badextender);
+    new JoystickButton(main_stick, 9).onTrue(m_Intake.superintake);
+
+
+
+    
     //connect commands to controller bindings
+    //spirit boy
 
     //new JoystickButton(main_stick, 0).onTrue(new SequentialCommandGroup(m_agitator.startMotors,m_agitator.stopMotors));
   }
