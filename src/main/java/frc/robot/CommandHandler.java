@@ -8,6 +8,7 @@ import frc.robot.Subsystems.DriveTrain.DriveTrain;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -17,7 +18,7 @@ public class CommandHandler {
     AgitatorController m_agitatorController;
     DriveTrain m_drive;
     
-    public class CommandHandler(ShooterController m_shooterController, IntakeController m_intakeController, AgitatorController m_agitatorController, DriveTrain m_drive) {
+    public CommandHandler(ShooterController m_shooterController, IntakeController m_intakeController, AgitatorController m_agitatorController, DriveTrain m_drive) {
         this.m_shooterController = m_shooterController;
         this.m_intakeController = m_intakeController;
         this.m_agitatorController = m_agitatorController;
