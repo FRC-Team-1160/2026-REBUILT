@@ -27,19 +27,20 @@ public class Shooter extends SubsystemBase {
         bottomMotor2.setControl(new Follower(Port.FAR_SHOOTER_BOTTOM_ROLLER_MOTOR, false));
     }
 
-    public void startMotors () {
+    public void startMotorsyah () {
         topMotor.setVoltage(5);
         bottomMotor.setVoltage(-5);
     }
 
-    public void stopMotors(){
+    public void stopMotorsyah(){
         topMotor.setVoltage(0);
         bottomMotor.setVoltage(0);
     }
+    
 
     
- public InstantCommand startMotors = new InstantCommand(this::startMotors);
- public InstantCommand stopMotors = new InstantCommand(this::stopMotors);
+ public InstantCommand startMotorsyah = new InstantCommand(this::startMotorsyah);
+ public InstantCommand stopMotorsyah = new InstantCommand(this::stopMotorsyah);
 
     @Override
     public void periodic() { 

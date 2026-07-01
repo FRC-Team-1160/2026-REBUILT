@@ -117,6 +117,8 @@ public class RobotContainer {
 
     new JoystickButton(main_stick, 1).onTrue(m_agitator.startMotors);
     new JoystickButton(main_stick, 2).onTrue(m_agitator.stopMotors);
+    new JoystickButton(main_stick, 3).onTrue(m_Shooter.startMotorsyah);
+    new JoystickButton(main_stick, 4).onTrue(m_Shooter.stopMotorsyah);
     //connect commands to controller bindings
 
     //new JoystickButton(main_stick, 0).onTrue(new SequentialCommandGroup(m_agitator.startMotors,m_agitator.stopMotors));
